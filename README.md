@@ -25,7 +25,7 @@ All balances, purchases, finds and sales are **simulated**.
 
 ## Run locally
 
-Node.js 22+ on Linux or Ubuntu/WSL2:
+Node.js 22+ on Linux, WSL2 or Windows:
 
 ```sh
 git clone https://github.com/DEDQ3E/rare-friends-expeditions.git
@@ -45,7 +45,7 @@ npm run check                           # friendsdk game + economy validation
 npm install -D playwright && npx playwright install chromium
 npm test                                # SDK browser smoke test (mock wallet)
 npm run playthrough                     # buy → expedition → chest → sell → outfitter → collection
-npm run mobile                          # phone portrait and landscape: camp, every panel, a run and the chest
+npm run mobile                          # phone sizes: camp and every panel; a run and the chest sideways
 npm run build                           # static build into docs/ (GitHub Pages)
 ```
 
@@ -54,7 +54,9 @@ npm run build                           # static build into docs/ (GitHub Pages)
 | Path | What |
 | --- | --- |
 | `games/expeditions/index.tsx` | Game component: camp UI, panels, SDK actions |
-| `games/expeditions/engine.ts` | Canvas scenes: camp and forest runner (240×160, pixel-scaled) |
+| `games/expeditions/engine.ts` | Canvas engine (240×160, pixel-scaled): camp, forest runner, hosts the cave and ruins scenes |
+| `games/expeditions/cave.ts`, `ruins.ts` | Crystal Cave rope descent and Sunken Ruins trap gauntlet |
+| `games/expeditions/audio.ts` | Music, ambience and effects synthesized with Web Audio |
 | `games/expeditions/art.ts` | Pixel art drawn in code: Friend sprite, scenery, finds, trails |
 | `games/expeditions/game.json` | Economy: pass price, outcome weights, merchant prices |
 | `games/expeditions/README.md` | Controls, exact rules and economy |
@@ -68,4 +70,4 @@ Game rules and the full economy table: [games/expeditions/README.md](games/exped
 
 Code: Apache-2.0. The Friend character uses canonical Rare Friends Generations sprites and the SDK
 sound kit, used under the FriendSDK [NOTICE](https://github.com/spokesz/friendsdk/blob/main/NOTICE.md).
-All other artwork (camp, forest, finds, chest, UI) was drawn in code for this project.
+All other artwork (camp, forest, cave, ruins, finds, chest, UI) was drawn in code for this project.

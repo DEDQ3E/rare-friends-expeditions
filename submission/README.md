@@ -19,7 +19,7 @@ Your selected Generations NFT is the hero of every expedition, and $RAREFRIENDS 
 
 Requires a browser wallet on **Robinhood mainnet (4663)** holding a **hardwired Rare Friends Generations NFT (generation ≥ 1)**. The SDK runtime connects the wallet, lists your Friends and verifies ownership before play. No RF funding or transaction signature is needed: everything is simulated.
 
-Run locally (Node.js 22+, Linux or Ubuntu/WSL2):
+Run locally (Node.js 22+ on Linux, WSL2 or Windows):
 
 ```sh
 git clone https://github.com/DEDQ3E/rare-friends-expeditions.git
@@ -38,7 +38,6 @@ npm run dev
 6. **Collection:** a hero card for your Friend (portrait, family, generation, perk, level, expeditions, pickups, best find) and the finds of all three places.
 7. **Forest life:** oaks, pines and birches; roots, rocks, poisonous mushrooms and fallen logs; slimes in three colours with different moves, hedgehogs, bees and wasps by day, bats at night and frogs in the rain.
 8. **Weather:** each expedition has its own time of day (morning, day, evening, night) and rain (clear, light, heavy, thunderstorm), shown as a forecast on the board. Rain pays a little more XP (×1.1 / ×1.2 / ×1.3) but never changes the odds. The camp weather changes on its own.
-
 9. **Friend perks:** the Friend's family picks a perk (Bone Guard, Spirit Sight, Kindred, Mitosis, Wild Step, Hover, Heavy Stomp, Glitter, Phase); its generation sets the strength, from rank V (Generation 1) to rank I (Generation 5). Generation 6 plays without a perk. Perks affect the run and XP only, never odds, prices or access.
 10. **Emotes:** speech bubbles and a celebration where the Friend holds its find up, drawn next to the Friend.
 11. **Workbench:** any 10 junk finds (Dry Twigs, Plain Pebbles or Pottery Shards) craft a cosmetic Twig Torch that glows at night.
@@ -110,6 +109,6 @@ Most sessions lose a little, about three in ten end ahead, and big finds are rar
 
 ## Checks, credits and limitations
 
-Checks run: `npm run typecheck` (pass), `npx friendsdk check games/expeditions` (valid; expected reward 0.9 RF, maximum 10 RF), `npx friendsdk test games/expeditions` (automated fixture at 960 px, pass), `npm run playthrough` — a scripted Playwright playthrough with the SDK mock wallet covering camp walking, buying passes, the forest run, chest, selling, Outfitter, collection, economy panel, the Crystal Cave descent and the Sunken Ruins gauntlet (pass), and `npm run compliance` — the SDK container stays at most 960 × 640 with a 3:2 ratio at 1920×1080, 1382×800, 1024×700, 390×844 and 844×390, the game runs in the SDK iframe with `sandbox="allow-scripts"`, and the SDK toolbar labels stay inside the container and are not cut off (pass), and `npm run mobile` — the camp, every camp panel, a forest run and the chest reveal at phone sizes 390×844, 844×390 and 740×360 (pass). Automated browser tests use mocked wallets and RPC. A manual playthrough of the public preview with a real wallet on Robinhood mainnet (4663) holding a Generations NFT also passed: wallet connection, Friend selection, ownership gate and the full expedition loop.
+Checks run: `npm run typecheck` (pass), `npx friendsdk check games/expeditions` (valid; expected reward 0.9 RF, maximum 10 RF), `npx friendsdk test games/expeditions` (automated fixture at 960 px, pass), `npm run playthrough` — a scripted Playwright playthrough with the SDK mock wallet covering camp walking, buying passes, the forest run, chest, selling, Outfitter, collection, economy panel, the Crystal Cave descent and the Sunken Ruins gauntlet (pass), and `npm run compliance` — the SDK container stays at most 960 × 640 with a 3:2 ratio at 1920×1080, 1382×800, 1024×700, 390×844 and 844×390, the game runs in the SDK iframe with `sandbox="allow-scripts"`, and the SDK toolbar labels stay inside the container and are not cut off (pass), and `npm run mobile` — the camp and every camp panel at phone sizes 390×844, 844×390 and 740×360, plus a forest run and the chest reveal at 844×390 (pass). Automated browser tests use mocked wallets and RPC. A manual playthrough of the public preview with a real wallet on Robinhood mainnet (4663) holding a Generations NFT also passed: wallet connection, Friend selection, ownership gate and the full expedition loop.
 
 All camp, forest, cave, ruins, find, chest and UI artwork was drawn in code for this project; music and sound effects are synthesized in code. The Friend uses the canonical Rare Friends Generations sprites and the SDK sound kit under the FriendSDK NOTICE. No trading, wearable NFTs, creator fees or live contracts are included. Known limits: the SDK sandbox has no storage, so XP, level and Outfitter items reset on reload; Outfitter burn/rewards needs a custom RF integration before live use; which cave and ruins finds you hold is remembered per session (the SDK inventory counts rarity tiers). Production publication needs separate Rare Friends review.

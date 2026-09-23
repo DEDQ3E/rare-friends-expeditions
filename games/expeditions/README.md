@@ -1,8 +1,9 @@
 # Rare Friends: Expeditions
 
 FriendSDK **v0.1.2** game. Your selected Rare Friend rests at a night camp and sets out on short
-side-scrolling expeditions. Each expedition costs one **Expedition Pass** (1 RF) and always ends at a
-chest with one forest find, which can be kept in the collection or sold back to the merchant for RF.
+expeditions: a side-scrolling forest run, a rope descent into the Crystal Cave or a top-down crossing of the
+Sunken Ruins. Each expedition costs one **Expedition Pass** (1 RF) and always ends at a chest with one find,
+which can be kept in the collection or sold back to the merchant for RF.
 
 The wallet connection, Friend selection and fresh NFT ownership check are provided by the SDK runtime.
 A connected wallet on Robinhood mainnet (4663) holding a **hardwired Generations NFT (generation ≥ 1)**
@@ -36,8 +37,8 @@ The game input stops whenever the runtime pauses it.
    "Open chest" again instead of consuming another pass.
 4. **Merchant:** sell finds at fixed prices with no expiry (`client.redeem`).
 5. **Outfitter:** RF sink for gear and cosmetics (see below).
-6. **Collection:** a hero card (portrait, family, generation, perk, level, expeditions, sparks, best find)
-   and all seven finds with counts.
+6. **Collection:** a hero card (portrait, family, generation, perk, level, expeditions, pickups, best find)
+   and the seven finds of each place with counts.
 
 ## Forest life
 
@@ -132,7 +133,7 @@ Pumpkins appear around the camp during the season.
 Your Friend's **family** (read from its canonical sprite) picks the perk; its **generation**
 (`readGenerationEligibility`, read-only) sets the strength. Generation 1 gets rank V and
 Generation 5 gets rank I. Generation 6, or an unreadable generation, plays without a perk.
-Perks only change the forest run and XP. They never change RF prices, odds or finds, and they never
+Perks only change the runs (forest, cave and ruins) and XP. They never change RF prices, odds or finds, and they never
 gate play: every hardwired Friend plays the full game.
 
 | Family | Perk | Rank I → V |
@@ -232,7 +233,6 @@ three rows of pixel pines. The SDK toolbar and menus keep their positions and us
 On phones and short screens the frame gets thinner.
 
 ## Known limitations
-
 
 - The SDK sandbox has no storage: XP, level, owned gear and cosmetics reset on reload.
 - Outfitter purchases need a custom RF integration (burn + rewards split) before live use.
