@@ -19,7 +19,7 @@ Your selected Generations NFT is the hero of every expedition, and $RAREFRIENDS 
 
 Requires a browser wallet on **Robinhood mainnet (4663)** holding a **hardwired Rare Friends Generations NFT (generation ≥ 1)**. The SDK runtime connects the wallet, lists your Friends and verifies ownership before play. No RF funding or transaction signature is needed: everything is simulated.
 
-Run locally (Node.js 22+ on Linux, WSL2 or Windows):
+Run locally with Node.js 22+ on Linux, Windows with WSL2 (both supported by FriendSDK) or native Windows (verified for this project on Windows 11 with Node.js 24). Step-by-step notes for each platform: [Run locally](https://github.com/DEDQ3E/rare-friends-expeditions#run-locally).
 
 ```sh
 git clone https://github.com/DEDQ3E/rare-friends-expeditions.git

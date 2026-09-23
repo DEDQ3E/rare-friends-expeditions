@@ -25,7 +25,7 @@ All balances, purchases, finds and sales are **simulated**.
 
 ## Run locally
 
-Node.js 22+ on Linux, WSL2 or Windows:
+Node.js 22 or newer is required (FriendSDK's minimum). The commands are the same on every platform:
 
 ```sh
 git clone https://github.com/DEDQ3E/rare-friends-expeditions.git
@@ -34,8 +34,37 @@ npm install
 npm run dev        # http://localhost:4173
 ```
 
-Windows without Node: double-click `play.bat`. It serves the prebuilt `docs/` folder on
-`http://localhost:4173` with built-in PowerShell.
+`npm run dev` and the built preview keep the real ownership gate, so the browser needs a wallet extension
+(see above). The automated tests below use the SDK's mock wallet instead.
+
+### Linux
+
+FriendSDK's officially supported platform. Install Node.js 22+ (for example with `nvm install 22`) and Git,
+then run the commands above. For the browser tests, `npx playwright install --with-deps chromium` also
+installs the system libraries Chromium needs.
+
+### Windows with WSL2
+
+The way FriendSDK recommends on Windows:
+
+1. In PowerShell as administrator: `wsl --install -d Ubuntu`, then restart the computer.
+2. In the Ubuntu terminal: install Node.js 22+ (for example with `nvm install 22`) and Git.
+3. Clone the repository inside the Linux file system (for example `~/rare-friends-expeditions`), not under
+   `/mnt/c`: file watching and installs are much faster there.
+4. Run the commands above and open `http://localhost:4173` in your Windows browser with the wallet
+   extension (WSL2 forwards `localhost` to Windows).
+
+### Windows (native)
+
+Not officially supported by FriendSDK, but verified for this project on Windows 11 with Node.js 24:
+`npm install`, `npm run build` and every check below pass in PowerShell or Git Bash. Install Node.js LTS from
+[nodejs.org](https://nodejs.org). npm may warn that esbuild's install script is not approved; the build
+still works.
+
+### Windows without Node
+
+Double-click `play.bat`. It serves the prebuilt `docs/` folder on `http://localhost:4173` with the
+PowerShell built into Windows, so nothing needs to be installed.
 
 ## Checks
 
