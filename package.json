@@ -9,7 +9,8 @@
     "build": "friendsdk build games/expeditions --outdir docs",
     "typecheck": "tsc -p tsconfig.json",
     "playthrough": "node tests/playthrough.mjs",
-    "compliance": "node tests/compliance.mjs"
+    "compliance": "node tests/compliance.mjs",
+    "mobile": "node tests/mobile.mjs"
   },
   "author": "DEDQ3E",
   "license": "Apache-2.0",

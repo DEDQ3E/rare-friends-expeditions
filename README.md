@@ -5,6 +5,7 @@ Every expedition costs one Expedition Pass (1 RF) and ends at a chest with a fin
 or sell back for RF. An outfitter sells gear and cosmetics as a pure RF sink (50% burn / 50% rewards).
 
 **Play the preview:** https://dedq3e.github.io/rare-friends-expeditions/
+On a phone, open the link in your wallet app's built-in browser (MetaMask → Browser, Trust Wallet → Browser) and hold the phone sideways.
 (needs a browser wallet on Robinhood mainnet, chain 4663, holding a hardwired Rare Friends Generations NFT, generation ≥ 1)
 
 Built with **FriendSDK v0.1.2** for the Rare Friends Vibeathon (September 2026).
@@ -32,6 +33,7 @@ npm run check                           # friendsdk game + economy validation
 npm install -D playwright && npx playwright install chromium
 npm test                                # SDK browser smoke test (mock wallet)
 npm run playthrough                     # buy → expedition → chest → sell → outfitter → collection
+npm run mobile                          # phone portrait and landscape: camp, every panel, a run and the chest
 npm run build                           # static build into docs/ (GitHub Pages)
 ```
 

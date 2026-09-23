@@ -96,6 +96,9 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const [showHint, setShowHint] = useState(true);
   const [walkHintClosed, setWalkHintClosed] = useState(false);
   const [runHintClosed, setRunHintClosed] = useState(false);
+  // touch screen held upright: the 3:2 frame is tiny, so suggest turning the phone sideways
+  const [portraitPhone, setPortraitPhone] = useState(false);
+  const [rotateHintClosed, setRotateHintClosed] = useState(false);
   const [forecast, setForecast] = useState<Weather>(() => rollWeather());
   const [runWeather, setRunWeather] = useState<Weather>({ time: "day", rain: "none" });
   const [campRain, setCampRain] = useState<Rain>("none");
@@ -139,6 +142,13 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const play = useCallback((cue: FriendSoundCue, volume = 1) => { if (!mutedRef.current) sound.current?.play(cue, { volume }); }, []);
 
   /* ---------- session setup ---------- */
+  useEffect(() => {
+    const coarse = window.matchMedia("(pointer: coarse)");
+    const check = () => setPortraitPhone(coarse.matches && window.screen.height > window.screen.width);
+    check(); window.addEventListener("resize", check); window.screen.orientation?.addEventListener("change", check);
+    return () => { window.removeEventListener("resize", check); window.screen.orientation?.removeEventListener("change", check); };
+  }, []);
+
   useEffect(() => {
     const version = ++epoch.current;
     sound.current = createFriendSoundKit({ muted: true });
@@ -466,6 +476,9 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
         onClick={() => openSpot(spot)}>
         {SPOT_LABEL[spot]}{spot === "board" && passes > 0n ? ` · ${passes.toString()}` : ""}{spot === "merchant" && invCount > 0n ? ` · ${invCount.toString()}` : ""}
       </button>)}
+      {!panel && portraitPhone && !rotateHintClosed && <p className="xp-tip xp-tip-closable xp-rotate" role="status">
+        <span>Turn your phone sideways for a bigger view</span>
+        <button type="button" className="xp-tip-x" aria-label="Hide this hint" onClick={() => setRotateHintClosed(true)}>✕</button></p>}
       {!panel && near && <p className="xp-tip">Press <b>E</b> to open <b>{SPOT_LABEL[near]}</b></p>}
       {!panel && !near && !walkHintClosed && <p className="xp-tip xp-tip-closable">
         <span>{expeditions === 0
@@ -658,7 +671,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
             <p className="xp-small">Balances, purchases, finds and sales are {mode}. Outfitter purchases are simulated on top of the SDK (FriendSDK v0.1.2 has no upgrade API). Progress resets when the page reloads. Wallet connection and NFT ownership checks are provided by the Rare Friends runtime.</p>
           </>}
         </div>
-        <p className="xp-status" role={error ? "alert" : "status"}>{error || notice || (busy ? "Waiting for confirmation…" : " ")}</p>
+        <p className={`xp-status${error || notice || busy ? "" : " xp-status-empty"}`} role={error ? "alert" : "status"}>{error || notice || (busy ? "Waiting for confirmation…" : " ")}</p>
       </div>
     </div>}
   </section>;

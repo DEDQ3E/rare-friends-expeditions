@@ -124,7 +124,7 @@
   .xp-spot{font-size:10px;padding:3px 5px;border-width:2px}
   .xp-tip{bottom:52px;font-size:10px}
   .xp-tip:not(.xp-tip-run){display:none}
-  .xp-tip-run{top:44px}
+  .xp-tip-run{top:44px;bottom:auto}
   .xp-modal{padding:6px 6px 50px}
   .xp-panel h2{font-size:14px}
   .xp-locations{grid-template-columns:1fr}
@@ -201,3 +201,47 @@ button.xp-loc:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .xp-zone-ruins{background:rgba(58,42,26,.9);box-shadow:inset 0 0 0 2px #a88658}.xp-zone-ruins b{color:#ffd23f}
 .xp-pickups{display:flex;flex-wrap:wrap;gap:6px 14px;margin:4px 0 6px;font-size:12px}
 .xp-pickups span{display:inline-flex;align-items:center;gap:5px}.xp-pickups img{image-rendering:pixelated}
+/* compact layout for short game frames (phones): panels fill the frame, slimmer chrome, denser rows.
+ * Desktop frames are 640 px tall and never match; everything stays inside the SDK container. */
+@media (max-height:420px){
+  .xp-modal{padding:3px 3px 40px}
+  .xp-panel{width:100%;height:100%;border-width:3px;box-shadow:inset 0 0 0 2px #3a3d6e}
+  .xp-panel header{padding:3px 5px 3px 8px;border-bottom-width:2px}
+  .xp-panel h2{font-size:12px}
+  .xp-close{width:24px;height:24px;border-width:2px;font-size:11px;line-height:1}
+  .xp-panel-body{flex:1;padding:2px 8px 4px;font-size:10.5px}
+  .xp-panel p{margin:4px 0}
+  .xp-panel h3{margin:8px 0 3px;font-size:10.5px}
+  .xp-status{min-height:0;padding:2px 8px 3px;font-size:10px;border-top-width:2px}
+  .xp-status-empty{display:none}
+  .xp-small{font-size:9.5px}
+  .xp-btn{padding:3px 7px;border-width:2px;box-shadow:inset -2px -2px 0 rgba(0,0,0,.18),0 2px 0 var(--ink)}
+  .xp-row{gap:5px;margin:5px 0}
+  .xp-locations{gap:4px;margin:3px 0 5px}
+  .xp-loc-art{min-height:44px;padding:4px 5px;border-width:2px}
+  .xp-loc-art strong{font-size:10px}.xp-loc-art small{font-size:8.5px}
+  .xp-forecast img{width:12px;height:12px}
+  .xp-odds{font-size:10px;margin:5px 0 2px}.xp-odds th{font-size:9.5px;padding:2px 3px}.xp-odds td{padding:1px 3px}
+  .xp-odds img{width:16px;height:16px}
+  .xp-item{padding:3px 0;gap:6px;border-bottom-width:1px}
+  .xp-item small{font-size:9.5px}
+  .xp-item>img{width:24px;height:24px}
+  .xp-stats{font-size:10.5px;margin:4px 0 6px}
+  .xp-hero-card{flex-direction:row;align-items:flex-start;gap:8px;padding:6px;margin-bottom:6px;border-width:2px}
+  .xp-hero-portrait{width:56px;height:68px;border-width:2px}
+  .xp-perk{padding:3px 6px;margin-bottom:4px}.xp-perk small{font-size:9.5px}
+  .xp-tabs{gap:4px;margin:3px 0 5px;flex-wrap:wrap}.xp-tab{font-size:10px;padding:3px 6px}
+  .xp-grid{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:5px}
+  .xp-slot{padding:4px 2px;border-width:2px}.xp-slot img{width:32px;height:32px}
+  .xp-flow{gap:5px;margin:3px 0 8px}.xp-flow-box{padding:3px 6px;font-size:10px}
+  .xp-reveal{padding:8px 10px 6px}.xp-reveal h2{font-size:15px;margin:2px 0 0}.xp-reveal img{max-height:56px;width:auto}
+  .xp-blurb{margin:3px 0!important}
+  .xp-panel.xp-reveal{height:auto}
+  .xp-tip{font-size:10px;padding:4px 8px}
+}
+@media (max-height:420px) and (min-width:480px){
+  .xp-locations{grid-template-columns:repeat(3,1fr)}
+  .xp-loc-art{min-height:64px}
+}
+/* portrait phones: a closable hint to turn the phone sideways (the 3:2 frame is much bigger in landscape) */
+.xp-tip.xp-rotate{background:#171a36;display:flex;justify-content:space-between;top:4px;bottom:auto;left:4px;right:4px;transform:none;max-width:none;z-index:2;font-size:10px;padding:4px 4px 4px 8px}
