@@ -2,7 +2,7 @@
 
 Send your Rare Friend from a night camp on short expeditions (a forest runner, a lantern-lit cave descent and a top-down ruins trap gauntlet): buy a 1 RF pass, play the run, and bring back a chest with a find you keep or sell for RF.
 
-**Builder:** [DEDQ3E](https://github.com/DEDQ3E) · **Contact:** Discord `dedq3e3`, Telegram [@DEDQ3E](https://t.me/DEDQ3E) · **Category:** Economy Potential (also Character Spotlight and Token Activity) · **SDK:** FriendSDK v0.1.2
+**Builder:** [DEDQ3E](https://github.com/DEDQ3E) · **Contact:** Discord `dedq3e3`, Telegram [@DEDQ3E](https://t.me/DEDQ3E) · **Category:** Economy Potential · **SDK:** FriendSDK v0.1.2
 
 Your selected Generations NFT is the hero of every expedition, and $RAREFRIENDS powers two independent spend loops: repeatable Expedition Passes (SDK chance game) and an Outfitter RF sink (50% burn / 50% Friend rewards). [Source code](https://github.com/DEDQ3E/rare-friends-expeditions) · [Game rules](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/README.md) · [Economy](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/game.json)
 
