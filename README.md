@@ -4,8 +4,8 @@ Send your Rare Friend from a cozy night camp on short expeditions: a forest runn
 Every expedition costs one Expedition Pass (1 RF) and ends at a chest with a find that you keep
 or sell back for RF. An outfitter sells gear and cosmetics as a pure RF sink (50% burn / 50% rewards).
 
-**Play the preview:** https://dedq3e.github.io/rare-friends-expeditions/
 On a phone, open the link in your wallet app's built-in browser (MetaMask → Browser, Trust Wallet → Browser) and hold the phone sideways.
+**Play the preview:** https://dedq3e.github.io/rare-friends-expeditions/
 (needs a browser wallet on Robinhood mainnet, chain 4663, holding a hardwired Rare Friends Generations NFT, generation ≥ 1)
 
 Built with **FriendSDK v0.1.2** for the Rare Friends Vibeathon (September 2026).
