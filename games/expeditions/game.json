@@ -1,0 +1,14 @@
+{
+  "name": "Rare Friends: Expeditions",
+  "consumable": "Expedition Pass",
+  "price": "1000000000000000000",
+  "outcomes": [
+    { "name": "Junk", "chanceBps": 2000, "reward": "0" },
+    { "name": "Common find", "chanceBps": 3500, "reward": "400000000000000000" },
+    { "name": "Uncommon find", "chanceBps": 2200, "reward": "750000000000000000" },
+    { "name": "Rare find", "chanceBps": 1300, "reward": "1500000000000000000" },
+    { "name": "Epic find", "chanceBps": 600, "reward": "2500000000000000000" },
+    { "name": "Legendary find", "chanceBps": 300, "reward": "5000000000000000000" },
+    { "name": "Mythic find", "chanceBps": 100, "reward": "10000000000000000000" }
+  ]
+}

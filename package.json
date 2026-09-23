@@ -1,0 +1,28 @@
+{
+  "name": "rare-friends-expeditions",
+  "version": "1.0.0",
+  "description": "Rare Friends: Expeditions - FriendSDK vibeathon game",
+  "scripts": {
+    "dev": "friendsdk dev games/expeditions",
+    "check": "friendsdk check games/expeditions",
+    "test": "friendsdk test games/expeditions",
+    "build": "friendsdk build games/expeditions --outdir docs",
+    "typecheck": "tsc -p tsconfig.json",
+    "playthrough": "node tests/playthrough.mjs",
+    "compliance": "node tests/compliance.mjs"
+  },
+  "author": "DEDQ3E",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@rarefriends/friendsdk": "file:vendor/rarefriends-friendsdk-0.1.2.tgz",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^7.0.2"
+  },
+  "repository": "github:DEDQ3E/rare-friends-expeditions"
+}
