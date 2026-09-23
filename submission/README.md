@@ -6,6 +6,13 @@ Send your Rare Friend from a night camp on short expeditions (a forest runner, a
 
 Your selected Generations NFT is the hero of every expedition, and $RAREFRIENDS powers two independent spend loops: repeatable Expedition Passes (SDK chance game) and an Outfitter RF sink (50% burn / 50% Friend rewards). [Source code](https://github.com/DEDQ3E/rare-friends-expeditions) · [Game rules](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/README.md) · [Economy](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/game.json)
 
+**Why it is an economy, not just a minigame:** two independent $RAREFRIENDS loops run side by side: a repeatable pass with a transparent 0.90 RF expected return where every pass reserves its 10 RF top prize, and a never-refunded Outfitter sink that burns 50% of each purchase. Every find carries a fixed Merchant price with no expiry, a ready-made price floor if finds become tradable assets paired with $RAREFRIENDS.
+
+| | | |
+|---|---|---|
+| ![Night camp](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/camp.png) | ![Expedition board with odds and prices](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/board.png) | ![Economy panel](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/economy.png) |
+| ![Whispering Forest](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/forest.png) | ![Crystal Cave](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/cave.png) | ![Sunken Ruins](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/ruins.png) |
+
 ## Play it
 
 **Public preview:** https://dedq3e.github.io/rare-friends-expeditions/
@@ -64,6 +71,42 @@ Settings include sound on/off (on by default, starting with the first click or k
 Expected reward: **0.90 RF per pass** (10% game edge, price curve as in the SDK fishing reference); 23% chance of 1 RF or more. Each purchased pass reserves the maximum 10 RF prize; kept finds retain backing and have no redemption expiry. Outcome names in `game.json` are rarity tiers, so the Crystal Cave and Sunken Ruins reuse the same table and only change how finds look.
 
 **Outfitter purchases are never refunded.** The proposed split mirrors the Rare Friends protocol rule: 50% of each purchase is burned and 50% goes to Friend rewards. FriendSDK v0.1.2 has no upgrade or cosmetic API, so these purchases are simulated on top of the SDK ledger. None of them change RF odds.
+
+## Economy design
+
+**Two independent RF loops, both visible in the game's Economy panel:**
+
+| Loop | Player pays | Player gets back | Where the rest goes |
+|---|---|---|---|
+| Expedition Pass (SDK chance game, repeatable) | 1 RF per pass | one find, redeemable at the Merchant for 0.90 RF on average | 10% edge stays in the game bank; every pass reserves the 10 RF top prize, so the bank can always pay |
+| Outfitter (pure sink) | 3–8 RF per item, 29 RF for the full catalog | nothing: never refunded, no effect on odds | 50% burned, 50% to Friend rewards (proposed protocol split) |
+
+**Per pass:** expected return 0.90 RF, standard deviation 1.34 RF, 23% chance of getting 1 RF or more back.
+
+**Simulated sessions** (200,000 seeded Monte Carlo sessions from `game.json`, every find sold at the Merchant):
+
+| Passes | Mean back | 10th pct | Median | 90th pct | 99th pct | Sessions ending ahead |
+|---:|---:|---:|---:|---:|---:|---:|
+| 10 (10 RF) | 8.99 RF | 4.60 RF | 8.00 RF | 14.95 RF | 22.20 RF | 31% |
+| 30 (30 RF) | 27.01 RF | 18.45 RF | 26.05 RF | 36.85 RF | 47.95 RF | 30% |
+
+Most sessions lose a little, about three in ten end ahead, and big finds are rare but real. The edge is small enough to keep players coming back and large enough to fund the bank.
+
+**Why players keep spending RF:**
+
+- **Access:** the Crystal Cave (Cave Lantern, 5 RF) and the Sunken Ruins (Ruins Map, 8 RF) are harder places with ×1.5 and ×2 XP.
+- **Gear and style:** Spring Boots, Trail Backpack and trails change the run and the look, never the odds, so spending buys fun, not an edge.
+- **Scarcity in time:** the Harvest Season trail is sold only until Nov 30. Every season can add a new limited sink.
+- **Junk has a use:** 10 junk finds craft a Twig Torch, so even a 0 RF chest moves progress.
+- **Your Friend matters:** for generations 1–5, the family picks a perk and the generation sets its strength, so different Friends play differently.
+
+**Roadmap to a live economy (not in this MVP; everything above is simulated):**
+
+1. **Passes on-chain:** switch from the simulated adapter to FriendSDK's live chance-game contract with the same `game.json`, the same odds and the same bank reserve.
+2. **Finds as tradable assets paired with $RAREFRIENDS:** every find already has a fixed Merchant price with no expiry, which works as a built-in price floor. Players could trade finds above that floor, with a creator fee on each trade flowing to the game bank and Friend rewards. A 1% Mythic find becomes a real collectible.
+3. **Seasons as limited editions:** each season adds a time-limited Outfitter item and new themed finds, a recurring reason to spend.
+4. **Outfitter burn as a protocol integration:** the 50% burn / 50% rewards split needs a custom RF integration (FriendSDK v0.1.2 has no upgrade API).
+5. **Persistent progress** once the SDK offers storage: XP, levels and gear saved per Friend make gear a lasting purchase.
 
 ## Checks, credits and limitations
 

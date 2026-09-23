@@ -9,6 +9,17 @@ or sell back for RF. An outfitter sells gear and cosmetics as a pure RF sink (50
 
 On a phone, open the link in your wallet app's built-in browser (MetaMask → Browser, Trust Wallet → Browser) and hold the phone sideways.
 
+| | | |
+|---|---|---|
+| ![Night camp](media/camp.png) | ![Expedition board with odds and prices](media/board.png) | ![Economy panel](media/economy.png) |
+| ![Whispering Forest](media/forest.png) | ![Crystal Cave](media/cave.png) | ![Sunken Ruins](media/ruins.png) |
+
+On a phone held sideways the panels switch to a compact layout:
+
+![Expedition board on a phone](media/phone-board.png)
+
+Economy design, simulations and the roadmap: [submission/README.md](submission/README.md#economy-design).
+
 Built with **FriendSDK v0.1.2** for the Rare Friends Vibeathon (September 2026).
 All balances, purchases, finds and sales are **simulated**.
 
@@ -48,6 +59,8 @@ npm run build                           # static build into docs/ (GitHub Pages)
 | `games/expeditions/game.json` | Economy: pass price, outcome weights, merchant prices |
 | `games/expeditions/README.md` | Controls, exact rules and economy |
 | `docs/` | Static build served by GitHub Pages |
+| `tests/` | Playthrough, container compliance, phone layout and README screenshot scripts |
+| `media/` | Screenshots used in the READMEs (`node tests/media.mjs media`) |
 
 Game rules and the full economy table: [games/expeditions/README.md](games/expeditions/README.md).
 
