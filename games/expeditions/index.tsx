@@ -573,7 +573,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
 
           {panel === "merchant" && <>
             <p>“Fair prices, forever. I never change them.” · Your finds are worth <b>{rfText(invValue)}</b>.</p>
-            <p className="xp-small">Kept finds add <b>{keepText(heldBps)} XP</b> to every expedition (up to {keepText(KEEP_CAP_BPS)}). Selling a find pays its RF and gives its share of the bonus up.</p>
+            <p className="xp-small">Kept finds add <b>{keepText(heldBps)} XP</b> to every expedition (up to {keepText(KEEP_CAP_BPS)}). Selling a find pays its RF and gives its share of the bonus up. The bonus depends on rarity: a find of the same rarity from any place gives the same bonus.</p>
             {LOCATIONS.flatMap(loc => definition.outcomes.map((o, i) => {
               const n = heldAt(loc, i);
               if (o.reward === 0n || (loc !== "forest" && n === 0n)) return null;
@@ -675,7 +675,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <span><img src={icons.relic} alt="" width={21} height={21} /> <b>Relic shards</b> in the Sunken Ruins</span>
             </div>
             <p>Everything you pick up on an expedition turns into <b>experience (XP)</b>: 1 XP each, plus a bonus for reaching the chest: forest +{FINISH_XP.forest}, cave +{FINISH_XP.cave}, ruins +{FINISH_XP.ruins} (doubled without a single hit). The total is multiplied by the place (forest ×1, up to ×1.3 in the rain; cave ×{CAVE_XP}; ruins ×{RUINS_XP}): the harder the place, the more XP and by your Friend's perk. XP raises your Friend's <b>level and title</b>: {TITLES.join(" → ")}. Your progress is shown on the hero card in the Collection. Sparks, crystals and shards are not RF and never change what you find.</p>
-            <p><b>Keepsakes:</b> every find you keep instead of selling adds XP to every expedition while you hold it: {RARITIES.slice(1).map((r, i) => `${RARITY_LABEL[r]} ${keepText(KEEP_XP_BPS[i + 1])}`).join(", ")}, up to {keepText(KEEP_CAP_BPS)} in total. Rarer finds give more bonus per RF, so the best ones are worth holding. Selling a find pays its fixed RF and gives its bonus up.</p>
+            <p><b>Keepsakes:</b> every find you keep instead of selling adds XP to every expedition while you hold it: {RARITIES.slice(1).map((r, i) => `${RARITY_LABEL[r]} ${keepText(KEEP_XP_BPS[i + 1])}`).join(", ")}, up to {keepText(KEEP_CAP_BPS)} in total. Rarer finds give more bonus per RF, so the best ones are worth holding. Selling a find pays its fixed RF and gives its bonus up. The bonus depends on rarity only, so a Rare from the forest, the cave or the ruins gives the same bonus.</p>
             <h3>Friend perks</h3>
             <p>Your Friend's family picks its perk; its generation sets the strength: Generation 1 gets rank V, Generation 5 rank I, Generation 6 plays without a perk. Perks help in the forest run and with XP only. Every hardwired Friend plays the full game with the same odds.</p>
             <table className="xp-odds"><tbody>{["Skeleton", "Mask", "Family", "Cellular", "Asymmetry", "Hoverer", "Colossus", "Sparkling", "Hollow"].map(f => { const p = perkFor(f, 1); return <tr key={f}><td>{f}</td><td><b>{p.perk?.name}</b> <small>{p.text} (at V)</small></td></tr>; })}</tbody></table>

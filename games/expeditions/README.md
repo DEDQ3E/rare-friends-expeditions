@@ -191,7 +191,9 @@ matches the ledger, and it is capped at **+50% XP** in total (`keepsakes.ts`).
 | Mythic | 10 RF | +36% XP | 3.6% |
 
 Rarer finds give more bonus per RF they hold back, so the biggest prizes are the ones most worth keeping and
-their RF stays in the game as backing. Keepsakes change XP only, never odds, prices or finds. The chest
+their RF stays in the game as backing. The bonus depends on rarity only: the SDK inventory (and, live, the
+ERC-1155 reward balances) counts finds by rarity tier, so a Rare from the forest, the cave or the ruins gives
+the same bonus. Harder places still pay more, because the bonus multiplies their larger XP. Keepsakes change XP only, never odds, prices or finds. The chest
 screen, the Merchant, the hero card and the Economy panel show the bonus.
 
 ## Economy panel
