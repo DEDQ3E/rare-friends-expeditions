@@ -2,8 +2,8 @@
 
 Send your Rare Friend from a cozy night camp on short expeditions: a forest runner, a dark cave descent and a trap-filled ruins maze.
 Every expedition costs one Expedition Pass (1 RF) and ends at a chest with a find that you keep
-or sell back for RF. Kept finds add XP to every expedition (hold or redeem), and an outfitter sells gear
-and cosmetics as a pure RF sink (50% burn / 50% rewards).
+or sell back for RF. Kept finds add XP to every expedition (hold or redeem), and an outfitter sells gear,
+trails and an 11-piece wardrobe fitted to your own Friend as a pure RF sink (50% burn / 50% rewards).
 
 **Play the preview:** https://dedq3e.github.io/rare-friends-expeditions/
 (needs a browser wallet on Robinhood mainnet, chain 4663, holding a hardwired Rare Friends Generations NFT, generation ≥ 1)
@@ -14,6 +14,7 @@ On a phone, open the link in your wallet app's built-in browser (MetaMask → Br
 |---|---|---|
 | ![Night camp](media/camp.png) | ![Expedition board with odds and prices](media/board.png) | ![Economy panel](media/economy.png) |
 | ![Whispering Forest](media/forest.png) | ![Crystal Cave](media/cave.png) | ![Sunken Ruins](media/ruins.png) |
+| ![Wardrobe: every piece previewed on your own Friend](media/wardrobe.png) | ![A Friend in a wizard hat, scarf and cape](media/camp-dressed.png) | |
 
 On a phone held sideways the panels switch to a compact layout:
 
@@ -77,6 +78,7 @@ npm test                                # SDK browser smoke test (mock wallet)
 npm run playthrough                     # buy → expedition → chest → sell → outfitter → collection
 npm run mobile                          # phone sizes: camp and every panel; sideways, a run per place (chest, banner hides)
 npm run economy                         # exact odds over 10,000 rolls, EV, keepsakes, published tables
+npm run wardrobe                        # every clothing piece fitted on 10 body types, fit sheet PNG
 npm run sessions                        # exact session statistics behind the submission's table
 npm run build                           # static build into docs/ (GitHub Pages)
 ```
@@ -92,6 +94,7 @@ npm run build                           # static build into docs/ (GitHub Pages)
 | `games/expeditions/art.ts` | Pixel art drawn in code: Friend sprite, scenery, finds, trails |
 | `games/expeditions/game.json` | Economy: pass price, outcome weights, merchant prices |
 | `games/expeditions/keepsakes.ts` | Keepsake bonus for kept finds (hold or redeem) |
+| `games/expeditions/wardrobe.ts`, `fit.ts` | Clothes fitted to each Friend's own silhouette, frame by frame |
 | `scripts/sessions.mjs` | Exact distribution of pass sessions (no sampling) |
 | `games/expeditions/README.md` | Controls, exact rules and economy |
 | `docs/` | Static build served by GitHub Pages |

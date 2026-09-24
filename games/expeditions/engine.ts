@@ -7,6 +7,7 @@
 import { CAVE_CAM_MAX, CAVE_FLOOR, CAVE_HERO_Y, buildCave, zoneAt, createDarkness, drawCaveBack, drawCaveEntity, drawCaveEntrance, drawCaveFloor, drawCaveGlints, drawCaveWalls, wallL, wallR, type CaveEntity, type Light } from "./cave.js";
 import { HOURGLASS, RUINS_TIME, createRuins, type Dir } from "./ruins.js";
 import { CHEST, CHEST_OPEN, CRYSTAL, HEART, INK, SPARK, drawEmote, drawFriendPixels, drawHero, drawPixmap, spriteBounds, type Emote, type HeroLook, type Pixmap } from "./art.js";
+import { drawOutfit, hatHeight } from "./wardrobe.js";
 import type { PerkEffects } from "./perks.js";
 import { MOB_SIZE, drawMob, type MobKind } from "./mobs.js";
 import { drawBirds, drawClouds, drawMist, drawMoon, drawPineRow, drawRange, drawShootingStar, drawSky, drawStars, drawSun, mix } from "./backdrop.js";
@@ -147,8 +148,13 @@ export function createEngine(canvas: HTMLCanvasElement, onEvent: (event: RunEven
   const drawDarkness = createDarkness();
   // where the Friend was drawn this frame: redrawn after weather, darkness and light overlays so its original
   // artwork is never tinted (contest rule: preserve the Friend's original character artwork)
-  let friendAt: { rows: readonly string[]; x: number; y: number } | null = null;
-  const restoreFriend = () => { if (friendAt) drawFriendPixels(ctx, friendAt.rows, friendAt.x, friendAt.y); friendAt = null; };
+  let friendAt: { rows: readonly string[]; x: number; y: number; facing?: Facing; moving?: boolean } | null = null;
+  const restoreFriend = () => {
+    if (friendAt) { drawFriendPixels(ctx, friendAt.rows, friendAt.x, friendAt.y); drawOutfit(ctx, friendAt.rows, friendAt.x, friendAt.y, look?.outfit, friendAt.facing ?? "down", clock, !!friendAt.moving); }
+    friendAt = null;
+  };
+  /** Speech bubbles and a held-up find sit above the hat. */
+  const hatLift = () => hatHeight(look?.outfit);
   // ruins: a top-down trap gauntlet (see ruins.ts); the engine supplies the Friend, shield and effects
   const ruins = createRuins({
     onEvent: e => onEvent(e as RunEvent),
@@ -208,8 +214,9 @@ export function createEngine(canvas: HTMLCanvasElement, onEvent: (event: RunEven
     const b = spriteBounds(rows); const hx = Math.round(campX) - 8, hy = Math.round(campY) - 1 - b.bottom;
     ctx.fillStyle = "rgba(0,0,0,.3)"; ctx.fillRect(hx + b.left, Math.round(campY), b.right - b.left + 1, 2);
     if (look.torch) torchGlow(hx + 16, hy + 2, 20);
-    drawHero(ctx, rows, hx, hy, { ...look, moving: campMoving, clock }, campMoving && campFacing === "right" ? "right" : "down"); friendAt = { rows, x: hx, y: hy };
-    if (emote && clock < emote.until) drawEmote(ctx, emote.kind, hx + 8 + (emote.kind === "zzz" && !reducedMotion ? Math.sin(clock * 2) : 0), hy + spriteBounds(rows).top - 2);
+    const campPose: Facing = campMoving ? campFacing : "down";
+    drawHero(ctx, rows, hx, hy, { ...look, moving: campMoving, clock }, campPose); friendAt = { rows, x: hx, y: hy, facing: campPose, moving: campMoving };
+    if (emote && clock < emote.until) drawEmote(ctx, emote.kind, hx + 8 + (emote.kind === "zzz" && !reducedMotion ? Math.sin(clock * 2) : 0), hy + spriteBounds(rows).top - 2 - hatLift());
     else if (emote && clock >= emote.until) emote = null;
   }
   function drawCamp() {
@@ -464,7 +471,8 @@ export function createEngine(canvas: HTMLCanvasElement, onEvent: (event: RunEven
     if (celebration && !reducedMotion) { const age = clock - celebration.t; lift = celebration.mood === "sad" ? 0 : Math.round(Math.abs(Math.sin(age * (celebration.mood === "great" ? 11 : 8))) * (celebration.mood === "great" ? 8 : 5)); }
     const hy = Math.round(heroY - 1 - b.bottom - z) - lift;
     if (look.torch && (runWeather.time === "night" || runWeather.time === "evening")) torchGlow(hx + 16, hy + 2, 26);
-    if (!blink) { drawHero(ctx, rows, hx, hy, { ...look, moving: !finished, clock }, runFacing === "right" ? "right" : "down"); friendAt = { rows, x: hx, y: hy }; }
+    const runPose: Facing = finished ? "down" : runFacing;
+    if (!blink) { drawHero(ctx, rows, hx, hy, { ...look, moving: !finished, clock }, runPose); friendAt = { rows, x: hx, y: hy, facing: runPose, moving: !finished }; }
     heroExtras(hx, hy, b);
   }
   /** Shield ring, celebration (the find held up) and emote bubbles around the Friend. */
@@ -473,7 +481,7 @@ export function createEngine(canvas: HTMLCanvasElement, onEvent: (event: RunEven
       const spin = reducedMotion ? 0 : clock * 1.6;
       for (let i = 0; i < 14; i++) { const a = spin + (i / 14) * Math.PI * 2; ctx.fillStyle = i % 2 ? "rgba(190,220,255,.55)" : "rgba(255,255,255,.8)"; ctx.fillRect(Math.round(hx + 8 + Math.cos(a) * 11), Math.round(hy + 8 + Math.sin(a) * 10), 1, 1); }
     }
-    const headTop = hy + b.top;
+    const headTop = hy + b.top - hatLift();
     if (celebration) {
       const age = clock - celebration.t, w = celebration.pix.rows[0].length, bob = reducedMotion ? 0 : Math.round(Math.sin(age * 6));
       if (celebration.mood === "sad") drawEmote(ctx, age < 0.9 ? "dots" : "sweat", hx + 8, headTop - 2);
@@ -605,7 +613,7 @@ export function createEngine(canvas: HTMLCanvasElement, onEvent: (event: RunEven
     if (finished) { ctx.fillStyle = "rgba(0,0,0,.3)"; ctx.fillRect(hx + b.left, feet, b.right - b.left + 1, 2); }
     const blink = invuln > 0 && !finished && !reducedMotion && Math.floor(clock * 14) % 2 === 0;
     const withLantern: HeroLook = { ...look, lantern: true, torch: false, moving: !finished, clock };
-    if (!blink) { drawHero(ctx, rows, hx, hy, withLantern, caveFacing === "right" ? "right" : "down"); friendAt = { rows, x: hx, y: hy }; }
+    if (!blink) { drawHero(ctx, rows, hx, hy, withLantern, caveFacing); friendAt = { rows, x: hx, y: hy, facing: caveFacing, moving: !finished }; }
     heroExtras(hx, hy, b);
     // the lantern lights the way down: a tall pool of light below the Friend
     const flick = reducedMotion ? 1 : 0.94 + 0.06 * Math.sin(clock * 11) * Math.sin(clock * 5.3);
@@ -667,7 +675,8 @@ export function createEngine(canvas: HTMLCanvasElement, onEvent: (event: RunEven
       if (celebration && !reducedMotion) { const age = clock - celebration.t; lift = celebration.mood === "sad" ? 0 : Math.round(Math.abs(Math.sin(age * (celebration.mood === "great" ? 11 : 8))) * (celebration.mood === "great" ? 8 : 5)); }
       const hy = y + 14 - b.bottom - lift;
       ctx.fillStyle = "rgba(0,0,0,.28)"; ctx.fillRect(x + b.left, y + 14, b.right - b.left + 1, 2);
-      if (!blink) { drawHero(ctx, rows, x, hy, { ...look, moving, clock }, facing === "right" ? "right" : "down"); friendAt = { rows, x, y: hy }; }
+      const ruinsPose: Facing = finished ? "down" : facing;
+      if (!blink) { drawHero(ctx, rows, x, hy, { ...look, moving, clock }, ruinsPose); friendAt = { rows, x, y: hy, facing: ruinsPose, moving }; }
       heroExtras(x, hy, b);
     }, (x, y, open) => {
       if (open && !reducedMotion) { ctx.fillStyle = "rgba(255,243,168,.35)"; for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + (i - 2) * 0.35 + Math.sin(clock) * 0.05; ctx.beginPath(); ctx.moveTo(x + 8, y + 4); ctx.lineTo(x + 8 + Math.cos(a - 0.08) * 60, y + 4 + Math.sin(a - 0.08) * 60); ctx.lineTo(x + 8 + Math.cos(a + 0.08) * 60, y + 4 + Math.sin(a + 0.08) * 60); ctx.fill(); } }

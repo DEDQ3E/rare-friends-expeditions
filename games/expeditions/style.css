@@ -249,3 +249,17 @@ button.xp-loc:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .xp-weather-run{pointer-events:none;animation:xp-runinfo 5.5s linear forwards}
 @keyframes xp-runinfo{0%,91%{opacity:1}100%{opacity:0;visibility:hidden}}
 @media (prefers-reduced-motion:reduce){.xp-weather-run{animation:xp-runinfo 5s steps(1,end) forwards}}
+/* wardrobe: every piece is previewed on the player's own Friend */
+.xp-wear-group h4{margin:8px 0 4px;font-size:11px;color:#c8c4e6;text-transform:uppercase;letter-spacing:1px}
+.xp-wear-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}
+.xp-wear{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;padding:6px 4px;background:#23254a;border:3px solid var(--ink)}
+.xp-wear img{image-rendering:pixelated;background:#1d1f3a;border:2px solid #3a3d6e}
+.xp-wear strong{font-size:11px}.xp-wear small{font-size:10px;color:#c8c4e6;font-weight:600;min-height:2.4em}
+.xp-wear .xp-btn{padding:4px 8px;font-size:11px}
+.xp-wear-on{box-shadow:inset 0 0 0 2px var(--gold)}
+.xp-link{font:inherit;color:var(--gold);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+@media (max-height:420px){
+  .xp-wear-grid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:4px}
+  .xp-wear{padding:3px 2px;border-width:2px}.xp-wear img{width:63px;height:42px}
+  .xp-wear small{min-height:0;font-size:9px}.xp-wear-group h4{margin:5px 0 3px;font-size:10px}
+}

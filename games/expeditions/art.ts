@@ -1,4 +1,5 @@
 /** Pixel art for Rare Friends: Expeditions. All artwork is authored in code (no external assets). */
+import { drawOutfit, type Facing, type Outfit } from "./wardrobe.js";
 
 
 export const INK = "#1c1c1c";
@@ -106,9 +107,10 @@ export function pixmapUrl(art: Pixmap, scale = 4, silhouette = false): string {
 
 /* ---------- Hero (the selected Rare Friend) ---------- */
 
-/** Contest rule: the Friend's original artwork is preserved. It is always drawn from its canonical frames in the
- * canonical look (black mask, white halo) and nothing is worn on it; only a torch or lantern is held beside it. */
-export type HeroLook = Readonly<{ torch?: boolean; lantern?: boolean; moving?: boolean; clock?: number }>;
+/** The Friend is always drawn from its canonical frames in the canonical look (black mask, white halo). Clothes
+ * from the wardrobe are worn over it (FriendSDK v0.1.2 allows costumes), fitted to its own silhouette and never
+ * changing its outline; a torch or lantern is held beside it. */
+export type HeroLook = Readonly<{ torch?: boolean; lantern?: boolean; moving?: boolean; clock?: number; outfit?: Outfit }>;
 /** Canonical Friend colors (the SDK reference look). */
 export const FRIEND_MASK = "#111111", FRIEND_HALO = "#ffffff";
 
@@ -137,9 +139,10 @@ export function drawFriendPixels(ctx: CanvasRenderingContext2D, rows: readonly s
 }
 
 /** Draw a 16×16 Friend frame at (x, y) = top-left of its 16×16 box, 1 canvas pixel per sprite pixel.
- * The Friend is its canonical frame in the canonical colors; a held torch or lantern sits outside its halo. */
-export function drawHero(ctx: CanvasRenderingContext2D, rows: readonly string[], x: number, y: number, look: HeroLook, _facing: "right" | "down" = "right", flash = false) {
+ * The Friend is its canonical frame in the canonical colors with its outfit on top; a held torch or lantern sits outside its halo. */
+export function drawHero(ctx: CanvasRenderingContext2D, rows: readonly string[], x: number, y: number, look: HeroLook, facing: Facing = "right", flash = false) {
   drawFriendPixels(ctx, rows, x, y, flash);
+  if (!flash) drawOutfit(ctx, rows, x, y, look.outfit, facing, look.clock ?? 0, !!look.moving);
   if (flash || (!look.lantern && !look.torch)) return;
   const b = spriteBounds(rows), midY = Math.round((b.top + b.bottom) / 2);
   let right = b.right; // rightmost pixel on the middle row, so the item is held at the Friend's side

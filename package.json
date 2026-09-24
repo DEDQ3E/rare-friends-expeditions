@@ -12,6 +12,7 @@
     "compliance": "node tests/compliance.mjs",
     "mobile": "node tests/mobile.mjs",
     "economy": "node tests/economy.mjs",
+    "wardrobe": "node tests/wardrobe.mjs",
     "sessions": "node scripts/sessions.mjs"
   },
   "author": "DEDQ3E",

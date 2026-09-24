@@ -114,13 +114,32 @@ runs out (75 s)**. Every row of the hall is a trap, and you have to read their t
 - Its own music (a warm, exotic scale with light percussion), trickling sand, distant birds, dart twangs
   and crumbling stone.
 
-## Friend artwork (preserved)
+## Friend artwork and wardrobe
 
-Contest rule: *preserve the selected Friend's original character artwork*. The Friend is always drawn from
-its canonical Generations frames in the canonical look (black mask, white one-pixel halo), with its own shape
-and walk animation. Nothing is worn on it or drawn over it: gear only changes how the expedition plays, the
-torch and the cave lantern are held beside the Friend, and trails are particles behind it. The engine redraws
-the Friend after rain, night, darkness and light overlays so nothing tints it.
+The Friend is always drawn from its canonical Generations frames in the canonical look (black mask, white
+one-pixel halo), with its own shape and walk animation. The engine redraws the Friend and its clothes after
+rain, night, darkness and light overlays so nothing tints them. The torch and the cave lantern are held beside
+it and trails are particles behind it.
+
+The **wardrobe** (Outfitter, FriendSDK v0.1.2 allows costumes) is fitted to every Friend's own silhouette, frame
+by frame and in all four walking directions (`fit.ts`, `wardrobe.ts`): hats sit on the real head and match its
+width, and ears, horns and antennae poke through them; the scarf wraps the real neck with a tail that swings;
+tops follow the Friend's own torso pixels; the cape follows its back, flutters while it moves and covers the
+back when it walks away; boots cover its own feet. The outline, halo and shape are never changed, one piece is
+worn per slot, and "Take everything off" shows the original artwork. Each piece is previewed on your own Friend
+before you buy it. Clothes are cosmetic only: they never change odds, prices, finds or XP.
+
+| Slot | Pieces (RF) |
+| --- | --- |
+| Hats | Explorer Hat 3 · Wizard Hat 5 · Miner Helmet 4 · Flower Crown 3 · Bobble Beanie 3 · Pumpkin Hat 5 (Harvest Season) |
+| Scarves | Knit Scarf 2 |
+| Tops | Cozy Sweater 3 · Ranger Vest 3 |
+| Capes | Red Cape 4 |
+| Boots | Rain Boots 2 |
+
+`npm run wardrobe` renders every piece on eight body types (ears, side-on quadruped, humanoid, blob, wide,
+tiny, antennae, legless) and on the SDK's recorded Friends #7730 and #3412, and fails if a piece is invisible,
+drifts away from the Friend or covers it with a hat.
 
 ## Harvest Season (limited cosmetic)
 
@@ -242,6 +261,7 @@ chest bonus XP, but the find is still delivered. Skill pays in XP only.
 | Ruins Map | 8 RF | opens the Sunken Ruins |
 | Spark Trail | 4 RF | cosmetic trail behind the Friend |
 | Harvest Season: Falling Leaves | 5 RF | cosmetic trail, until Nov 30 |
+| Wardrobe (11 pieces) | 2–5 RF each | cosmetic clothes fitted to your Friend (see "Friend artwork and wardrobe") |
 
 Outfitter purchases are never refunded. The proposed split mirrors the Rare Friends protocol rule:
 **50% burned, 50% to Friend rewards**. FriendSDK v0.1.2 has no upgrade/cosmetic API, so these

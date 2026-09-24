@@ -12,6 +12,7 @@ import { WEATHER_ICONS, FINDS, LOCATIONS, LOCATION_NAME, PASS, RARITIES, RARITY_
 import { RAIN_LABEL, TIME_LABEL, XP_MULT, rollWeather, type Rain, type Weather } from "./weather.js";
 import { RANK_LABEL, perkFor } from "./perks.js";
 import { KEEP_CAP_BPS, KEEP_XP_BPS, keepText, keepsakeBps } from "./keepsakes.js";
+import { SLOTS, SLOT_LABEL, WARDROBE, type Outfit, type Slot, type WearItem } from "./wardrobe.js";
 import { createSoundscape, type Soundscape } from "./audio.js";
 import { CAVE_ZONES } from "./cave.js";
 import { RELIC, RUINS_ZONES } from "./ruins.js";
@@ -32,7 +33,7 @@ const STORE: readonly StoreItem[] = [
   { id: "boots", name: "Spring Boots", price: 3, effect: "Double jump in the forest", kind: "gear" },
   { id: "lantern", name: "Cave Lantern", price: 5, effect: "Opens the Crystal Cave", kind: "gear" },
   { id: "ruinsmap", name: "Ruins Map", price: 8, effect: "Opens the Sunken Ruins", kind: "gear" },
-  // trails are particles behind the Friend; nothing is worn on it (its original artwork is preserved)
+  // trails are particles behind the Friend; clothes are in the wardrobe (wardrobe.ts)
   { id: "trail", name: "Spark Trail", price: 4, effect: "Sparkles behind your Friend on expeditions", kind: "trail" },
   { id: "leaves", name: "Falling Leaves", price: 5, effect: "Autumn leaves drift behind your Friend", kind: "season" },
 ];
@@ -89,6 +90,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const [storeSpent, setStoreSpent] = useState(0n);
   const [owned, setOwned] = useState<ReadonlySet<string>>(() => new Set());
   const [equipped, setEquipped] = useState<ReadonlySet<string>>(() => new Set());
+  const [wearing, setWearing] = useState<Outfit>({});
   // current expedition
   const [playId, setPlayId] = useState<bigint | null>(null);
   const [runStats, setRunStats] = useState({ sparks: 0, hearts: 3 });
@@ -126,7 +128,14 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const mutedRef = useRef(false);
 
   const torchOn = equipped.has("torch");
-  const look: HeroLook = useMemo(() => ({ torch: torchOn }), [torchOn]);
+  const look: HeroLook = useMemo(() => ({ torch: torchOn, outfit: wearing }), [torchOn, wearing]);
+  /** Put a piece on (replacing whatever is in its slot) or take it off. */
+  const toggleOutfit = (item: WearItem, force?: boolean) => setWearing(w => {
+    const on = force ?? w[item.slot] !== item.id, next: Partial<Record<Slot, string>> = { ...w };
+    if (on) next[item.slot] = item.id; else delete next[item.slot];
+    return next;
+  });
+  const wearingCount = Object.keys(wearing).length;
   const trail = equipped.has("leaves") ? "leaves" as const : equipped.has("trail") ? "spark" as const : null;
   /** Use an item (putting away whatever else shares its slot), or put it away. */
   const toggleWear = (id: string, force?: boolean) => setEquipped(e => {
@@ -404,6 +413,18 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
     weather: Object.fromEntries(Object.entries(WEATHER_ICONS).map(([k, v]) => [k, pixmapUrl(v, 3)])) as Record<keyof typeof WEATHER_ICONS, string>,
   }), []);
   const weatherIcon = (w: Weather) => icons.weather[w.rain !== "none" ? w.rain : w.time === "night" ? "moon" : w.time === "evening" ? "dusk" : "sun"];
+  const wearPreviews = useMemo(() => {
+    const out: Record<string, string> = {};
+    if (!sprites) return out;
+    for (const item of WARDROBE) {
+      const c = document.createElement("canvas"); c.width = 42; c.height = 28; const g = c.getContext("2d"); if (!g) continue;
+      const outfit: Outfit = { [item.slot]: item.id };
+      drawHero(g, sprites.idle[0], 3, 10, { outfit }, "down");
+      const side = sprites.walk.right; drawHero(g, side[1 % side.length], 23, 10, { outfit }, "right");
+      out[item.id] = c.toDataURL();
+    }
+    return out;
+  }, [sprites]);
   const heroPortrait = useMemo(() => {
     if (!sprites) return "";
     const c = document.createElement("canvas"); c.width = 24; c.height = 30; const g = c.getContext("2d"); if (!g) return "";
@@ -595,11 +616,26 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <span><strong>{s.name}</strong><small>{s.effect}</small></span>
               {owned.has(s.id) ? <span className="xp-owned">Owned</span> : <button type="button" className="xp-btn" disabled={busy} onClick={() => buyStore(s.id, s.price, () => {})}>Buy · {s.price} RF</button>}
             </div>)}
+            <h3>Wardrobe</h3>
+            <p className="xp-small">Clothes are fitted to your Friend's own shape, frame by frame, and never change its outline. Cosmetic only: they never change odds, prices, finds or XP. {wearingCount > 0 && <button type="button" className="xp-link" onClick={() => setWearing({})}>Take everything off</button>}</p>
+            {SLOTS.map(slot => <div key={slot} className="xp-wear-group">
+              <h4>{SLOT_LABEL[slot]}</h4>
+              <div className="xp-wear-grid">{WARDROBE.filter(w => w.slot === slot).map(item => {
+                const has = owned.has(item.id), on = wearing[slot] === item.id, gone = !!item.season && !season;
+                return <div key={item.id} className={`xp-wear${on ? " xp-wear-on" : ""}${item.season ? " xp-season" : ""}`}>
+                  {wearPreviews[item.id] && <img src={wearPreviews[item.id]} alt={`${item.name} on your Friend`} width={84} height={56} />}
+                  <strong>{item.name}</strong><small>{item.season ? `${SEASON.name} · until ${SEASON.endLabel}` : item.blurb}</small>
+                  {has
+                    ? <button type="button" className="xp-btn" aria-pressed={on} onClick={() => toggleOutfit(item)}>{on ? "Take off" : "Wear"}</button>
+                    : <button type="button" className="xp-btn" disabled={busy || gone} onClick={() => buyStore(item.id, item.price, () => toggleOutfit(item, true))}>{gone ? "Gone until next autumn" : `Buy · ${item.price} RF`}</button>}
+                </div>;
+              })}</div>
+            </div>)}
             <h3>Trails</h3>
-            <p className="xp-small">A trail follows your Friend on expeditions. Your Friend keeps its original look: nothing is worn on it.</p>
+            <p className="xp-small">A trail follows your Friend on expeditions.</p>
             {STORE.filter(s => s.kind === "trail").map(s => <TrailItem key={s.id} item={s} />)}
             <h3 className="xp-season-title">{SEASON.name} <span className="xp-season-badge">{season ? `limited · until ${SEASON.endLabel}` : "season over"}</span></h3>
-            <p className="xp-small">An autumn trail sold only this season. Pumpkins appear around the camp while it lasts.</p>
+            <p className="xp-small">An autumn trail and a Pumpkin Hat (in the wardrobe) are sold only this season. Pumpkins appear around the camp while it lasts.</p>
             {STORE.filter(s => s.kind === "season").map(s => <TrailItem key={s.id} item={s} seasonal />)}
             <h3>Workbench</h3>
             <div className="xp-item">

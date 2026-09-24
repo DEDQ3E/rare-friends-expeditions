@@ -1,4 +1,4 @@
-// README screenshots with the SDK's mock wallet: camp, the expedition board, the three places, the economy panel, a phone view.
+// README screenshots with the SDK's mock wallet: camp, the expedition board, the three places, the economy panel, the wardrobe, a phone view.
 import { testGame } from "@rarefriends/friendsdk/testing";
 const out = process.argv[2] ?? "./media";
 const hideHint = async game => { const x = game.getByRole("button", { name: "Hide this hint" }); if (await x.count()) await x.first().click(); };
@@ -59,6 +59,24 @@ await testGame("./games/expeditions", {
       for (let i = 0; i < 14; i++) { await page.keyboard.down("KeyW"); await page.waitForTimeout(90); await page.keyboard.up("KeyW"); await page.waitForTimeout(160); }
       await shot("ruins");
     } else await close();
+  },
+});
+
+// wardrobe: dress the Friend (wizard hat, scarf, cape), then the Outfitter wardrobe and the camp
+await testGame("./games/expeditions", {
+  timeout: 90000,
+  check: async ({ page, game }) => {
+    const shot = async name => { await page.waitForTimeout(300); await page.locator("#root").screenshot({ path: `${out}/${name}.png` }); };
+    await game.getByRole("button", { name: "Turn sound off" }).waitFor();
+    await game.getByRole("button", { name: "Turn sound off" }).click();
+    await hideHint(game);
+    await game.getByRole("button", { name: /^Outfitter/ }).click();
+    for (const name of ["Wizard Hat", "Knit Scarf", "Red Cape"]) await game.locator(".xp-wear", { hasText: name }).getByRole("button").click();
+    await game.getByRole("heading", { name: "Wardrobe" }).scrollIntoViewIfNeeded();
+    await game.locator(".xp-wear", { hasText: "Wizard Hat" }).scrollIntoViewIfNeeded();
+    await shot("wardrobe");
+    await game.getByRole("button", { name: "Close" }).click();
+    await shot("camp-dressed");
   },
 });
 
