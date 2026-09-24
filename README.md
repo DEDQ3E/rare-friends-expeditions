@@ -75,7 +75,7 @@ npm run check                           # friendsdk game + economy validation
 npm install -D playwright && npx playwright install chromium
 npm test                                # SDK browser smoke test (mock wallet)
 npm run playthrough                     # buy → expedition → chest → sell → outfitter → collection
-npm run mobile                          # phone sizes: camp and every panel; a run and the chest sideways
+npm run mobile                          # phone sizes: camp and every panel; sideways, a run per place (chest, banner hides)
 npm run economy                         # exact odds over 10,000 rolls, EV, keepsakes, published tables
 npm run sessions                        # exact session statistics behind the submission's table
 npm run build                           # static build into docs/ (GitHub Pages)
