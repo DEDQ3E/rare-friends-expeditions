@@ -33,7 +33,7 @@ The game input stops whenever the runtime pauses it.
 
 1. **Expedition board:** buy passes (`client.buy`) and press **Set out!** (`client.play`).
    The find is committed here, before the run starts.
-2. **Forest run (~25 s):** jump over roots and slimes, time bees, collect sparks.
+2. **Forest run (~23 s):** jump over roots and slimes, time bees, collect sparks.
    Sparks and a flawless or finished run give **XP only**. Running well never changes the odds.
    If the hearts run out, the run ends early and the chest is still delivered (see "Why the chest always comes").
 3. **Chest:** `client.settle(playId)` reveals the find. In chain mode a pending result shows

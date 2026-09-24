@@ -61,7 +61,7 @@ RF, passes, finds, backing and every outcome would be on-chain. The keepsake bon
 
 ## How does it use randomness?
 
-Only the find is a paid random outcome. In the preview it comes from the SDK's simulated ledger; live, it is the SDK's Dice commit-and-reveal flow: the pass is burned and the play committed before any randomness exists, one request per play, no reroll, and a slow delivery resumes the same play ("Resume expedition") without another pass. The browser never chooses the find, and the chest is delivered even if the Friend runs out of hearts: the SDK rule is one pass, one result. Obstacles, creatures, weather and pickups are browser-random gameplay with no RF value; skill and weather change XP only.
+Only the find is a paid random outcome. In the preview it comes from the SDK's simulated ledger; live, it is the SDK's Dice commit-and-reveal flow: the pass is burned and the play committed before any randomness exists, one request per play, no reroll, and a slow delivery resumes the same play ("Resume expedition") without another pass. The browser never chooses the find, and the chest is delivered even if the Friend runs out of hearts: the SDK rule is one pass, one result. Obstacles, creatures, weather and pickups are browser-random gameplay with no RF value; skill, weather and perks change the run and XP, never the find.
 
 ## Source code
 
@@ -87,7 +87,7 @@ Step-by-step notes for each platform: [Run locally](https://github.com/DEDQ3E/ra
 A three-page **start guide** opens when the game loads (how the camp and the pass work, the three places and their controls, what to buy first) and can be reopened any time with the **?** button or from Settings.
 
 1. **Camp:** walk with W A S D or the arrows (on touch, the on-screen pad) and press **E** at a place, or tap its label. At the **Expeditions** board buy passes, pick a place and press **Set out!** The find is committed at this moment.
-2. **Whispering Forest (~25 s):** jump with W / Space / ↑ or a tap (Spring Boots add a double jump), move with A / D, drop with S. Collect sparks; roots, rocks, slimes, hedgehogs, bees and bats cost a heart. Each expedition rolls its own time of day and rain, shown as a forecast on the board; rain pays a little more XP (×1.1 / ×1.2 / ×1.3).
+2. **Whispering Forest (~23 s):** jump with W / Space / ↑ or a tap (Spring Boots add a double jump), move with A / D, drop with S. Collect sparks; roots, rocks, slimes, hedgehogs, bees and bats cost a heart. Each expedition rolls its own time of day and rain, shown as a forecast on the board; rain pays a little more XP (×1.1 / ×1.2 / ×1.3).
 3. **Crystal Cave (Cave Lantern, 5 RF):** the Friend is lowered on a rope: steer with A / D, hold W / Space / tap to slow down, S to dive. Four zones: ledges and spiders, drafts, bats and falling rocks with a warning, narrow gates and swinging slabs, then everything at once. Crystals give XP ×1.5.
 4. **Sunken Ruins (Ruins Map, 8 RF):** top-down, tile by tile to the altar before the sand runs out: spike plates in waves, dart traps, rolling boulders, crumbling floor over pits and fire vents, in three ever harder halls. Relic shards give XP ×2.
 5. **Chest:** the find is revealed. **Keep it** for its keepsake bonus, or **sell** it.
@@ -111,7 +111,7 @@ Pickups give 1 XP each plus a bonus for reaching the chest (doubled without a hi
 | Golden Scarab | Legendary | 3% | 5 RF | +17% XP |
 | Heart of the Forest | Mythic | 1% | 10 RF | +36% XP |
 
-Expected reward **0.90 RF per pass** (10% game edge, price curve as in the SDK fishing reference). Each purchased pass reserves the 10 RF top prize; kept finds retain backing and have no redemption expiry. **Outfitter purchases are never refunded**: 50% is burned and 50% goes to Friend rewards (proposed split, simulated on top of the SDK ledger because FriendSDK v0.1.2 has no upgrade API). Nothing in the Outfitter changes RF odds.
+Expected reward **0.90 RF per pass** (10% game edge, the same expected reward as the SDK fishing example). Each purchased pass reserves the 10 RF top prize; kept finds retain backing and have no redemption expiry. **Outfitter purchases are never refunded**: 50% is burned and 50% goes to Friend rewards (proposed split, simulated on top of the SDK ledger because FriendSDK v0.1.2 has no upgrade API). Nothing in the Outfitter changes RF odds.
 
 ## What have you tested?
 

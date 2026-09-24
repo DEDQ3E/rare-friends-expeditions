@@ -20,7 +20,7 @@ On a phone held sideways the panels switch to a compact layout:
 
 ![Expedition board on a phone](media/phone-board.png)
 
-Economy design, simulations and the roadmap: [submission/README.md](submission/README.md#economy-design).
+Economy design, session statistics and the roadmap: [submission/README.md](submission/README.md).
 
 Built with **FriendSDK v0.1.2** for the Rare Friends Vibeathon (September 2026).
 All balances, purchases, finds and sales are **simulated**.
