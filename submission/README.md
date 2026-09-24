@@ -30,7 +30,7 @@ The selected, ownership-verified Friend is the hero of every expedition. Its can
 | Expedition Pass (SDK chance game, repeatable) | 1 RF per pass | one find, worth 0.90 RF on average at the Merchant | 10% edge stays in the game bank; every pass reserves the 10 RF top prize, so the bank can always pay |
 | Outfitter (pure sink) | 3–8 RF per item, 29 RF for the full catalog | nothing: never refunded, no effect on odds | 50% burned, 50% to Friend rewards (proposed protocol split) |
 
-**Hold or redeem.** A find is a *productive keepsake*: while the Friend keeps it, it adds XP to every expedition, and selling it at the Merchant pays its fixed RF and gives the bonus up. Common +1%, Uncommon +2%, Rare +5%, Epic +10%, Legendary +25%, Mythic +60%, up to +100% in total. Rarer finds give more bonus per RF they hold back (2.5% per RF for a Common, 6% per RF for a Mythic), so the biggest prizes are the ones most worth keeping and **their RF stays in the game as backing** instead of returning to circulation. The bonus changes XP only, never odds, prices or finds.
+**Hold or redeem.** A find is a *productive keepsake*: while the Friend keeps it, it adds XP to every expedition, and selling it at the Merchant pays its fixed RF and gives the bonus up. Common +1%, Uncommon +2%, Rare +4.5%, Epic +8%, Legendary +17%, Mythic +36%, up to +50% in total. Rarer finds give more bonus per RF they hold back (2.5% per RF for a Common, 3.6% per RF for a Mythic), so the biggest prizes are the ones most worth keeping and **their RF stays in the game as backing** instead of returning to circulation. The bonus changes XP only, never odds, prices or finds.
 
 **Per pass:** expected return 0.90 RF, standard deviation 1.34 RF, 23% chance of getting 1 RF or more back.
 
@@ -90,7 +90,7 @@ Step-by-step notes for each platform: [Run locally](https://github.com/DEDQ3E/ra
 7. **Outfitter:** Spring Boots (double jump, 3 RF), Trail Backpack (+1 heart, 4 RF), Cave Lantern (5 RF), Ruins Map (8 RF), Spark Trail (4 RF) and the Harvest Season Falling Leaves trail (5 RF, until Nov 30). The workbench turns 10 junk finds into a Twig Torch that glows at night.
 8. **Collection:** a hero card (portrait, family, generation, perk, level, keepsake bonus, best find) and the finds of all three places. **Economy panel:** tap the RF balance to see where every RF goes.
 
-Pickups give 1 XP each plus a bonus for reaching the chest (doubled without a hit), multiplied by the place, the Friend's perk and its keepsakes. XP raises the level and title: Novice → Tracker → Seeker → Pathfinder → Legend. Settings: sound (on by default, starts with the first click or key), music, volume and reduce motion; the game honors the runtime's `paused` state. Keyboard and touch are both supported.
+Pickups give 1 XP each plus a bonus for reaching the chest (doubled without a hit), multiplied by the place, the Friend's perk and its keepsakes. XP raises the level and title over ten levels up to 2,500 XP, from Novice to Legend. Settings: sound (on by default, starts with the first click or key), music, volume and reduce motion; the game honors the runtime's `paused` state. Keyboard and touch are both supported.
 
 ## Costs and rewards
 
@@ -101,10 +101,10 @@ Pickups give 1 XP each plus a bonus for reaching the chest (doubled without a hi
 | Dry Twig | Junk | 20% | 0 RF | — |
 | Acorn | Common | 35% | 0.4 RF | +1% XP |
 | Porcini | Uncommon | 22% | 0.75 RF | +2% XP |
-| Owl Feather | Rare | 13% | 1.5 RF | +5% XP |
-| Amber Beetle | Epic | 6% | 2.5 RF | +10% XP |
-| Golden Scarab | Legendary | 3% | 5 RF | +25% XP |
-| Heart of the Forest | Mythic | 1% | 10 RF | +60% XP |
+| Owl Feather | Rare | 13% | 1.5 RF | +4.5% XP |
+| Amber Beetle | Epic | 6% | 2.5 RF | +8% XP |
+| Golden Scarab | Legendary | 3% | 5 RF | +17% XP |
+| Heart of the Forest | Mythic | 1% | 10 RF | +36% XP |
 
 Expected reward **0.90 RF per pass** (10% game edge, price curve as in the SDK fishing reference). Each purchased pass reserves the 10 RF top prize; kept finds retain backing and have no redemption expiry. **Outfitter purchases are never refunded**: 50% is burned and 50% goes to Friend rewards (proposed split, simulated on top of the SDK ledger because FriendSDK v0.1.2 has no upgrade API). Nothing in the Outfitter changes RF odds.
 
@@ -112,7 +112,7 @@ Expected reward **0.90 RF per pass** (10% game edge, price curve as in the SDK f
 
 All pass: `npm run typecheck`; `npm run check` (game validation: expected reward 0.9 RF, maximum 10 RF); `npm test` (SDK browser fixture at 960 px); `npm run economy` (exact odds across all 10,000 rolls, expected return, reserve, the keepsake curve, and every published odds and simulation table checked against `game.json` and `npm run simulate`); `npm run playthrough` (a Playwright playthrough of the whole loop: camp walking, buying passes, the forest run, chest, selling, Outfitter, collection, economy panel, the Crystal Cave and the Sunken Ruins); `npm run compliance` (the SDK container stays at most 960 × 640 at 3:2 on five screen sizes, the sandbox is `allow-scripts`, the toolbar is not cut off); and `npm run mobile` (the camp and every panel at 390 × 844, 844 × 390 and 740 × 360, plus a run and the chest sideways). A fresh clone builds with `npm ci`, and the published `docs/` matches a fresh build. Browser tests use the SDK's mock wallet and simulated RPC.
 
-The public preview was played by hand with a real wallet on Robinhood mainnet holding a Generations NFT, including on a phone in a wallet browser (wallet connection, Friend selection, ownership gate and the full expedition loop). That playthrough was before the keepsake bonus was added; the keepsake build passes every automated check above.
+The public preview was played by hand with a real wallet on Robinhood mainnet holding a Generations NFT, including on a phone in a wallet browser (wallet connection, Friend selection, ownership gate and the full expedition loop). It was repeated on the build with the keepsake bonus.
 
 ## Known limitations
 

@@ -5,9 +5,9 @@
  * The bonus changes XP only: never odds, prices, finds or access. Tiers follow `game.json` outcome order. */
 
 /** Bonus per kept find, in basis points of XP (100 = +1%): Junk, Common, Uncommon, Rare, Epic, Legendary, Mythic. */
-export const KEEP_XP_BPS = [0, 100, 200, 500, 1000, 2500, 6000] as const;
-/** The total keepsake bonus is capped at +100% XP. */
-export const KEEP_CAP_BPS = 10000;
+export const KEEP_XP_BPS = [0, 100, 200, 450, 800, 1700, 3600] as const;
+/** The total keepsake bonus is capped at +50% XP, so stacked multipliers do not race through the levels. */
+export const KEEP_CAP_BPS = 5000;
 
 /** Total bonus in basis points for SDK inventory counts by rarity tier. */
 export function keepsakeBps(inventory: readonly bigint[]): number {

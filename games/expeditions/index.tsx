@@ -21,8 +21,9 @@ import "./style.css";
 
 const RF_UNIT = 10n ** 18n;
 const rfText = (value: bigint) => `${formatGameAmount(value, 18)} RF`;
-const LEVELS = [0, 25, 75, 160, 300] as const;
-const TITLES = ["Novice", "Tracker", "Seeker", "Pathfinder", "Legend"] as const;
+/** Ten levels up to 2,500 XP, so XP (and the keepsake bonus) keeps mattering for a whole session. */
+const LEVELS = [0, 25, 75, 160, 300, 500, 800, 1200, 1800, 2500] as const;
+const TITLES = ["Novice", "Tracker", "Seeker", "Scout", "Pathfinder", "Ranger", "Explorer", "Wayfinder", "Trailblazer", "Legend"] as const;
 const levelOf = (xp: number) => { let l = 0; for (let i = 0; i < LEVELS.length; i++) if (xp >= LEVELS[i]) l = i; return l; };
 
 type StoreItem = Readonly<{ id: string; name: string; price: number; effect: string; kind: "gear" | "trail" | "season" }>;

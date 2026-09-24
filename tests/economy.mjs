@@ -43,14 +43,15 @@ test("prices rise with rarity", () => {
   for (let i = 1; i < rewards.length; i++) assert.ok(rewards[i] > rewards[i - 1], `tier ${i}`);
 });
 
-test("keepsake bonus: junk gives none, more bonus per RF for rarer finds, capped at +100%", () => {
+test("keepsake bonus: junk gives none, more bonus per RF for rarer finds, capped at +50%", () => {
   assert.equal(KEEP_XP_BPS.length, 7);
   assert.equal(KEEP_XP_BPS[0], 0);
   const perRf = KEEP_XP_BPS.map((bps, i) => (rewards[i] === 0n ? 0 : bps / (Number(rewards[i]) / 1e18)));
   for (let i = 2; i < perRf.length; i++) assert.ok(perRf[i] > perRf[i - 1], `bonus per RF must grow at tier ${i}`);
-  assert.equal(KEEP_CAP_BPS, 10000);
-  assert.equal(keepsakeBps([0n, 1n, 1n, 1n, 0n, 0n, 0n]), 800);
-  assert.equal(keepsakeBps([5n, 0n, 0n, 0n, 0n, 0n, 2n]), 10000);
+  assert.equal(KEEP_CAP_BPS, 5000);
+  assert.ok(KEEP_XP_BPS.every(b => b <= KEEP_CAP_BPS), "no single find exceeds the cap");
+  assert.equal(keepsakeBps([0n, 1n, 1n, 1n, 0n, 0n, 0n]), 750);
+  assert.equal(keepsakeBps([5n, 0n, 0n, 0n, 0n, 0n, 2n]), 5000);
 });
 
 // "| Acorn | Common | 35% | 0.4 RF |" rows in the published tables
