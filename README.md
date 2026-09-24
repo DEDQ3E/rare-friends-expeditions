@@ -14,7 +14,7 @@ On a phone, open the link in your wallet app's built-in browser (MetaMask → Br
 |---|---|---|
 | ![Night camp](media/camp.png) | ![Expedition board with odds and prices](media/board.png) | ![Economy panel](media/economy.png) |
 | ![Whispering Forest](media/forest.png) | ![Crystal Cave](media/cave.png) | ![Sunken Ruins](media/ruins.png) |
-| ![Wardrobe: every piece previewed on your own Friend](media/wardrobe.png) | ![A Friend in a wizard hat, scarf and cape](media/camp-dressed.png) | |
+| ![Wardrobe: every piece previewed on your own Friend](media/wardrobe.png) | ![A Friend in a wizard hat, scarf and cape](media/camp-dressed.png) | ![Start guide: the three places](media/guide.png) |
 
 On a phone held sideways the panels switch to a compact layout:
 
@@ -75,8 +75,8 @@ npm run typecheck                       # TypeScript
 npm run check                           # friendsdk game + economy validation
 npm install -D playwright && npx playwright install chromium
 npm test                                # SDK browser smoke test (mock wallet)
-npm run playthrough                     # buy → expedition → chest → sell → outfitter → collection
-npm run mobile                          # phone sizes: camp and every panel; sideways, a run per place (chest, banner hides)
+npm run playthrough                     # guide → buy → expedition → chest → sell → outfitter → collection
+npm run mobile                          # phone sizes: start guide, camp and every panel; sideways, a run per place (chest, banner hides)
 npm run economy                         # exact odds over 10,000 rolls, EV, keepsakes, published tables
 npm run wardrobe                        # every clothing piece fitted on 10 body types, fit sheet PNG
 npm run sessions                        # exact session statistics behind the submission's table

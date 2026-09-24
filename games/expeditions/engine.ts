@@ -21,7 +21,7 @@ export const RUN_LENGTH = 1500; // world pixels, about 23 s
 export type CampSpot = "board" | "outfitter" | "merchant" | "collection";
 /** Label anchors in logical pixels (used by the UI to place accessible buttons). */
 export const CAMP_SPOTS: Readonly<Record<CampSpot, { x: number; y: number }>> = {
-  board: { x: 22, y: 53 }, outfitter: { x: 70, y: 73 }, merchant: { x: 212, y: 56 }, collection: { x: 118, y: 106 },
+  board: { x: 22, y: 75 }, outfitter: { x: 70, y: 73 }, merchant: { x: 212, y: 56 }, collection: { x: 118, y: 106 },
 }
 /** Where the Friend's feet must be to use a place (logical pixels). */
 const CAMP_STATIONS: Readonly<Record<CampSpot, { x: number; y: number }>> = {

@@ -1,4 +1,4 @@
-// Phone-sized layout check with the SDK's mock wallet: camp and every camp panel in portrait and landscape;
+// Phone-sized layout check with the SDK's mock wallet: the start guide, camp and every camp panel in portrait and landscape;
 // on a landscape phone, a run in each place checks the chest and that the run banner hides after 5 s.
 import { testGame } from "@rarefriends/friendsdk/testing";
 const out = process.argv[2] ?? "/tmp";
@@ -9,6 +9,13 @@ for (const [width, height, name] of sizes) {
     check: async ({ page, game }) => {
       const shot = async tag => { await page.waitForTimeout(250); await page.screenshot({ path: `${out}/${name}-${tag}.png` }); };
       await game.getByRole("button", { name: "Turn sound off" }).waitFor();
+      // the start guide: every page fits, and its buttons stay on screen
+      for (let n = 1; n <= 3; n++) {
+        await shot(`guide-${n}`);
+        const nav = await game.locator(".xp-guide-nav").boundingBox(), root = await game.locator(".xp-root").boundingBox();
+        if (!nav || nav.y + nav.height > root.y + root.height + 0.5) throw new Error(`${name}: guide page ${n} buttons are off screen`);
+        await game.getByRole("button", { name: n < 3 ? "Next" : "Let's go!" }).click();
+      }
       await shot("camp");
       // portrait phones show a closable "turn sideways" hint over the HUD
       const rotate = game.locator(".xp-rotate button");

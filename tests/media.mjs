@@ -1,6 +1,7 @@
 // README screenshots with the SDK's mock wallet: camp, the expedition board, the three places, the economy panel, the wardrobe, a phone view.
 import { testGame } from "@rarefriends/friendsdk/testing";
 const out = process.argv[2] ?? "./media";
+const skipGuide = async game => { await game.getByRole("heading", { name: /^Guide/ }).waitFor(); await game.getByRole("button", { name: "Close" }).click(); };
 const hideHint = async game => { const x = game.getByRole("button", { name: "Hide this hint" }); if (await x.count()) await x.first().click(); };
 
 await testGame("./games/expeditions", {
@@ -11,6 +12,8 @@ await testGame("./games/expeditions", {
     const close = () => game.getByRole("button", { name: "Close" }).click();
     const reveal = async () => { await game.getByRole("dialog").waitFor({ timeout: 90000 }); await page.waitForTimeout(800); };
     await game.getByRole("button", { name: "Turn sound off" }).waitFor();
+    await game.getByRole("button", { name: "Next" }).click(); await shot("guide");
+    await game.getByRole("button", { name: "Next" }).click(); await game.getByRole("button", { name: "Let's go!" }).click();
     await game.getByRole("button", { name: "Turn sound off" }).click();
     await hideHint(game);
     await shot("camp");
@@ -68,6 +71,7 @@ await testGame("./games/expeditions", {
   check: async ({ page, game }) => {
     const shot = async name => { await page.waitForTimeout(300); await page.locator("#root").screenshot({ path: `${out}/${name}.png` }); };
     await game.getByRole("button", { name: "Turn sound off" }).waitFor();
+    await skipGuide(game);
     await game.getByRole("button", { name: "Turn sound off" }).click();
     await hideHint(game);
     await game.getByRole("button", { name: /^Outfitter/ }).click();
@@ -85,6 +89,7 @@ await testGame("./games/expeditions", {
   width: 844, height: 390, timeout: 60000,
   check: async ({ page, game }) => {
     await game.getByRole("button", { name: "Turn sound off" }).waitFor();
+    await skipGuide(game);
     await game.getByRole("button", { name: /^Expeditions/ }).first().click();
     await page.waitForTimeout(400);
     await page.locator("#root").screenshot({ path: `${out}/phone-board.png` });

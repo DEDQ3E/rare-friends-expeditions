@@ -263,3 +263,25 @@ button.xp-loc:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   .xp-wear{padding:3px 2px;border-width:2px}.xp-wear img{width:63px;height:42px}
   .xp-wear small{min-height:0;font-size:9px}.xp-wear-group h4{margin:5px 0 3px;font-size:10px}
 }
+/* start guide */
+.xp-guide ol{margin:8px 0;padding-left:22px}
+.xp-guide li{margin:6px 0}
+.xp-guide li img,.xp-guide p img{vertical-align:middle}
+.xp-guide-places{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.xp-guide-places>div{display:flex;gap:10px;align-items:center;background:rgba(0,0,0,.18);border:2px solid #3a3d6e;padding:6px}
+.xp-guide-places img{width:96px;height:54px;object-fit:cover;object-position:center bottom;image-rendering:pixelated;border:2px solid var(--ink);flex:none}
+.xp-guide-places span{font-size:13px;line-height:1.35}
+.xp-guide-places b{color:var(--gold)}
+.xp-guide-places small{display:block;color:var(--leaf);font-size:11px}
+.xp-guide-nav{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:6px 14px 8px;border-top:3px solid #3a3d6e}
+.xp-guide-dots{margin-right:auto;display:flex;gap:5px}
+.xp-guide-nav + .xp-status-empty{display:none}
+.xp-guide-dots i{width:8px;height:8px;background:#3a3d6e;border:1px solid var(--ink)}
+.xp-guide-dots i.on{background:var(--gold)}
+@media (max-height:420px){
+  .xp-guide li{margin:3px 0}
+  .xp-guide-places>div{padding:3px;gap:6px}
+  .xp-guide-places img{width:64px;height:36px}
+  .xp-guide-places span{font-size:11px}
+  .xp-guide-nav{padding:3px 8px 4px;border-top-width:2px}
+}

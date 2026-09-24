@@ -49,7 +49,8 @@ const FINISH_XP: Readonly<Record<"forest" | "cave" | "ruins", number>> = { fores
 /** Which Outfitter item opens each place. */
 const KEY_ITEM: Readonly<Record<Location, string | null>> = { forest: null, cave: "lantern", ruins: "ruinsmap" };
 const SPOT_LABEL: Readonly<Record<CampSpot, string>> = { board: "Expeditions", outfitter: "Outfitter", merchant: "Merchant", collection: "Collection" };
-type Panel = CampSpot | "settings" | "economy" | null;
+type Panel = CampSpot | "settings" | "economy" | "guide" | null;
+const GUIDE_PAGES = ["Welcome to the camp", "Three places to explore", "What to buy first"] as const;
 const TORCH_JUNK = 10; // Dry Twigs, Plain Pebbles and Pottery Shards all count (the junk tier of every place)
 type Phase = "camp" | "run" | "chest" | "reveal";
 const cueForRarity = (index: number): FriendSoundCue => index >= 5 ? "reveal-legendary" : index >= 3 ? "reveal-rare" : "reveal-common";
@@ -66,7 +67,11 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const [loadError, setLoadError] = useState("");
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [phase, setPhase] = useState<Phase>("camp");
-  const [panel, setPanel] = useState<Panel>(null);
+  const [panel, setPanel] = useState<Panel>("guide");
+  // the short start guide opens when the game loads, until the player has seen and closed it once
+  const [guidePage, setGuidePage] = useState(0);
+  const guideSeen = useRef(false), guideOpen = useRef(false);
+  useEffect(() => { if (panel === "guide") guideOpen.current = true; else if (guideOpen.current) guideSeen.current = true; }, [panel]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -166,7 +171,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
     sound.current = createFriendSoundKit({ muted: true });
     scape.current = createSoundscape(); scape.current.setMuted(mutedRef.current);
     if (!mutedRef.current) sound.current.setMuted(false);
-    setSnapshot(null); setPhase("camp"); setPanel(null); setError(""); setNotice(""); setBusy(false); locked.current = false;
+    setSnapshot(null); setPhase("camp"); setPanel(guideSeen.current ? null : "guide"); setGuidePage(0); setError(""); setNotice(""); setBusy(false); locked.current = false;
     void client.read().then(value => { if (version === epoch.current) setSnapshot(value); })
       .catch(cause => { if (version === epoch.current) setLoadError(cause instanceof Error ? cause.message : "Could not load the game."); });
     const query = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -496,6 +501,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
         <div className="xp-tools">
           <button type="button" className={`xp-icon${muted && !soundTouched ? " xp-icon-hint" : ""}`} title={muted ? "Turn sound on: music, rain and fire" : "Turn sound off"} aria-pressed={!muted} aria-label={muted ? "Turn sound on" : "Turn sound off"} onClick={toggleSound}>{muted ? <span className="xp-strike">♪</span> : "♪"}</button>
           <button type="button" className="xp-icon xp-icon-eco" aria-label="Economy: where RF goes" title="Economy" onClick={() => openSpot("economy")}>RF</button>
+          <button type="button" className="xp-icon" aria-label="Guide: how to play" title="Guide" onClick={() => { setGuidePage(0); setPanel("guide"); }}>?</button>
           <button type="button" className="xp-icon" aria-label="Settings" onClick={() => setPanel("settings")}>⚙</button>
         </div>
       </div>
@@ -562,7 +568,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
 
     {phase === "camp" && panel && <div className="xp-modal" role="dialog" aria-modal="true" aria-labelledby="xp-panel-title" onPointerDown={e => { if (e.target === e.currentTarget && !busy) setPanel(null); }}>
       <div className="xp-panel">
-        <header><h2 id="xp-panel-title">{panel === "settings" ? "Settings" : panel === "economy" ? "Economy · where RF goes" : panel === "board" ? "Expedition board" : SPOT_LABEL[panel]}</h2>
+        <header><h2 id="xp-panel-title">{panel === "guide" ? `Guide · ${GUIDE_PAGES[guidePage]}` : panel === "settings" ? "Settings" : panel === "economy" ? "Economy · where RF goes" : panel === "board" ? "Expedition board" : SPOT_LABEL[panel]}</h2>
           <button type="button" className="xp-close" aria-label="Close" disabled={busy} onClick={() => setPanel(null)}>✕</button></header>
         <div className="xp-panel-body">
           {panel === "board" && <>
@@ -697,11 +703,44 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
             <p className="xp-small">Pass purchases, finds and sales are {mode} through FriendSDK. The Outfitter split (50% burn / 50% Friend rewards) is a proposal simulated in this preview: FriendSDK v0.1.2 has no upgrade API. Perks, weather and keepsakes change XP and the run, never odds or prices.</p>
           </>}
 
+          {panel === "guide" && guidePage === 0 && <div className="xp-guide">
+            <p>Your Friend is the hero of this camp. Walk with <b>W A S D</b> or the arrow keys (on a phone: the on-screen pad), press <b>E</b> at a place or just tap its label.</p>
+            <ol>
+              <li><b>Expeditions board:</b> buy an <img src={icons.pass} alt="" width={20} height={14} /> <b>Expedition Pass</b> ({rfText(definition.price)}) and press <b>Set out!</b></li>
+              <li><b>The expedition:</b> collect {""}<img src={icons.spark} alt="" width={13} height={13} /> pickups for XP and dodge danger. Every expedition ends at a chest, even with no hearts left.</li>
+              <li><b>The find:</b> the pass decides it when your Friend sets out, with the odds shown on the board. Skill earns XP and levels, never better odds.</li>
+              <li><b>Merchant:</b> sell a find for RF, or keep it in the <b>Collection</b> for an XP bonus.</li>
+            </ol>
+            <p className="xp-small">Balances and purchases here are {mode}. Progress resets when the page reloads.</p>
+          </div>}
+          {panel === "guide" && guidePage === 1 && <div className="xp-guide">
+            <p>Every place uses the same pass and the same odds. Harder places give more XP.</p>
+            <div className="xp-guide-places">
+              <div><img src={forestCard(forecast)} alt="" /><span><b>Whispering Forest</b> <small>open from the start</small>
+                Run and jump: <b>W</b> / <b>Space</b> / tap. Collect sparks, dodge roots, slimes and bees. Rain adds XP (up to ×1.3).</span></div>
+              <div><img src={caveCard()} alt="" /><span><b>Crystal Cave</b> <small>Cave Lantern · 5 RF</small>
+                Slide down a rope: <b>A</b> / <b>D</b> steer, hold <b>W</b> or tap to grip, <b>S</b> to dive. Collect crystals. XP ×{CAVE_XP}.</span></div>
+              <div><img src={ruinsCard()} alt="" /><span><b>Sunken Ruins</b> <small>Ruins Map · 8 RF</small>
+                Step tile by tile to the altar before the hourglass runs out, past spikes, darts and boulders. XP ×{RUINS_XP}.</span></div>
+            </div>
+          </div>}
+          {panel === "guide" && guidePage === 2 && <div className="xp-guide">
+            <ol>
+              <li><b>A few passes first:</b> learn the forest and level up your Friend.</li>
+              <li><b>Trail Backpack</b> (4 RF, +1 heart) and <b>Spring Boots</b> (3 RF, double jump) make runs easier.</li>
+              <li><b>Cave Lantern</b> (5 RF), then the <b>Ruins Map</b> (8 RF): new places and more XP per pass.</li>
+              <li><b>Keep your rare finds:</b> each one held adds XP to every expedition (rarer is better, up to {keepText(KEEP_CAP_BPS)}). Sell the common ones when you need RF.</li>
+              <li><b>Wardrobe and trails</b> are just for looks: try each piece on your own Friend before you buy.</li>
+            </ol>
+            <p className="xp-small">Nothing you buy changes the odds. A {rfText(definition.price)} pass returns {evText} on average, so play for the adventure, not for profit. Half of every Outfitter purchase is burned, half goes to Friend rewards. Open this guide again with the <b>?</b> button.</p>
+          </div>}
+
           {panel === "settings" && <>
             <div className="xp-row"><button type="button" className="xp-btn" aria-pressed={!muted} onClick={toggleSound}>{muted ? "Sound: off" : "Sound: on"}</button>
               <button type="button" className="xp-btn" aria-pressed={musicOn} disabled={muted} onClick={() => setMusicOn(m => !m)}>{musicOn ? "Music: on" : "Music: off"}</button>
               <label className="xp-check">Volume <input type="range" min={0} max={100} step={5} value={volume} disabled={muted} onChange={e => setVolume(Number(e.target.value))} aria-label="Volume" /></label>
               <label className="xp-check"><input type="checkbox" checked={reducedMotion} onChange={e => setReducedMotion(e.target.checked)} /> Reduce motion</label></div>
+            <div className="xp-row"><button type="button" className="xp-btn" onClick={() => { setGuidePage(0); setPanel("guide"); }}>Open the guide</button></div>
             <h3>How to play</h3>
             <p>Walk with W A S D or the arrow keys (on touch screens, use the on-screen pad). In the camp, press E at a place or tap its label. Buy an Expedition Pass at the board and send your Friend out. In the forest, jump with W, Space or ↑ (or tap / the Jump button), move forward and back with A / D and drop faster with S. Sparks give XP; roots, slimes and bees cost a heart. Every expedition has its own time of day and weather, shown as a forecast on the board: rain pays a little more XP (light ×1.1, heavy ×1.2, thunderstorm ×1.3) but never changes what you find. The camp weather changes on its own. Every expedition ends at a chest, even when the hearts run out: the pass already decided the find when your Friend set out.</p>
             <h3>Sparks, crystals and relic shards</h3>
@@ -718,6 +757,13 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
             <p className="xp-small">Balances, purchases, finds and sales are {mode}. Outfitter purchases are simulated on top of the SDK (FriendSDK v0.1.2 has no upgrade API). Progress resets when the page reloads. Wallet connection and NFT ownership checks are provided by the Rare Friends runtime.</p>
           </>}
         </div>
+        {panel === "guide" && <div className="xp-guide-nav">
+          <span className="xp-guide-dots" aria-label={`Page ${guidePage + 1} of ${GUIDE_PAGES.length}`}>{GUIDE_PAGES.map((_, i) => <i key={i} className={i === guidePage ? "on" : ""} />)}</span>
+          {guidePage > 0 && <button type="button" className="xp-btn" onClick={() => setGuidePage(p => p - 1)}>Back</button>}
+          {guidePage < GUIDE_PAGES.length - 1
+            ? <button type="button" className="xp-btn xp-primary" onClick={() => setGuidePage(p => p + 1)}>Next</button>
+            : <button type="button" className="xp-btn xp-primary" onClick={() => setPanel(null)}>Let's go!</button>}
+        </div>}
         <p className={`xp-status${error || notice || busy ? "" : " xp-status-empty"}`} role={error ? "alert" : "status"}>{error || notice || (busy ? "Waiting for confirmation…" : " ")}</p>
       </div>
     </div>}

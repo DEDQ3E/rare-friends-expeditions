@@ -10,7 +10,7 @@ export type Particle = { x: number; y: number; vx: number; vy: number; life: num
 
 /** Layout (logical pixels). The engine uses these for depth sorting, collisions and hotspots. */
 export const CAMP_LAYOUT = {
-  board: { x: 22, base: 122 }, tent: { x: 70, base: 122 }, lantern: { x: 100, base: 122 },
+  board: { x: 22, base: 122, drop: 22 }, tent: { x: 70, base: 122 }, lantern: { x: 100, base: 122 },
   chest: { x: 118, base: 124 }, fire: { x: 152, base: 128 }, bench: { x: 176, base: 131 },
   crates: { x: 176, base: 120 }, shop: { x: 212, base: 122 },
 } as const;
@@ -32,10 +32,11 @@ function text(ctx: Ctx, s: string, x: number, y: number, c: string) {
 
 /* ---------- quest board ---------- */
 export function drawBoard({ ctx }: CampFrame) {
-  const cx = CAMP_LAYOUT.board.x, base = CAMP_LAYOUT.board.base;
+  const cx = CAMP_LAYOUT.board.x, base = CAMP_LAYOUT.board.base, drop = CAMP_LAYOUT.board.drop, top = 66 + drop;
   shadow(ctx, cx, base, 18);
-  // posts
-  for (const px of [cx - 13, cx + 10]) { rect(ctx, px, 66, 4, base - 66, INK); rect(ctx, px + 1, 66, 2, base - 66, "#7a4a26"); rect(ctx, px + 1, 66, 1, base - 66, "#9a6a3a"); }
+  // posts: short enough that the notices hang at the Friend's eye level
+  for (const px of [cx - 13, cx + 10]) { rect(ctx, px, top, 4, base - top, INK); rect(ctx, px + 1, top, 2, base - top, "#7a4a26"); rect(ctx, px + 1, top, 1, base - top, "#9a6a3a"); }
+  ctx.save(); ctx.translate(0, drop);
   // shingled roof
   for (let y = 0; y < 10; y++) {
     const half = 7 + y * 1.6, row = 56 + y;
@@ -62,7 +63,7 @@ export function drawBoard({ ctx }: CampFrame) {
   // pins
   for (const [dx, dy, c] of [[-9, 70, "#ff4d6d"], [3, 71, "#4aa3ff"], [13, 70, "#ffd23f"], [-3, 85, "#b86bff"]] as const) rect(ctx, cx + dx, dy, 1, 1, c);
   rect(ctx, cx - 6, 84, 8, 5, INK); rect(ctx, cx - 5, 85, 6, 3, "#fff3c8");
-
+  ctx.restore();
 }
 
 /* ---------- tent (outfitter) ---------- */

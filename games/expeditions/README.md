@@ -11,6 +11,8 @@ is required, including for previews. **All balances, purchases, finds and sales 
 
 ## Controls
 
+A three-page **start guide** opens when the game loads (how the camp and the pass work, the three places and their controls, what to buy first) and can be reopened any time with the **?** button or from Settings.
+
 | Action | Keyboard | Touch / mouse |
 | --- | --- | --- |
 | Camp: walk in any direction | W A S D or arrow keys | On-screen pad |
@@ -18,6 +20,7 @@ is required, including for previews. **All balances, purchases, finds and sales 
 | Forest: jump / double jump with Spring Boots | W, Space or ↑ (release early for a short hop) | Tap anywhere, or the JUMP button |
 | Forest: move forward / back | D / A or → / ← | On-screen ◀ ▶ |
 | Forest: drop faster | S or ↓ | — |
+| Open the start guide again | — | **?** button (top right) |
 | Close a panel | Esc | ✕ |
 
 In the camp the Friend walks freely with depth (behind or in front of the tent, fire and stalls).

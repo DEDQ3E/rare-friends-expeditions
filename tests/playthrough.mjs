@@ -1,4 +1,4 @@
-// Automated playthrough with the SDK's mock wallet: buy a pass, run the forest, open the chest, sell, shop.
+// Automated playthrough with the SDK's mock wallet: read the start guide, buy a pass, run the forest, open the chest, sell, shop.
 import { testGame } from "@rarefriends/friendsdk/testing";
 const out = process.argv[2] ?? "/tmp";
 await testGame("./games/expeditions", {
@@ -8,6 +8,15 @@ await testGame("./games/expeditions", {
     const confirm = async () => { await page.getByRole("button", { name: "Confirm preview" }).click(); };
     // WASD in the camp: walk left to the board, then press E
     await game.getByRole("button", { name: "Turn sound off" }).waitFor(); // sound is on by default
+    // the three-page start guide opens on its own; page through it (Next, Back, Next) and close it
+    for (const [n, title] of ["Welcome to the camp", "Three places to explore", "What to buy first"].entries()) {
+      await game.getByRole("heading", { name: `Guide · ${title}` }).waitFor();
+      await shot(`00-guide-${n + 1}`);
+      if (n === 1) { await game.getByRole("button", { name: "Back" }).click(); await game.getByRole("heading", { name: /Welcome to the camp/ }).waitFor(); await game.getByRole("button", { name: "Next" }).click(); }
+      if (n < 2) await game.getByRole("button", { name: "Next" }).click();
+    }
+    await game.getByRole("button", { name: "Let's go!" }).click();
+    await game.getByRole("dialog").waitFor({ state: "detached" });
     await game.locator("canvas").click({ position: { x: 480, y: 300 } });
     await page.keyboard.down("KeyS"); await page.waitForTimeout(300); await page.keyboard.up("KeyS");
     await page.keyboard.down("KeyA"); await page.waitForTimeout(2400); await page.keyboard.up("KeyA");
