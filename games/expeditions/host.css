@@ -64,6 +64,9 @@ html:root body .rf-frame-toolbar > *, html:root body .rf-game-frame .rf-frame-to
   font: 600 12px/1 ui-monospace, "Cascadia Mono", Consolas, monospace; white-space: nowrap;
 }
 html:root body .rf-game-frame .rf-frame-toolbar button:hover:not(:disabled) { background: #2e3166; }
+/* the mode label ("Local preview") is status text, not a button: no frame, a small status dot */
+html:root body .rf-frame-toolbar > .rf-frame-mode { background: rgba(23,26,54,.6); border-color: transparent; box-shadow: none; color: #c8c4e6; font-weight: 500; cursor: default; }
+html:root body .rf-frame-toolbar > .rf-frame-mode::before { content: ""; flex: none; width: 6px; height: 6px; margin-right: 6px; background: #7fcf4f; box-shadow: 0 0 0 1px var(--xp-ink); }
 html:root body .rf-frame-menu { background: #1d1f3a; color: #f1efe6; border: 3px solid var(--xp-ink); box-shadow: inset 0 0 0 2px #3a3d6e; }
 html:root body .rf-frame-menu-heading, html:root body .rf-frame-menu-footer { border-color: #3a3d6e; }
 html:root body .rf-frame-menu-heading h2 { color: var(--xp-gold); }
