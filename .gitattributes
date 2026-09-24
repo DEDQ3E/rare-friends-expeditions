@@ -1,0 +1,4 @@
+# Keep LF line endings on every platform, so a fresh clone (Windows included) builds byte-identical docs/.
+* text=auto eol=lf
+*.png binary
+*.tgz binary
