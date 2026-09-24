@@ -62,7 +62,7 @@ Only the find is a paid random outcome. In the preview it comes from the SDK's s
 
 ## Source code
 
-[GitHub repository](https://github.com/DEDQ3E/rare-friends-expeditions) · reviewed build: commit [`a52a591`](https://github.com/DEDQ3E/rare-friends-expeditions/tree/a52a591afcd027a7ad6d6d75eb857a29e1954324) · FriendSDK v0.1.2 · React 19 · TypeScript · [Game rules](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/README.md) · [Economy (`game.json`)](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/game.json)
+[GitHub repository](https://github.com/DEDQ3E/rare-friends-expeditions) · reviewed build: commit [`75e87d7`](https://github.com/DEDQ3E/rare-friends-expeditions/tree/75e87d7dd43fbf6dff70f9afe82ef21e8c65aa6e) · FriendSDK v0.1.2 · React 19 · TypeScript · [Game rules](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/README.md) · [Economy (`game.json`)](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/game.json)
 
 ## Playable demo / how to run
 
