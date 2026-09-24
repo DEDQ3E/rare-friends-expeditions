@@ -131,7 +131,7 @@ Pumpkins appear around the camp during the season.
 ## Friend perks
 
 Your Friend's **family** (read from its canonical sprite) picks the perk; its **generation**
-(`readGenerationEligibility`, read-only) sets the strength. Generation 1 gets rank V and
+(one read-only `generation(tokenId)` call on the Generations contract) sets the strength. Generation 1 gets rank V and
 Generation 5 gets rank I. Generation 6, or an unreadable generation, plays without a perk.
 Perks only change the runs (forest, cave and ruins) and XP. They never change RF prices, odds or finds, and they never
 gate play: every hardwired Friend plays the full game.

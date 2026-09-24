@@ -12,7 +12,7 @@
     "compliance": "node tests/compliance.mjs",
     "mobile": "node tests/mobile.mjs",
     "economy": "node tests/economy.mjs",
-    "simulate": "node scripts/simulate.mjs"
+    "sessions": "node scripts/sessions.mjs"
   },
   "author": "DEDQ3E",
   "license": "Apache-2.0",

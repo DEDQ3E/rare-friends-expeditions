@@ -13,13 +13,16 @@ Rare Friends: Expeditions
 **Category**
 Economy Potential
 
+**One sentence**
+Your own Generations Friend goes on 1 RF expeditions through three mini-games and brings back finds you either sell for RF or keep for an XP bonus, while an Outfitter burns half of every RF it takes (all simulated in this preview).
+
 ## What did you build?
 
 A night camp from which your Rare Friend sets out on short expeditions, each paid for with a 1 RF Expedition Pass and each ending at a chest with one find to keep or sell. Three places, three different mini-games: the **Whispering Forest** (a side-scrolling runner with weather and time of day), the **Crystal Cave** (a lantern-lit descent on a rope through four zones) and the **Sunken Ruins** (a top-down trap gauntlet against a 75-second hourglass). Around them: a Merchant that buys finds at fixed prices, an Outfitter that sells gear and trails as an RF sink, a collection with a hero card, an Economy panel, Friend perks, emotes, a limited Harvest Season and procedural music. Everything lives inside the SDK's 960 × 640 container, and on phones the panels switch to a compact layout.
 
 ## How does it use Rare Friends?
 
-The selected, ownership-verified Friend is the hero of every expedition. Its canonical Generations frames are read through the SDK and drawn in the canonical look (black mask, white one-pixel halo), with its own shape and walk animation. Nothing is worn on it or drawn over it: gear only changes gameplay, the torch and the cave lantern are held beside it, trails are particles behind it, and it is redrawn after rain, darkness and light overlays so nothing tints it. Its **family** picks one of nine perks and its **generation** (read-only `readGenerationEligibility`) sets the strength, from rank V for Generation 1 to rank I for Generation 5, so different Friends play differently. The SDK runtime handles the wallet, Friend selection and the ownership gate; the game adds no wallet code.
+The selected, ownership-verified Friend is the hero of every expedition. Its canonical Generations frames are read through the SDK and drawn in the canonical look (black mask, white one-pixel halo), with its own shape and walk animation. Nothing is worn on it or drawn over it: gear only changes gameplay, the torch and the cave lantern are held beside it, trails are particles behind it, and it is redrawn after rain, darkness and light overlays so nothing tints it. Its **family** picks one of nine perks and its **generation** (one read-only `generation(tokenId)` call on the Generations contract) sets the strength, from rank V for Generation 1 to rank I for Generation 5, so different Friends play differently. The SDK runtime handles the wallet, Friend selection and the ownership gate; the game adds no wallet code.
 
 ## How RF is spent, and the economy
 
@@ -34,12 +37,12 @@ The selected, ownership-verified Friend is the hero of every expedition. Its can
 
 **Per pass:** expected return 0.90 RF, standard deviation 1.34 RF, 23% chance of getting 1 RF or more back.
 
-**Simulated sessions** (200,000 seeded Monte Carlo sessions from `game.json`, every find sold; reproduce with `npm run simulate`):
+**Sessions** (exact distribution over every possible outcome from `game.json`, every find sold, no sampling; reproduce with `npm run sessions`):
 
 | Passes | Mean back | 10th pct | Median | 90th pct | 99th pct | Sessions ending ahead |
 |---:|---:|---:|---:|---:|---:|---:|
-| 10 (10 RF) | 8.99 RF | 4.60 RF | 8.00 RF | 14.95 RF | 22.20 RF | 31% |
-| 30 (30 RF) | 27.01 RF | 18.45 RF | 26.05 RF | 36.85 RF | 47.95 RF | 30% |
+| 10 (10 RF) | 9.00 RF | 4.60 RF | 8.00 RF | 14.95 RF | 22.40 RF | 31% |
+| 30 (30 RF) | 27.00 RF | 18.45 RF | 26.05 RF | 36.85 RF | 47.75 RF | 30% |
 
 Most sessions lose a little, about three in ten end ahead, and big finds are rare but real. The edge is small enough to keep players coming back and large enough to fund the bank.
 
@@ -110,13 +113,13 @@ Expected reward **0.90 RF per pass** (10% game edge, price curve as in the SDK f
 
 ## What have you tested?
 
-All pass: `npm run typecheck`; `npm run check` (game validation: expected reward 0.9 RF, maximum 10 RF); `npm test` (SDK browser fixture at 960 px); `npm run economy` (exact odds across all 10,000 rolls, expected return, reserve, the keepsake curve, and every published odds and simulation table checked against `game.json` and `npm run simulate`); `npm run playthrough` (a Playwright playthrough of the whole loop: camp walking, buying passes, the forest run, chest, selling, Outfitter, collection, economy panel, the Crystal Cave and the Sunken Ruins); `npm run compliance` (the SDK container stays at most 960 × 640 at 3:2 on five screen sizes, the sandbox is `allow-scripts`, the toolbar is not cut off); and `npm run mobile` (the camp and every panel at 390 × 844, 844 × 390 and 740 × 360, plus a run and the chest sideways). A fresh clone builds with `npm ci`, and the published `docs/` matches a fresh build. Browser tests use the SDK's mock wallet and simulated RPC.
+All pass: `npm run typecheck`; `npm run check` (game validation: expected reward 0.9 RF, maximum 10 RF); `npm test` (SDK browser fixture at 960 px); `npm run economy` (exact odds across all 10,000 rolls, expected return, reserve, the keepsake curve, and every published odds and session table checked against `game.json` and `npm run sessions`); `npm run playthrough` (a Playwright playthrough of the whole loop: camp walking, buying passes, the forest run, chest, selling, Outfitter, collection, economy panel, the Crystal Cave and the Sunken Ruins); `npm run compliance` (the SDK container stays at most 960 × 640 at 3:2 on five screen sizes, the sandbox is `allow-scripts`, the toolbar is not cut off); and `npm run mobile` (the camp and every panel at 390 × 844, 844 × 390 and 740 × 360, plus a run and the chest sideways). A fresh clone builds with `npm ci`, and the published `docs/` matches a fresh build. Browser tests use the SDK's mock wallet and simulated RPC.
 
 The public preview was played by hand with a real wallet on Robinhood mainnet holding a Generations NFT, including on a phone in a wallet browser (wallet connection, Friend selection, ownership gate and the full expedition loop). It was repeated on the build with the keepsake bonus.
 
 ## Known limitations
 
-The SDK sandbox has no storage, so XP, level and Outfitter items reset when the session ends. The Outfitter burn / rewards split needs a custom RF integration before live use. Which cave and ruins finds you hold is remembered per session, because the SDK inventory counts rarity tiers. Live mode has never run against a deployed contract. No live token spending, trading, wearable NFTs or creator fees are included.
+The SDK sandbox has no storage, so XP, level and Outfitter items reset when the session ends. The Outfitter burn / rewards split needs a custom RF integration before live use. Which cave and ruins finds you hold is remembered per session, because the SDK inventory counts rarity tiers. Live mode has never run against a deployed contract. No funds are at risk in the preview: it never asks for a transaction, a signature or an RF approval; the wallet is only used to connect, switch to Robinhood mainnet and prove ownership. No live token spending, trading, wearable NFTs or creator fees are included.
 
 **Roadmap (not in this MVP):** passes on the SDK's live `ChanceGame`; finds as tradable assets paired with $RAREFRIENDS, where the fixed Merchant price is a built-in price floor and a creator fee on trades flows to the game bank and Friend rewards; a new limited Outfitter item and themed finds every season; persistent XP, levels and gear once the SDK offers storage.
 

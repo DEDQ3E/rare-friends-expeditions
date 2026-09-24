@@ -1,9 +1,9 @@
 // Economy tests: exact odds over all 10,000 rolls, expected return, reserve, keepsake bonus curve,
-// and that every published table (READMEs) matches game.json and the seeded simulation.
+// exact session statistics, and that every published table (READMEs) matches game.json and scripts/sessions.mjs.
 // Needs Node.js 22.18+ (imports keepsakes.ts directly).
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { simulate } from "../scripts/simulate.mjs";
+import { sessions } from "../scripts/sessions.mjs";
 import { KEEP_CAP_BPS, KEEP_XP_BPS, keepsakeBps } from "../games/expeditions/keepsakes.ts";
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
@@ -74,10 +74,14 @@ test("submission/README.md: keepsake bonuses match keepsakes.ts", () => {
   labels.forEach((label, i) => assert.ok(text.includes(`${label} +${KEEP_XP_BPS[i + 1] / 100}%`), `${label} +${KEEP_XP_BPS[i + 1] / 100}%`));
 });
 
-test("submission/README.md: simulated sessions match scripts/simulate.mjs", () => {
+test("sessions: the exact mean is N × 0.90 RF", () => {
+  for (const r of sessions({ ...game, price })) assert.equal(r.mean, (r.passes * 0.9).toFixed(2));
+});
+
+test("submission/README.md: session table matches scripts/sessions.mjs", () => {
   const text = read("submission/README.md");
-  for (const r of simulate(game)) {
-    const row = `| ${r.passes} (${r.passes} RF) | ${r.mean} RF | ${r.p10} RF | ${r.median} RF | ${r.p90} RF | ${r.p99} RF | ${r.aheadPct}% |`;
+  for (const r of sessions({ ...game, price })) {
+    const row = `| ${r.passes} (${r.passes} RF) | ${r.mean} RF | ${r.p10} RF | ${r.median} RF | ${r.p90} RF | ${r.p99} RF | ${Math.round(r.aheadPct)}% |`;
     assert.ok(text.includes(row), `missing row: ${row}`);
   }
 });

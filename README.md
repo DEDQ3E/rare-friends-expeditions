@@ -77,7 +77,7 @@ npm test                                # SDK browser smoke test (mock wallet)
 npm run playthrough                     # buy → expedition → chest → sell → outfitter → collection
 npm run mobile                          # phone sizes: camp and every panel; a run and the chest sideways
 npm run economy                         # exact odds over 10,000 rolls, EV, keepsakes, published tables
-npm run simulate                        # seeded Monte Carlo behind the submission's session table
+npm run sessions                        # exact session statistics behind the submission's table
 npm run build                           # static build into docs/ (GitHub Pages)
 ```
 
@@ -92,7 +92,7 @@ npm run build                           # static build into docs/ (GitHub Pages)
 | `games/expeditions/art.ts` | Pixel art drawn in code: Friend sprite, scenery, finds, trails |
 | `games/expeditions/game.json` | Economy: pass price, outcome weights, merchant prices |
 | `games/expeditions/keepsakes.ts` | Keepsake bonus for kept finds (hold or redeem) |
-| `scripts/simulate.mjs` | Seeded Monte Carlo of pass sessions |
+| `scripts/sessions.mjs` | Exact distribution of pass sessions (no sampling) |
 | `games/expeditions/README.md` | Controls, exact rules and economy |
 | `docs/` | Static build served by GitHub Pages |
 | `tests/` | Economy, playthrough, container compliance, phone layout and README screenshot scripts |
