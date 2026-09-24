@@ -1,88 +1,40 @@
 # Rare Friends: Expeditions
 
-Send your Rare Friend from a night camp on short expeditions (a forest runner, a lantern-lit cave descent and a top-down ruins trap gauntlet): buy a 1 RF pass, play the run, and bring back a chest with a find you keep or sell for RF.
+![Night camp with the expedition board, Outfitter, Collection and Merchant](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/camp.png)
 
-**Builder:** [DEDQ3E](https://github.com/DEDQ3E) · **Contact:** Discord `dedq3e3`, Telegram [@DEDQ3E](https://t.me/DEDQ3E) · **Category:** Economy Potential · **SDK:** FriendSDK v0.1.2
+🕹️ **Play: https://dedq3e.github.io/rare-friends-expeditions/**
 
-Your selected Generations NFT is the hero of every expedition, and $RAREFRIENDS powers two independent spend loops: repeatable Expedition Passes (SDK chance game) and an Outfitter RF sink (50% burn / 50% Friend rewards). [Source code](https://github.com/DEDQ3E/rare-friends-expeditions) · [Game rules](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/README.md) · [Economy](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/game.json)
+**Project name**
+Rare Friends: Expeditions
 
-**Why it is an economy, not just a minigame:** two independent $RAREFRIENDS loops run side by side: a repeatable pass with a transparent 0.90 RF expected return where every pass reserves its 10 RF top prize, and a never-refunded Outfitter sink that burns 50% of each purchase. Every find carries a fixed Merchant price with no expiry, a ready-made price floor if finds become tradable assets paired with $RAREFRIENDS.
+**Builder / contact**
+[DEDQ3E](https://github.com/DEDQ3E) · Discord `dedq3e3` · Telegram [@DEDQ3E](https://t.me/DEDQ3E)
 
-| | | |
-|---|---|---|
-| ![Night camp](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/camp.png) | ![Expedition board with odds and prices](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/board.png) | ![Economy panel](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/economy.png) |
-| ![Whispering Forest](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/forest.png) | ![Crystal Cave](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/cave.png) | ![Sunken Ruins](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/ruins.png) |
+**Category**
+Economy Potential
 
-## Play it
+## What did you build?
 
-**Public preview:** https://dedq3e.github.io/rare-friends-expeditions/
+A night camp from which your Rare Friend sets out on short expeditions, each paid for with a 1 RF Expedition Pass and each ending at a chest with one find to keep or sell. Three places, three different mini-games: the **Whispering Forest** (a side-scrolling runner with weather and time of day), the **Crystal Cave** (a lantern-lit descent on a rope through four zones) and the **Sunken Ruins** (a top-down trap gauntlet against a 75-second hourglass). Around them: a Merchant that buys finds at fixed prices, an Outfitter that sells gear and trails as an RF sink, a collection with a hero card, an Economy panel, Friend perks, emotes, a limited Harvest Season and procedural music. Everything lives inside the SDK's 960 × 640 container, and on phones the panels switch to a compact layout.
 
-Requires a browser wallet on **Robinhood mainnet (4663)** holding a **hardwired Rare Friends Generations NFT (generation ≥ 1)**. The SDK runtime connects the wallet, lists your Friends and verifies ownership before play. No RF funding or transaction signature is needed: everything is simulated.
+## How does it use Rare Friends?
 
-Run locally with Node.js 22+ on Linux, Windows with WSL2 (both supported by FriendSDK) or native Windows (verified for this project on Windows 11 with Node.js 24). Step-by-step notes for each platform: [Run locally](https://github.com/DEDQ3E/rare-friends-expeditions#run-locally).
+The selected, ownership-verified Friend is the hero of every expedition. Its canonical Generations frames are read through the SDK and drawn in the canonical look (black mask, white one-pixel halo), with its own shape and walk animation. Nothing is worn on it or drawn over it: gear only changes gameplay, the torch and the cave lantern are held beside it, trails are particles behind it, and it is redrawn after rain, darkness and light overlays so nothing tints it. Its **family** picks one of nine perks and its **generation** (read-only `readGenerationEligibility`) sets the strength, from rank V for Generation 1 to rank I for Generation 5, so different Friends play differently. The SDK runtime handles the wallet, Friend selection and the ownership gate; the game adds no wallet code.
 
-```sh
-git clone https://github.com/DEDQ3E/rare-friends-expeditions.git
-cd rare-friends-expeditions
-npm install
-npm run dev
-```
+## How RF is spent, and the economy
 
-## How to play
-
-1. **Camp:** your Friend rests by the fire. Walk around with W A S D and press E at a place (or tap its label). Open the **Expeditions** board, buy passes (1 RF) and press **Set out!** The find is committed at this moment (`client.play`).
-2. **Forest run (~25 s):** a side-scrolling lane: jump with W / Space / ↑ or a tap (Spring Boots add a double jump), move with A / D, drop with S. Collect sparks for XP; roots, slimes and bees cost a heart. Running well gives XP only and never changes the odds. If hearts run out, the run ends and the chest is still delivered without the finish XP bonus: the pass fixed the find at the start (SDK rule: one pass, one result).
-3. **Chest:** the find is revealed (`client.settle`). Keep it or sell it.
-4. **Merchant:** sell finds at fixed prices with no expiry (`client.redeem`).
-5. **Outfitter:** gear: Spring Boots (double jump, 3 RF), Trail Backpack (+1 heart, 4 RF), Cave Lantern (opens the Crystal Cave, 5 RF), Ruins Map (opens the Sunken Ruins, 8 RF); Spark Trail (4 RF), sparkles behind the Friend.
-6. **Collection:** a hero card for your Friend (portrait, family, generation, perk, level, expeditions, pickups, best find) and the finds of all three places.
-7. **Forest life:** oaks, pines and birches; roots, rocks, poisonous mushrooms and fallen logs; slimes in three colours with different moves, hedgehogs, bees and wasps by day, bats at night and frogs in the rain.
-8. **Weather:** each expedition has its own time of day (morning, day, evening, night) and rain (clear, light, heavy, thunderstorm), shown as a forecast on the board. Rain pays a little more XP (×1.1 / ×1.2 / ×1.3) but never changes the odds. The camp weather changes on its own.
-9. **Friend perks:** the Friend's family picks a perk (Bone Guard, Spirit Sight, Kindred, Mitosis, Wild Step, Hover, Heavy Stomp, Glitter, Phase); its generation sets the strength, from rank V (Generation 1) to rank I (Generation 5). Generation 6 plays without a perk. Perks affect the run and XP only, never odds, prices or access.
-10. **Emotes:** speech bubbles and a celebration where the Friend holds its find up, drawn next to the Friend.
-11. **Workbench:** any 10 junk finds (Dry Twigs, Plain Pebbles or Pottery Shards) craft a cosmetic Twig Torch that glows at night.
-12. **Economy panel:** tap the RF balance to see where RF goes (game bank, Merchant, Outfitter 50% burn / 50% rewards), with the 0.90 RF expected return, 10% edge and session totals.
-13. **Sound (on by default, starts with the first click or key; ♪ mutes):** calm camp music, forest tunes by time of day, campfire and crickets, birds, rain that sounds different when light, heavy or stormy (with thunder), plus footsteps, jumps, hits and pickups. All synthesized in code.
-14. **Crystal Cave (second mini-game):** with a Cave Lantern (5 RF) the Friend is lowered down a dark shaft on a rope instead of running: steer with A / D, hold W / Space / tap to slow down, S to dive. Lantern light, glowing crystals and creatures' eyes. Harder than the forest, in four zones: ledges and spiders, then drafts, cave bats, crystal beetles and falling rocks with a warning, then narrow gates and swinging slabs, then everything at once; the rope runs faster the deeper it goes. Crystals give XP (×1.5, chest bonus +10). Same odds and prices, cave-themed finds.
-15. **Harvest Season (until Nov 30):** a limited Falling Leaves trail in the Outfitter (5 RF), same 50% burn / 50% rewards split; pumpkins decorate the camp.
-16. **Sunken Ruins (third mini-game, hardest):** with a Ruins Map (8 RF) the view turns top-down and the Friend crosses a temple tile by tile to the altar before a 75-second hourglass runs out: spike plates rising in waves, dart traps, rolling boulders, crumbling floor over pits and fire vents, in three ever harder halls. Relic shards give XP (×2, chest bonus +15), the most of the three places. Same odds and prices, ruins-themed finds.
-
-Settings include sound on/off (on by default, starting with the first click or key), music on/off, volume, reduce motion and an explanation of sparks, crystals and relic shards (XP). Keyboard (W A S D / arrows, Space, E, Esc) and touch (on-screen pad and action button) are supported; the game honors the runtime's `paused` state and stops held movement on blur.
-
-**Friend artwork (preserved):** the selected Friend is always drawn from its canonical Generations sprite frames in the canonical look (black mask, white one-pixel halo), with its own shape and walk animation. Nothing is worn on it or drawn over it: gear only changes gameplay, the torch and the cave lantern are held beside it, trails are particles behind it, and it is redrawn after weather, darkness and light overlays so nothing tints it.
-
-**Game container:** all game content and menus render inside the SDK's 960 × 640 container (3:2, smaller only on small screens). The optional `host.css` only centers that container on a themed page with a decorative frame and restyles the SDK toolbar colors; the wallet, Friend selection and confirmations stay the SDK's own controls in their own positions. On phones (a frame under 420 px tall) the panels switch to a compact layout that fills the frame, and a phone held upright shows a closable hint to turn it sideways, where the 3:2 frame is much larger. On mobile, open the preview link in your wallet app's built-in browser (for example MetaMask → Browser): regular mobile browsers have no wallet extension.
-
-## Rules and rewards
-
-**All balances, purchases, finds and sales are simulated.** One Expedition Pass costs 1 RF and produces exactly one find.
-
-| Find | Rarity | Chance | Merchant pays |
-|---|---|---:|---:|
-| Dry Twig | Junk | 20% | 0 RF |
-| Acorn | Common | 35% | 0.4 RF |
-| Porcini | Uncommon | 22% | 0.75 RF |
-| Owl Feather | Rare | 13% | 1.5 RF |
-| Amber Beetle | Epic | 6% | 2.5 RF |
-| Golden Scarab | Legendary | 3% | 5 RF |
-| Heart of the Forest | Mythic | 1% | 10 RF |
-
-Expected reward: **0.90 RF per pass** (10% game edge, price curve as in the SDK fishing reference); 23% chance of 1 RF or more. Each purchased pass reserves the maximum 10 RF prize; kept finds retain backing and have no redemption expiry. Outcome names in `game.json` are rarity tiers, so the Crystal Cave and Sunken Ruins reuse the same table and only change how finds look.
-
-**Outfitter purchases are never refunded.** The proposed split mirrors the Rare Friends protocol rule: 50% of each purchase is burned and 50% goes to Friend rewards. FriendSDK v0.1.2 has no upgrade or cosmetic API, so these purchases are simulated on top of the SDK ledger. None of them change RF odds.
-
-## Economy design
-
-**Two independent RF loops, both visible in the game's Economy panel:**
+**Two independent RF loops**, both shown in the game's Economy panel:
 
 | Loop | Player pays | Player gets back | Where the rest goes |
 |---|---|---|---|
-| Expedition Pass (SDK chance game, repeatable) | 1 RF per pass | one find, redeemable at the Merchant for 0.90 RF on average | 10% edge stays in the game bank; every pass reserves the 10 RF top prize, so the bank can always pay |
+| Expedition Pass (SDK chance game, repeatable) | 1 RF per pass | one find, worth 0.90 RF on average at the Merchant | 10% edge stays in the game bank; every pass reserves the 10 RF top prize, so the bank can always pay |
 | Outfitter (pure sink) | 3–8 RF per item, 29 RF for the full catalog | nothing: never refunded, no effect on odds | 50% burned, 50% to Friend rewards (proposed protocol split) |
+
+**Hold or redeem.** A find is a *productive keepsake*: while the Friend keeps it, it adds XP to every expedition, and selling it at the Merchant pays its fixed RF and gives the bonus up. Common +1%, Uncommon +2%, Rare +5%, Epic +10%, Legendary +25%, Mythic +60%, up to +100% in total. Rarer finds give more bonus per RF they hold back (2.5% per RF for a Common, 6% per RF for a Mythic), so the biggest prizes are the ones most worth keeping and **their RF stays in the game as backing** instead of returning to circulation. The bonus changes XP only, never odds, prices or finds.
 
 **Per pass:** expected return 0.90 RF, standard deviation 1.34 RF, 23% chance of getting 1 RF or more back.
 
-**Simulated sessions** (200,000 seeded Monte Carlo sessions from `game.json`, every find sold at the Merchant):
+**Simulated sessions** (200,000 seeded Monte Carlo sessions from `game.json`, every find sold; reproduce with `npm run simulate`):
 
 | Passes | Mean back | 10th pct | Median | 90th pct | 99th pct | Sessions ending ahead |
 |---:|---:|---:|---:|---:|---:|---:|
@@ -91,24 +43,88 @@ Expected reward: **0.90 RF per pass** (10% game edge, price curve as in the SDK 
 
 Most sessions lose a little, about three in ten end ahead, and big finds are rare but real. The edge is small enough to keep players coming back and large enough to fund the bank.
 
-**Why players keep spending RF:**
+**Why players keep spending RF:** harder places behind gear (Cave Lantern 5 RF, Ruins Map 8 RF, with ×1.5 and ×2 XP), gear and trails that change the run and the look but never the odds, a Harvest Season trail sold only until Nov 30, keepsakes worth holding, and a Twig Torch crafted from 10 junk finds, so even a 0 RF chest moves progress.
 
-- **Access:** the Crystal Cave (Cave Lantern, 5 RF) and the Sunken Ruins (Ruins Map, 8 RF) are harder places with ×1.5 and ×2 XP.
-- **Gear and style:** Spring Boots, Trail Backpack and trails change the run and the look, never the odds, so spending buys fun, not an edge.
-- **Scarcity in time:** the Harvest Season trail is sold only until Nov 30. Every season can add a new limited sink.
-- **Junk has a use:** 10 junk finds craft a Twig Torch, so even a 0 RF chest moves progress.
-- **Your Friend matters:** for generations 1–5, the family picks a perk and the generation sets its strength, so different Friends play differently.
+## What would be on-chain?
 
-**Roadmap to a live economy (not in this MVP; everything above is simulated):**
+Nothing in this build; no transaction is ever sent. Going live needs no new contract for the pass loop, only a deployment of the SDK's `ChanceGame` with this `game.json` (its RF price and outcome table are immutable):
 
-1. **Passes on-chain:** switch from the simulated adapter to FriendSDK's live chance-game contract with the same `game.json`, the same odds and the same bank reserve.
-2. **Finds as tradable assets paired with $RAREFRIENDS:** every find already has a fixed Merchant price with no expiry, which works as a built-in price floor. Players could trade finds above that floor, with a creator fee on each trade flowing to the game bank and Friend rewards. A 1% Mythic find becomes a real collectible.
-3. **Seasons as limited editions:** each season adds a time-limited Outfitter item and new themed finds, a recurring reason to spend.
-4. **Outfitter burn as a protocol integration:** the 50% burn / 50% rewards split needs a custom RF integration (FriendSDK v0.1.2 has no upgrade API).
-5. **Persistent progress** once the SDK offers storage: XP, levels and gear saved per Friend make gear a lasting purchase.
+- `buy` pays RF from the Friend's canonical NFT wallet and mints Expedition Passes into it (non-transferable consumables). Each purchase reserves the 10 RF top prize from the game's stake.
+- `play` burns a pass and commits the play when the Friend sets out.
+- A sponsor pays the Dice fee, the oracle records one random word, and anyone can `settle`: the find is minted as a permanent ERC-1155 reward into the canonical NFT wallet.
+- `redeem` burns a find for its fixed RF, back into the same NFT wallet, with no expiry. Reserves for unused passes, pending plays and kept finds cannot be withdrawn by the developer.
 
-## Checks, credits and limitations
+RF, passes, finds, backing and every outcome would be on-chain. The keepsake bonus becomes a read of the Friend wallet's find balances, so it is verifiable from chain state. XP, levels, gear and the runs stay off-chain. The Outfitter's 50% burn / 50% rewards split needs a custom RF integration, and saved progress needs storage that FriendSDK v0.1.2 does not supply.
 
-Checks run: `npm run typecheck` (pass), `npx friendsdk check games/expeditions` (valid; expected reward 0.9 RF, maximum 10 RF), `npx friendsdk test games/expeditions` (automated fixture at 960 px, pass), `npm run playthrough` — a scripted Playwright playthrough with the SDK mock wallet covering camp walking, buying passes, the forest run, chest, selling, Outfitter, collection, economy panel, the Crystal Cave descent and the Sunken Ruins gauntlet (pass), and `npm run compliance` — the SDK container stays at most 960 × 640 with a 3:2 ratio at 1920×1080, 1382×800, 1024×700, 390×844 and 844×390, the game runs in the SDK iframe with `sandbox="allow-scripts"`, and the SDK toolbar labels stay inside the container and are not cut off (pass), and `npm run mobile` — the camp and every camp panel at phone sizes 390×844, 844×390 and 740×360, plus a forest run and the chest reveal at 844×390 (pass). Automated browser tests use mocked wallets and RPC. A manual playthrough of the public preview with a real wallet on Robinhood mainnet (4663) holding a Generations NFT also passed: wallet connection, Friend selection, ownership gate and the full expedition loop.
+## How does it use randomness?
 
-All camp, forest, cave, ruins, find, chest and UI artwork was drawn in code for this project; music and sound effects are synthesized in code. The Friend uses the canonical Rare Friends Generations sprites and the SDK sound kit under the FriendSDK NOTICE. No trading, wearable NFTs, creator fees or live contracts are included. Known limits: the SDK sandbox has no storage, so XP, level and Outfitter items reset on reload; Outfitter burn/rewards needs a custom RF integration before live use; which cave and ruins finds you hold is remembered per session (the SDK inventory counts rarity tiers). Production publication needs separate Rare Friends review.
+Only the find is a paid random outcome. In the preview it comes from the SDK's simulated ledger; live, it is the SDK's Dice commit-and-reveal flow: the pass is burned and the play committed before any randomness exists, one request per play, no reroll, and a slow delivery resumes the same play ("Resume expedition") without another pass. The browser never chooses the find, and the chest is delivered even if the Friend runs out of hearts: the SDK rule is one pass, one result. Obstacles, creatures, weather and pickups are browser-random gameplay with no RF value; skill and weather change XP only.
+
+## Source code
+
+[GitHub repository](https://github.com/DEDQ3E/rare-friends-expeditions) · reviewed build: commit [`a52a591`](https://github.com/DEDQ3E/rare-friends-expeditions/tree/a52a591afcd027a7ad6d6d75eb857a29e1954324) · FriendSDK v0.1.2 · React 19 · TypeScript · [Game rules](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/README.md) · [Economy (`game.json`)](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/game.json)
+
+## Playable demo / how to run
+
+**Play: https://dedq3e.github.io/rare-friends-expeditions/** (GitHub Pages, built with `friendsdk build`). You need a browser wallet holding a hardwired Rare Friends Generations NFT (generation 1 or higher) on Robinhood mainnet (chain 4663). No RF funding or transaction signature is needed. On a phone, open the link in your wallet app's built-in browser (for example MetaMask → Browser) and hold the phone sideways: regular mobile browsers have no wallet extension.
+
+To run locally with Node.js 22+ on Linux, Windows with WSL2 (both supported by FriendSDK) or native Windows (verified on Windows 11 with Node.js 24):
+
+```sh
+git clone https://github.com/DEDQ3E/rare-friends-expeditions.git
+cd rare-friends-expeditions
+npm ci
+npm run dev        # http://localhost:4173
+```
+
+Step-by-step notes for each platform: [Run locally](https://github.com/DEDQ3E/rare-friends-expeditions#run-locally).
+
+## How do you play?
+
+1. **Camp:** walk with W A S D or the arrows (on touch, the on-screen pad) and press **E** at a place, or tap its label. At the **Expeditions** board buy passes, pick a place and press **Set out!** The find is committed at this moment.
+2. **Whispering Forest (~25 s):** jump with W / Space / ↑ or a tap (Spring Boots add a double jump), move with A / D, drop with S. Collect sparks; roots, rocks, slimes, hedgehogs, bees and bats cost a heart. Each expedition rolls its own time of day and rain, shown as a forecast on the board; rain pays a little more XP (×1.1 / ×1.2 / ×1.3).
+3. **Crystal Cave (Cave Lantern, 5 RF):** the Friend is lowered on a rope: steer with A / D, hold W / Space / tap to slow down, S to dive. Four zones: ledges and spiders, drafts, bats and falling rocks with a warning, narrow gates and swinging slabs, then everything at once. Crystals give XP ×1.5.
+4. **Sunken Ruins (Ruins Map, 8 RF):** top-down, tile by tile to the altar before the sand runs out: spike plates in waves, dart traps, rolling boulders, crumbling floor over pits and fire vents, in three ever harder halls. Relic shards give XP ×2.
+5. **Chest:** the find is revealed. **Keep it** for its keepsake bonus, or **sell** it.
+6. **Merchant:** buys finds at fixed prices with no expiry and shows each find's keepsake bonus.
+7. **Outfitter:** Spring Boots (double jump, 3 RF), Trail Backpack (+1 heart, 4 RF), Cave Lantern (5 RF), Ruins Map (8 RF), Spark Trail (4 RF) and the Harvest Season Falling Leaves trail (5 RF, until Nov 30). The workbench turns 10 junk finds into a Twig Torch that glows at night.
+8. **Collection:** a hero card (portrait, family, generation, perk, level, keepsake bonus, best find) and the finds of all three places. **Economy panel:** tap the RF balance to see where every RF goes.
+
+Pickups give 1 XP each plus a bonus for reaching the chest (doubled without a hit), multiplied by the place, the Friend's perk and its keepsakes. XP raises the level and title: Novice → Tracker → Seeker → Pathfinder → Legend. Settings: sound (on by default, starts with the first click or key), music, volume and reduce motion; the game honors the runtime's `paused` state. Keyboard and touch are both supported.
+
+## Costs and rewards
+
+**Everything is simulated.** You start with 20 RF; each pass costs 1 RF and gives exactly one find. All three places share one table; the place only changes how a find looks.
+
+| Find (forest) | Rarity | Chance | Merchant pays | Keepsake bonus |
+|---|---|---:|---:|---:|
+| Dry Twig | Junk | 20% | 0 RF | — |
+| Acorn | Common | 35% | 0.4 RF | +1% XP |
+| Porcini | Uncommon | 22% | 0.75 RF | +2% XP |
+| Owl Feather | Rare | 13% | 1.5 RF | +5% XP |
+| Amber Beetle | Epic | 6% | 2.5 RF | +10% XP |
+| Golden Scarab | Legendary | 3% | 5 RF | +25% XP |
+| Heart of the Forest | Mythic | 1% | 10 RF | +60% XP |
+
+Expected reward **0.90 RF per pass** (10% game edge, price curve as in the SDK fishing reference). Each purchased pass reserves the 10 RF top prize; kept finds retain backing and have no redemption expiry. **Outfitter purchases are never refunded**: 50% is burned and 50% goes to Friend rewards (proposed split, simulated on top of the SDK ledger because FriendSDK v0.1.2 has no upgrade API). Nothing in the Outfitter changes RF odds.
+
+## What have you tested?
+
+All pass: `npm run typecheck`; `npm run check` (game validation: expected reward 0.9 RF, maximum 10 RF); `npm test` (SDK browser fixture at 960 px); `npm run economy` (exact odds across all 10,000 rolls, expected return, reserve, the keepsake curve, and every published odds and simulation table checked against `game.json` and `npm run simulate`); `npm run playthrough` (a Playwright playthrough of the whole loop: camp walking, buying passes, the forest run, chest, selling, Outfitter, collection, economy panel, the Crystal Cave and the Sunken Ruins); `npm run compliance` (the SDK container stays at most 960 × 640 at 3:2 on five screen sizes, the sandbox is `allow-scripts`, the toolbar is not cut off); and `npm run mobile` (the camp and every panel at 390 × 844, 844 × 390 and 740 × 360, plus a run and the chest sideways). A fresh clone builds with `npm ci`, and the published `docs/` matches a fresh build. Browser tests use the SDK's mock wallet and simulated RPC.
+
+The public preview was played by hand with a real wallet on Robinhood mainnet holding a Generations NFT, including on a phone in a wallet browser (wallet connection, Friend selection, ownership gate and the full expedition loop). That playthrough was before the keepsake bonus was added; the keepsake build passes every automated check above.
+
+## Known limitations
+
+The SDK sandbox has no storage, so XP, level and Outfitter items reset when the session ends. The Outfitter burn / rewards split needs a custom RF integration before live use. Which cave and ruins finds you hold is remembered per session, because the SDK inventory counts rarity tiers. Live mode has never run against a deployed contract. No live token spending, trading, wearable NFTs or creator fees are included.
+
+**Roadmap (not in this MVP):** passes on the SDK's live `ChanceGame`; finds as tradable assets paired with $RAREFRIENDS, where the fixed Merchant price is a built-in price floor and a creator fee on trades flows to the game bank and Friend rewards; a new limited Outfitter item and themed finds every season; persistent XP, levels and gear once the SDK offers storage.
+
+## Credits
+
+All camp, forest, cave, ruins, find, chest and UI artwork is drawn in code for this project; music, ambience and effects are synthesized with Web Audio. The game ships no image, font or audio files and no third-party assets. The Friend uses the canonical Rare Friends Generations sprites and the SDK sound kit under the [FriendSDK NOTICE](https://github.com/spokesz/friendsdk/blob/main/NOTICE.md).
+
+| | | |
+|---|---|---|
+| ![Expedition board with odds and prices](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/board.png) | ![Economy panel](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/economy.png) | ![Expedition board on a phone](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/phone-board.png) |
+| ![Whispering Forest](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/forest.png) | ![Crystal Cave](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/cave.png) | ![Sunken Ruins](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/ruins.png) |

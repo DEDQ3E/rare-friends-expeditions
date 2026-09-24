@@ -163,7 +163,7 @@ glows at dusk and at night. Junk finds have no RF value, so crafting is free (si
 ## Sparks, crystals and relic shards
 
 Pickups in the forest (sparks), cave (crystals) and ruins (relic shards) give **XP**: 1 XP each, plus a bonus for
-reaching the chest, multiplied by the place and the Friend's perk. The harder the place, the more XP:
+reaching the chest, multiplied by the place, the Friend's perk and its keepsakes. The harder the place, the more XP:
 
 | Place | Difficulty | XP multiplier | Chest bonus (no hit) | Pickups on the way | Full clear, no hit |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -174,12 +174,32 @@ reaching the chest, multiplied by the place and the Friend's perk. The harder th
 Levels: 0 → 25 → 75 → 160 → 300 XP. XP raises the level and title (Novice → Tracker → Seeker → Pathfinder → Legend). They are
 not RF and never change finds. Settings explains this in the game.
 
+## Keepsakes: hold or redeem
+
+Every find the Friend keeps instead of selling adds XP to every expedition while it is held; selling it at
+the Merchant pays its fixed RF and gives that bonus up. The bonus is read from the SDK inventory, so it always
+matches the ledger, and it is capped at **+100% XP** in total (`keepsakes.ts`).
+
+| Rarity | Merchant pays | Keepsake bonus | Bonus per RF held |
+| --- | ---: | ---: | ---: |
+| Junk | 0 RF | — | — |
+| Common | 0.4 RF | +1% XP | 2.5% |
+| Uncommon | 0.75 RF | +2% XP | 2.7% |
+| Rare | 1.5 RF | +5% XP | 3.3% |
+| Epic | 2.5 RF | +10% XP | 4% |
+| Legendary | 5 RF | +25% XP | 5% |
+| Mythic | 10 RF | +60% XP | 6% |
+
+Rarer finds give more bonus per RF they hold back, so the biggest prizes are the ones most worth keeping and
+their RF stays in the game as backing. Keepsakes change XP only, never odds, prices or finds. The chest
+screen, the Merchant, the hero card and the Economy panel show the bonus.
+
 ## Economy panel
 
 Tap the RF balance (or the **RF** button) to see where every RF goes: passes go to the game bank that
 pays the Merchant; Outfitter purchases split 50% burned / 50% Friend rewards. It also lists the
-expected return (0.90 RF), the edge (10%), the 23% chance of 1 RF or more, the 10 RF reserve and this
-session's totals.
+expected return (0.90 RF), the edge (10%), the 23% chance of 1 RF or more, the 10 RF reserve, the current
+keepsake bonus and this session's totals.
 
 ## Economy (`game.json`)
 

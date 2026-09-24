@@ -2,7 +2,8 @@
 
 Send your Rare Friend from a cozy night camp on short expeditions: a forest runner, a dark cave descent and a trap-filled ruins maze.
 Every expedition costs one Expedition Pass (1 RF) and ends at a chest with a find that you keep
-or sell back for RF. An outfitter sells gear and cosmetics as a pure RF sink (50% burn / 50% rewards).
+or sell back for RF. Kept finds add XP to every expedition (hold or redeem), and an outfitter sells gear
+and cosmetics as a pure RF sink (50% burn / 50% rewards).
 
 **Play the preview:** https://dedq3e.github.io/rare-friends-expeditions/
 (needs a browser wallet on Robinhood mainnet, chain 4663, holding a hardwired Rare Friends Generations NFT, generation ≥ 1)
@@ -75,6 +76,8 @@ npm install -D playwright && npx playwright install chromium
 npm test                                # SDK browser smoke test (mock wallet)
 npm run playthrough                     # buy → expedition → chest → sell → outfitter → collection
 npm run mobile                          # phone sizes: camp and every panel; a run and the chest sideways
+npm run economy                         # exact odds over 10,000 rolls, EV, keepsakes, published tables
+npm run simulate                        # seeded Monte Carlo behind the submission's session table
 npm run build                           # static build into docs/ (GitHub Pages)
 ```
 
@@ -88,9 +91,11 @@ npm run build                           # static build into docs/ (GitHub Pages)
 | `games/expeditions/audio.ts` | Music, ambience and effects synthesized with Web Audio |
 | `games/expeditions/art.ts` | Pixel art drawn in code: Friend sprite, scenery, finds, trails |
 | `games/expeditions/game.json` | Economy: pass price, outcome weights, merchant prices |
+| `games/expeditions/keepsakes.ts` | Keepsake bonus for kept finds (hold or redeem) |
+| `scripts/simulate.mjs` | Seeded Monte Carlo of pass sessions |
 | `games/expeditions/README.md` | Controls, exact rules and economy |
 | `docs/` | Static build served by GitHub Pages |
-| `tests/` | Playthrough, container compliance, phone layout and README screenshot scripts |
+| `tests/` | Economy, playthrough, container compliance, phone layout and README screenshot scripts |
 | `media/` | Screenshots used in the READMEs (`node tests/media.mjs media`) |
 
 Game rules and the full economy table: [games/expeditions/README.md](games/expeditions/README.md).
