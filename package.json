@@ -10,7 +10,9 @@
     "typecheck": "tsc -p tsconfig.json",
     "playthrough": "node tests/playthrough.mjs",
     "compliance": "node tests/compliance.mjs",
-    "mobile": "node tests/mobile.mjs"
+    "mobile": "node tests/mobile.mjs",
+    "economy": "node tests/economy.mjs",
+    "simulate": "node scripts/simulate.mjs"
   },
   "author": "DEDQ3E",
   "license": "Apache-2.0",
@@ -20,6 +22,7 @@
     "react-dom": "^19.3.0"
   },
   "private": true,
+  "type": "module",
   "devDependencies": {
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

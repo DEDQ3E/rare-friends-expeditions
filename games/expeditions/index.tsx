@@ -11,6 +11,7 @@ import { createFriendPublicClient } from "@rarefriends/friendsdk/wallet";
 import { WEATHER_ICONS, FINDS, LOCATIONS, LOCATION_NAME, PASS, RARITIES, RARITY_COLOR, RARITY_LABEL, HEART, SPARK, CRYSTAL, drawHero, pixmapUrl, type HeroLook, type Location } from "./art.js";
 import { RAIN_LABEL, TIME_LABEL, XP_MULT, rollWeather, type Rain, type Weather } from "./weather.js";
 import { RANK_LABEL, perkFor } from "./perks.js";
+import { KEEP_CAP_BPS, KEEP_XP_BPS, keepText, keepsakeBps } from "./keepsakes.js";
 import { createSoundscape, type Soundscape } from "./audio.js";
 import { CAVE_ZONES } from "./cave.js";
 import { RELIC, RUINS_ZONES } from "./ruins.js";
@@ -93,6 +94,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const [runResult, setRunResult] = useState<RunResult | null>(null);
   const [reveal, setReveal] = useState<GamePlay | null>(null);
   const [gainedXp, setGainedXp] = useState(0);
+  const [gainedKeep, setGainedKeep] = useState(0);
   const [showHint, setShowHint] = useState(true);
   const [walkHintClosed, setWalkHintClosed] = useState(false);
   const [runHintClosed, setRunHintClosed] = useState(false);
@@ -299,7 +301,10 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   useEffect(() => {
     if (phase !== "chest" || !runResult || playId === null) return;
     const bonus = runResult.completed ? FINISH_XP[runLoc] * (runResult.hits === 0 ? 2 : 1) : 0;
-    const gained = Math.round((runResult.sparks + bonus) * locXp(runLoc) * perk.effects.xpMult); setGainedXp(gained); setXp(v => v + gained);
+    // finds held when the run ends (not this run's chest yet) add their keepsake bonus
+    const keepBps = snapshot ? keepsakeBps(snapshot.inventory) : 0;
+    const gained = Math.round((runResult.sparks + bonus) * locXp(runLoc) * perk.effects.xpMult * (1 + keepBps / 10000));
+    setGainedXp(gained); setGainedKeep(keepBps); setXp(v => v + gained);
     setTotalSparks(v => v + runResult.sparks);
     const id = playId; const timer = window.setTimeout(() => settleRef.current(id), reducedMotion ? 150 : 900);
     return () => window.clearTimeout(timer);
@@ -416,6 +421,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const revealOutcome = revealIndex >= 0 ? definition.outcomes[revealIndex] : null;
   const invCount = snapshot.inventory.reduce((a, n, i) => definition.outcomes[i].reward > 0n ? a + n : a, 0n);
   const invValue = snapshot.inventory.reduce((a, n, i) => a + n * definition.outcomes[i].reward, 0n);
+  const heldBps = keepsakeBps(snapshot.inventory);
   const nextLevel = LEVELS[Math.min(level + 1, LEVELS.length - 1)];
   const levelFloor = LEVELS[level];
   const xpPct = level === LEVELS.length - 1 ? 100 : Math.round(((xp - levelFloor) / (nextLevel - levelFloor)) * 100);
@@ -521,8 +527,8 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
         <img className={reducedMotion ? "" : "xp-pop"} src={findIcon(runLoc, revealIndex)} alt="" width={100} height={100} />
         <h2 id="xp-reveal-title">{FINDS[runLoc][revealIndex].name}</h2>
         <p className="xp-blurb">{FINDS[runLoc][revealIndex].blurb}</p>
-        <p className="xp-small">{revealOutcome.reward > 0n ? `Merchant pays ${rfText(revealOutcome.reward)} · no expiry` : "No RF value · a keepsake for the collection"}</p>
-        <p className="xp-small">{runWord}: <img src={inCave ? icons.crystal : icons.spark} alt="" width={15} height={15} /> {runResult?.sparks ?? 0} {pickWord} · +{gainedXp} XP{inCave ? ` (cave ×${CAVE_XP})` : inRuins ? ` (ruins ×${RUINS_XP})` : XP_MULT[runWeather.rain] > 1 ? ` (${RAIN_LABEL[runWeather.rain].toLowerCase()} ×${XP_MULT[runWeather.rain]})` : ""}{perk.effects.xpMult > 1 ? ` (${perkLabel} ×${perk.effects.xpMult.toFixed(2).replace(/0$/, "")})` : ""}{runResult?.completed && runResult.hits === 0 ? " · flawless!" : ""}</p>
+        <p className="xp-small">{revealOutcome.reward > 0n ? `Merchant pays ${rfText(revealOutcome.reward)} · no expiry · or keep it: ${keepText(KEEP_XP_BPS[revealIndex])} XP on every expedition while held` : "No RF value · a keepsake for the collection"}</p>
+        <p className="xp-small">{runWord}: <img src={inCave ? icons.crystal : icons.spark} alt="" width={15} height={15} /> {runResult?.sparks ?? 0} {pickWord} · +{gainedXp} XP{inCave ? ` (cave ×${CAVE_XP})` : inRuins ? ` (ruins ×${RUINS_XP})` : XP_MULT[runWeather.rain] > 1 ? ` (${RAIN_LABEL[runWeather.rain].toLowerCase()} ×${XP_MULT[runWeather.rain]})` : ""}{perk.effects.xpMult > 1 ? ` (${perkLabel} ×${perk.effects.xpMult.toFixed(2).replace(/0$/, "")})` : ""}{gainedKeep > 0 ? ` (keepsakes ${keepText(gainedKeep)})` : ""}{runResult?.completed && runResult.hits === 0 ? " · flawless!" : ""}</p>
         <div className="xp-row">
           <button type="button" className="xp-btn" disabled={busy} onClick={backToCamp}>Keep it</button>
           {revealOutcome.reward > 0n && <button type="button" className="xp-btn xp-primary" disabled={busy || paused}
@@ -566,12 +572,13 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
 
           {panel === "merchant" && <>
             <p>“Fair prices, forever. I never change them.” · Your finds are worth <b>{rfText(invValue)}</b>.</p>
+            <p className="xp-small">Kept finds add <b>{keepText(heldBps)} XP</b> to every expedition (up to {keepText(KEEP_CAP_BPS)}). Selling a find pays its RF and gives its share of the bonus up.</p>
             {LOCATIONS.flatMap(loc => definition.outcomes.map((o, i) => {
               const n = heldAt(loc, i);
               if (o.reward === 0n || (loc !== "forest" && n === 0n)) return null;
               return <div className="xp-item" key={`${loc}-${o.name}`}>
                 <img src={findIcon(loc, i)} alt="" width={30} height={30} />
-                <span><strong style={{ color: RARITY_COLOR[RARITIES[i]] }}>{FINDS[loc][i].name}</strong><small>{n.toString()} owned · {rfText(o.reward)} each</small></span>
+                <span><strong style={{ color: RARITY_COLOR[RARITIES[i]] }}>{FINDS[loc][i].name}</strong><small>{n.toString()} owned · {rfText(o.reward)} each · {keepText(KEEP_XP_BPS[i])} XP while kept</small></span>
                 <button type="button" className="xp-btn" disabled={busy || paused || n === 0n} onClick={() => void sell(i + 1, 1n, loc)}>Sell 1</button>
                 <button type="button" className="xp-btn" disabled={busy || paused || n < 2n} onClick={() => void sell(i + 1, n, loc)}>Sell all</button>
               </div>;
@@ -618,6 +625,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
                 <div className="xp-stats">
                   <span>Level <b>{level + 1}</b> · {TITLES[level]}</span><span>XP <b>{xp}</b>{level < LEVELS.length - 1 ? ` / ${nextLevel}` : ""}</span>
                   <span>Expeditions <b>{expeditions}</b></span><span title="Sparks, crystals and relic shards picked up · each gives 1 XP">Collected <b>{totalSparks}</b></span>
+                  <span className="xp-stat-wide" title="Kept finds add XP to every expedition; selling a find gives its share up">Keepsake bonus <b>{keepText(heldBps)} XP</b> per expedition</span>
                   <span className="xp-stat-wide">Best find <b style={bestFind ? { color: RARITY_COLOR[RARITIES[bestFind.i]] } : undefined}>{bestFind ? FINDS[bestFind.loc][bestFind.i].name : "—"}</b></span>
                 </div>
               </div>
@@ -641,6 +649,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <tr><td>Chance of 1 RF or more back</td><td><b>{winPct}%</b></td></tr>
               <tr><td>Biggest find (bank keeps this in reserve)</td><td><b>{rfText(maxPrize)}</b></td></tr>
               <tr><td>Outfitter purchases</td><td><b>never refunded</b></td></tr>
+              <tr><td>Keepsake bonus (kept finds, hold or sell)</td><td><b>{keepText(heldBps)} XP</b></td></tr>
             </tbody></table>
             <h3>This session</h3>
             <div className="xp-stats">
@@ -648,7 +657,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <span>Outfitter <b>{rfText(storeSpent)}</b></span><span>Burned <b>{rfText(storeSpent / 2n)}</b></span>
               <span className="xp-stat-wide">Finds kept, worth <b>{rfText(invValue)}</b></span>
             </div>
-            <p className="xp-small">Pass purchases, finds and sales are {mode} through FriendSDK. The Outfitter split (50% burn / 50% Friend rewards) is a proposal simulated in this preview: FriendSDK v0.1.2 has no upgrade API. Perks and weather change XP and the run, never odds or prices.</p>
+            <p className="xp-small">Pass purchases, finds and sales are {mode} through FriendSDK. The Outfitter split (50% burn / 50% Friend rewards) is a proposal simulated in this preview: FriendSDK v0.1.2 has no upgrade API. Perks, weather and keepsakes change XP and the run, never odds or prices.</p>
           </>}
 
           {panel === "settings" && <>
@@ -665,6 +674,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <span><img src={icons.relic} alt="" width={21} height={21} /> <b>Relic shards</b> in the Sunken Ruins</span>
             </div>
             <p>Everything you pick up on an expedition turns into <b>experience (XP)</b>: 1 XP each, plus a bonus for reaching the chest: forest +{FINISH_XP.forest}, cave +{FINISH_XP.cave}, ruins +{FINISH_XP.ruins} (doubled without a single hit). The total is multiplied by the place (forest ×1, up to ×1.3 in the rain; cave ×{CAVE_XP}; ruins ×{RUINS_XP}): the harder the place, the more XP and by your Friend's perk. XP raises your Friend's <b>level and title</b>: {TITLES.join(" → ")}. Your progress is shown on the hero card in the Collection. Sparks, crystals and shards are not RF and never change what you find.</p>
+            <p><b>Keepsakes:</b> every find you keep instead of selling adds XP to every expedition while you hold it: {RARITIES.slice(1).map((r, i) => `${RARITY_LABEL[r]} ${keepText(KEEP_XP_BPS[i + 1])}`).join(", ")}, up to {keepText(KEEP_CAP_BPS)} in total. Rarer finds give more bonus per RF, so the best ones are worth holding. Selling a find pays its fixed RF and gives its bonus up.</p>
             <h3>Friend perks</h3>
             <p>Your Friend's family picks its perk; its generation sets the strength: Generation 1 gets rank V, Generation 5 rank I, Generation 6 plays without a perk. Perks help in the forest run and with XP only. Every hardwired Friend plays the full game with the same odds.</p>
             <table className="xp-odds"><tbody>{["Skeleton", "Mask", "Family", "Cellular", "Asymmetry", "Hoverer", "Colossus", "Sparkling", "Hollow"].map(f => { const p = perkFor(f, 1); return <tr key={f}><td>{f}</td><td><b>{p.perk?.name}</b> <small>{p.text} (at V)</small></td></tr>; })}</tbody></table>
