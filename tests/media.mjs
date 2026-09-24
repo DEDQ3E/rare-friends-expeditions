@@ -1,4 +1,4 @@
-// README screenshots with the SDK's mock wallet: camp, the expedition board, the three places, a chest, the economy panel, a phone view.
+// README screenshots with the SDK's mock wallet: camp, the expedition board, the three places, the economy panel, a phone view.
 import { testGame } from "@rarefriends/friendsdk/testing";
 const out = process.argv[2] ?? "./media";
 const hideHint = async game => { const x = game.getByRole("button", { name: "Hide this hint" }); if (await x.count()) await x.first().click(); };
@@ -26,7 +26,6 @@ await testGame("./games/expeditions", {
     await shot("forest");
     for (let i = 0; i < 80 && !(await game.getByRole("dialog").count()); i++) { await page.keyboard.down("Space"); await page.waitForTimeout(110); await page.keyboard.up("Space"); await page.waitForTimeout(390); }
     await reveal();
-    await shot("chest");
     await game.getByRole("button", { name: "Keep it" }).click();
 
     // economy panel
@@ -48,7 +47,7 @@ await testGame("./games/expeditions", {
     await reveal();
     await game.getByRole("button", { name: "Keep it" }).click();
 
-    // ruins: map from the Outfitter (the forest chest may have been sold, so buy after the cave)
+    // ruins: map from the Outfitter, bought after the cave
     await game.getByRole("button", { name: /^Outfitter/ }).click();
     const map = game.getByRole("button", { name: /Buy · 8 RF/ }).first();
     if (await map.isEnabled()) {
