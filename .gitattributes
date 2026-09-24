@@ -1,4 +1,4 @@
-# Keep LF line endings on every platform, so a fresh clone (Windows included) builds byte-identical docs/.
+# Keep LF line endings on every platform, so checkouts match the repository byte for byte.
 * text=auto eol=lf
 *.png binary
 *.tgz binary

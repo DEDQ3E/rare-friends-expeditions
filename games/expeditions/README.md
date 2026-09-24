@@ -299,7 +299,7 @@ in code with Web Audio (`audio.ts`): no recordings or samples.
 
 ## Artwork and audio
 
-All pixel art (camp, forest, finds, chest, UI) is drawn in code for this project. The Friend uses the
+All pixel art (camp, forest, cave, ruins, finds, chest, clothes, UI) is drawn in code for this project. The Friend uses the
 canonical Rare Friends Generations sprites from the SDK (see the SDK NOTICE). UI and reveal sounds use the SDK's
 procedural `createFriendSoundKit`; music, ambience and run effects are synthesized in `audio.ts`.
 

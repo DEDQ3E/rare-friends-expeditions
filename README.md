@@ -98,7 +98,7 @@ npm run build                           # static build into docs/ (GitHub Pages)
 | `scripts/sessions.mjs` | Exact distribution of pass sessions (no sampling) |
 | `games/expeditions/README.md` | Controls, exact rules and economy |
 | `docs/` | Static build served by GitHub Pages |
-| `tests/` | Economy, playthrough, container compliance, phone layout and README screenshot scripts |
+| `tests/` | Economy, wardrobe fit, playthrough, container compliance, phone layout and README screenshot scripts |
 | `media/` | Screenshots used in the READMEs (`node tests/media.mjs media`) |
 
 Game rules and the full economy table: [games/expeditions/README.md](games/expeditions/README.md).
@@ -107,4 +107,4 @@ Game rules and the full economy table: [games/expeditions/README.md](games/exped
 
 Code: Apache-2.0. The Friend character uses canonical Rare Friends Generations sprites and the SDK
 sound kit, used under the FriendSDK [NOTICE](https://github.com/spokesz/friendsdk/blob/main/NOTICE.md).
-All other artwork (camp, forest, cave, ruins, finds, chest, UI) was drawn in code for this project.
+All other artwork (camp, forest, cave, ruins, finds, chest, clothes, UI) was drawn in code for this project.
