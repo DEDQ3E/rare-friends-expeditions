@@ -6,7 +6,7 @@
     "dev": "friendsdk dev games/expeditions",
     "check": "friendsdk check games/expeditions",
     "test": "friendsdk test games/expeditions",
-    "build": "friendsdk build games/expeditions --outdir docs",
+    "build": "node scripts/build-docs.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "playthrough": "node tests/playthrough.mjs",
     "compliance": "node tests/compliance.mjs",
@@ -14,7 +14,8 @@
     "economy": "node tests/economy.mjs",
     "wardrobe": "node tests/wardrobe.mjs",
     "sessions": "node scripts/sessions.mjs",
-    "model": "node scripts/economy-model.mjs"
+    "model": "node scripts/economy-model.mjs",
+    "demo": "node tests/demo.mjs"
   },
   "author": "DEDQ3E",
   "license": "Apache-2.0",

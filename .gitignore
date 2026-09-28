@@ -1,3 +1,5 @@
 node_modules/
 .friendsdk/
 *.log
+.build/
+.build-video/

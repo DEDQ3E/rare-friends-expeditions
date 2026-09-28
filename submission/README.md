@@ -2,7 +2,7 @@
 
 ![Night camp with a Friend in a wizard hat, scarf and cape](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/camp-dressed.png)
 
-🕹️ **Play: https://dedq3e.github.io/rare-friends-expeditions/**
+🕹️ **Play: https://dedq3e.github.io/rare-friends-expeditions/** · 🎬 **[Demo video, 1 min](https://dedq3e.github.io/rare-friends-expeditions/demo.webm)**
 
 **Project name**
 Rare Friends: Expeditions
@@ -137,7 +137,7 @@ Expected reward **0.90 RF per pass** (10% game edge, the same expected reward as
 
 All pass: `npm run typecheck`; `npm run check` (game validation: expected reward 0.9 RF, maximum 10 RF); `npm test` (SDK browser fixture at 960 px); `npm run economy` (exact odds across all 10,000 rolls, expected return, reserve, the keepsake curve, the 1,000-player model, the 80 RF catalog, and every published odds, session and model table checked against `game.json`, `npm run sessions` and `npm run model`); `npm run wardrobe` (every clothing piece on eight body types and on the SDK's recorded Friends #7730 and #3412, front and side: visible, close to the Friend, hats never cover it); `npm run playthrough` (a Playwright playthrough of the whole loop: the start guide, camp walking, buying passes, the forest run, chest, selling, Outfitter with a level-locked piece and Trail Rations, collection, economy panel, the Crystal Cave with a packed ration and the Sunken Ruins); `npm run compliance` (the SDK container stays at most 960 × 640 at 3:2 on five screen sizes, the sandbox is `allow-scripts`, the toolbar is not cut off); and `npm run mobile` (the start guide and every camp panel at 390 × 844, 844 × 390 and 740 × 360; sideways, a run in each place checks the chest and that the run banner hides after 5 s so it never covers the HUD). A fresh clone installs with `npm ci` and passes typecheck and game validation; its `friendsdk build` matches the published `docs/`, except that the SDK bundler alternates one React interop flag between runs (`__toESM(…, 1)`), which does not change behavior. Browser tests use the SDK's mock wallet and simulated RPC.
 
-The public preview was played by hand with a real wallet on Robinhood mainnet holding a Generations NFT, including on a phone in a wallet browser (wallet connection, Friend selection, ownership gate and the full expedition loop). It was repeated on the build with the keepsake bonus.
+Every published build, including the reviewed one, is played by hand with a real wallet on Robinhood mainnet holding a Generations NFT, on a computer and on a phone in a wallet browser (wallet connection, Friend selection, ownership gate and the full expedition loop in all three places). The demo video (`npm run demo`) is recorded with the SDK's mock wallet.
 
 ## Known limitations
 
