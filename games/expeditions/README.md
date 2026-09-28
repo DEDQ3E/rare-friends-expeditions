@@ -1,6 +1,6 @@
 # Rare Friends: Expeditions
 
-FriendSDK **v0.1.2** game. Your selected Rare Friend rests at a night camp and sets out on short
+FriendSDK **v0.1.3** game. Your selected Rare Friend rests at a night camp and sets out on short
 expeditions: a side-scrolling forest run, a rope descent into the Crystal Cave or a top-down crossing of the
 Sunken Ruins. Each expedition costs one **Expedition Pass** (1 RF) and always ends at a chest with one find,
 which can be kept in the collection or sold back to the merchant for RF.
@@ -124,7 +124,7 @@ one-pixel halo), with its own shape and walk animation. The engine redraws the F
 rain, night, darkness and light overlays so nothing tints them. The torch and the cave lantern are held beside
 it and trails are particles behind it.
 
-The **wardrobe** (Outfitter, FriendSDK v0.1.2 allows costumes) is fitted to every Friend's own silhouette, frame
+The **wardrobe** (Outfitter, FriendSDK allows costumes since v0.1.2) is fitted to every Friend's own silhouette, frame
 by frame and in all four walking directions (`fit.ts`, `wardrobe.ts`): hats sit on the real head and match its
 width, and ears, horns and antennae poke through them; the scarf wraps the real neck with a tail that swings;
 tops follow the Friend's own torso pixels; the cape follows its back, flutters while it moves and covers the
@@ -273,7 +273,7 @@ chest bonus XP, but the find is still delivered. Skill pays in XP only.
 | Trail Rations | 0.2 RF each | +1 heart on the next expedition in any place, used up when the Friend sets out (repeatable) |
 
 Outfitter purchases are never refunded. The proposed split mirrors the Rare Friends protocol rule:
-**50% burned, 50% to Friend rewards**. FriendSDK v0.1.2 has no upgrade/cosmetic API, so these
+**50% burned, 50% to Friend rewards**. FriendSDK v0.1.3 has no upgrade/cosmetic API, so these
 purchases are simulated on top of the SDK ledger and last for the session. None of them change RF odds.
 
 ## Page layout (`host.css`)

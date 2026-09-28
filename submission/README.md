@@ -22,7 +22,7 @@ A night camp from which your Rare Friend sets out on short expeditions, each pai
 
 ## How does it use Rare Friends?
 
-The selected, ownership-verified Friend is the hero of every expedition. Its canonical Generations frames are read through the SDK and drawn in the canonical look (black mask, white one-pixel halo), with its own shape and walk animation, and it is redrawn after rain, darkness and light overlays so nothing tints it. A 13-piece **wardrobe** (hats, a scarf, tops, capes, boots) is fitted to each Friend's own silhouette, frame by frame: hats sit on its real head and ears, horns and antennae poke through them, tops follow its own torso pixels, the cape follows its back and flutters while it moves, boots cover its own feet. Its outline, halo and shape are never changed, and one tap takes everything off to show its original artwork (FriendSDK v0.1.2 allows costumes). Its **family** picks one of nine perks and its **generation** (one read-only `generation(tokenId)` call on the Generations contract) sets the strength, from rank V for Generation 1 to rank I for Generation 5, so different Friends play differently. The SDK runtime handles the wallet, Friend selection and the ownership gate; the game adds no wallet code.
+The selected, ownership-verified Friend is the hero of every expedition. Its canonical Generations frames are read through the SDK and drawn in the canonical look (black mask, white one-pixel halo), with its own shape and walk animation, and it is redrawn after rain, darkness and light overlays so nothing tints it. A 13-piece **wardrobe** (hats, a scarf, tops, capes, boots) is fitted to each Friend's own silhouette, frame by frame: hats sit on its real head and ears, horns and antennae poke through them, tops follow its own torso pixels, the cape follows its back and flutters while it moves, boots cover its own feet. Its outline, halo and shape are never changed, and one tap takes everything off to show its original artwork (FriendSDK allows costumes since v0.1.2). Its **family** picks one of nine perks and its **generation** (one read-only `generation(tokenId)` call on the Generations contract) sets the strength, from rank V for Generation 1 to rank I for Generation 5, so different Friends play differently. The SDK runtime handles the wallet, Friend selection and the ownership gate; the game adds no wallet code.
 
 ## How RF is spent, and the economy
 
@@ -76,7 +76,7 @@ Nothing in this build; no transaction is ever sent. Going live needs no new cont
 - A sponsor pays the Dice fee, the oracle records one random word, and anyone can `settle`: the find is minted as a permanent ERC-1155 reward into the canonical NFT wallet.
 - `redeem` burns a find for its fixed RF, back into the same NFT wallet, with no expiry. Reserves for unused passes, pending plays and kept finds cannot be withdrawn by the developer.
 
-RF, passes, finds, backing and every outcome would be on-chain. The keepsake bonus becomes a read of the Friend wallet's find balances, so it is verifiable from chain state. XP, levels, gear and the runs stay off-chain. The Outfitter's 50% burn / 50% rewards split needs a custom RF integration, and saved progress needs storage that FriendSDK v0.1.2 does not supply.
+RF, passes, finds, backing and every outcome would be on-chain. The keepsake bonus becomes a read of the Friend wallet's find balances, so it is verifiable from chain state. XP, levels, gear and the runs stay off-chain. The Outfitter's 50% burn / 50% rewards split needs a custom RF integration, and saved progress needs storage that FriendSDK v0.1.3 does not supply.
 
 ## How does it use randomness?
 
@@ -84,7 +84,7 @@ Only the find is a paid random outcome. In the preview it comes from the SDK's s
 
 ## Source code
 
-[GitHub repository](https://github.com/DEDQ3E/rare-friends-expeditions) · reviewed build: commit [`1b536ae`](https://github.com/DEDQ3E/rare-friends-expeditions/tree/1b536aeb041ec0f3e250c02b2e4f1db54554ebfa) · FriendSDK v0.1.2 · React 19 · TypeScript · [Game rules](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/README.md) · [Economy (`game.json`)](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/game.json)
+[GitHub repository](https://github.com/DEDQ3E/rare-friends-expeditions) · reviewed build: commit [`1b536ae`](https://github.com/DEDQ3E/rare-friends-expeditions/tree/1b536aeb041ec0f3e250c02b2e4f1db54554ebfa) · FriendSDK v0.1.3 · React 19 · TypeScript · [Game rules](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/README.md) · [Economy (`game.json`)](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/game.json)
 
 ## Playable demo / how to run
 
@@ -131,7 +131,7 @@ Pickups give 1 XP each plus a bonus for reaching the chest (doubled without a hi
 | Golden Scarab | Legendary | 3% | 5 RF | +17% XP |
 | Heart of the Forest | Mythic | 1% | 10 RF | +36% XP |
 
-Expected reward **0.90 RF per pass** (10% game edge, the same expected reward as the SDK fishing example). Each purchased pass reserves the 10 RF top prize; kept finds retain backing and have no redemption expiry. **Outfitter purchases are never refunded**: 50% is burned and 50% goes to Friend rewards (proposed split, simulated on top of the SDK ledger because FriendSDK v0.1.2 has no upgrade API). Nothing in the Outfitter changes RF odds.
+Expected reward **0.90 RF per pass** (10% game edge, the same expected reward as the SDK fishing example). Each purchased pass reserves the 10 RF top prize; kept finds retain backing and have no redemption expiry. **Outfitter purchases are never refunded**: 50% is burned and 50% goes to Friend rewards (proposed split, simulated on top of the SDK ledger because FriendSDK v0.1.3 has no upgrade API). Nothing in the Outfitter changes RF odds.
 
 ## What have you tested?
 

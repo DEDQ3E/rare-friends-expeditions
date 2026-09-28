@@ -23,7 +23,7 @@ On a phone held sideways the panels switch to a compact layout:
 
 Economy design, session statistics, a 1,000-player model and the roadmap: [submission/README.md](submission/README.md).
 
-Built with **FriendSDK v0.1.2** for the Rare Friends Vibeathon (September 2026).
+Built with **FriendSDK v0.1.3** for the Rare Friends Vibeathon (September 2026).
 All balances, purchases, finds and sales are **simulated**.
 
 ## Run locally

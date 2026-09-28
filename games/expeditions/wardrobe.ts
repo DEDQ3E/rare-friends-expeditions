@@ -1,4 +1,4 @@
-/** Wardrobe: cosmetic clothes worn over the selected Friend's canonical sprite (FriendSDK v0.1.2 allows costumes).
+/** Wardrobe: cosmetic clothes worn over the selected Friend's canonical sprite (FriendSDK allows costumes since v0.1.2).
  *
  * Every piece is fitted to the Friend's own silhouette, frame by frame (`fit.ts`): hats sit on the real head and
  * match its width, scarves wrap the real neck, sweaters and vests follow the Friend's own torso pixels, capes follow
