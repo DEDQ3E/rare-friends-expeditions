@@ -198,7 +198,8 @@ reaching the chest, multiplied by the place, the Friend's perk and its keepsakes
 | Sunken Ruins | ■■■ | ×2 | +15 (+30) | ~24 relic shards | ~108 XP |
 
 Levels: 0 → 25 → 75 → 160 → 300 → 500 → 800 → 1,200 → 1,800 → 2,500 XP. XP raises the level and title (Novice → Tracker → Seeker → Scout → Pathfinder → Ranger → Explorer → Wayfinder → Trailblazer → Legend). They are
-not RF and never change finds. Settings explains this in the game.
+not RF and never change finds. Levels 4 and 6 unlock the Star Cloak and the Golden Crown in the Outfitter.
+Settings explains this in the game.
 
 ## Keepsakes: hold or redeem
 
