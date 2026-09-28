@@ -56,3 +56,43 @@ export function renderSheet(canvas: HTMLCanvasElement, extra: Record<string, Bod
     drawHero(g, pose(bodies[name], facing), x + 5, y + 11, { outfit, moving: facing === "right", clock: 0.3 }, facing);
   })));
 }
+
+/* ---------- keepsake glow ---------- */
+import { drawKeepsakeGlow } from "../games/expeditions/glow.js";
+import { spriteBounds } from "../games/expeditions/art.js";
+
+/** Draws the Friend the way the engine does: glow first, then the Friend over it. */
+function withGlow(g: CanvasRenderingContext2D, rows: readonly string[], x: number, y: number, tier: number, clock: number) {
+  const b = spriteBounds(rows);
+  drawKeepsakeGlow(g, tier, x + (b.left + b.right + 1) / 2, y + b.bottom + 1, (b.right - b.left + 1) / 2, clock, false);
+  drawHero(g, rows, x, y, {}, "down");
+}
+
+/** Glow shows for Rare to Mythic only, stays close to the Friend's feet and never changes a Friend pixel. */
+export function checkGlow(rows: readonly string[]) {
+  const problems: string[] = [];
+  const draw = (tier: number) => { const c = document.createElement("canvas"); c.width = 40; c.height = 40; const g = c.getContext("2d")!; withGlow(g, rows, 12, 16, tier, 0.7); return g.getImageData(0, 0, 40, 40).data; };
+  const bare = draw(0), b = spriteBounds(rows);
+  for (let tier = 1; tier <= 6; tier++) {
+    const d = draw(tier); let changed = 0, onFriend = 0, far = 0;
+    for (let p = 0; p < 1600; p++) {
+      if (d[p * 4] === bare[p * 4] && d[p * 4 + 1] === bare[p * 4 + 1] && d[p * 4 + 2] === bare[p * 4 + 2] && d[p * 4 + 3] === bare[p * 4 + 3]) continue;
+      const x = p % 40, y = Math.floor(p / 40); changed++;
+      if (rows[y - 16]?.[x - 12] === "#") onFriend++;
+      if (y > 16 + b.bottom + 4 || y < 16 + b.bottom - 18 || x < 12 + b.left - 6 || x > 12 + b.right + 6) far++;
+    }
+    if (tier < 3 && changed) problems.push(`tier ${tier}: a glow below Rare`);
+    if (tier >= 3 && changed < 12) problems.push(`tier ${tier}: glow too faint (${changed} px)`);
+    if (onFriend) problems.push(`tier ${tier}: glow changed ${onFriend} Friend pixels`);
+    if (far) problems.push(`tier ${tier}: ${far} glow pixels far from the Friend`);
+  }
+  return problems;
+}
+
+/** The Friend with no glow and with each glow tier, on a night-camp colour, for the README. */
+export function renderGlowSheet(canvas: HTMLCanvasElement, rows: readonly string[]) {
+  const tiers = [0, 3, 4, 5, 6], cellW = 34, cellH = 34, scale = 5;
+  canvas.width = tiers.length * cellW * scale; canvas.height = cellH * scale;
+  const g = canvas.getContext("2d")!; g.imageSmoothingEnabled = false; g.scale(scale, scale);
+  tiers.forEach((tier, c) => { g.fillStyle = c % 2 ? "#1b1d48" : "#21244f"; g.fillRect(c * cellW, 0, cellW, cellH); withGlow(g, rows, c * cellW + 9, 10, tier, 0.7); });
+}

@@ -17,6 +17,10 @@ On a phone, open the link in your wallet app's built-in browser (MetaMask → Br
 | ![Whispering Forest](media/forest.png) | ![Crystal Cave](media/cave.png) | ![Sunken Ruins](media/ruins.png) |
 | ![Wardrobe: every piece previewed on your own Friend](media/wardrobe.png) | ![A Friend in a wizard hat, scarf and cape](media/camp-dressed.png) | ![Start guide: the three places](media/guide.png) |
 
+The rarest kept find lights a **keepsake glow** under your Friend (none, Rare, Epic, Legendary, Mythic):
+
+![Keepsake glow](media/keepsake-glow.png)
+
 On a phone held sideways the panels switch to a compact layout:
 
 ![Expedition board on a phone](media/phone-board.png)
@@ -79,7 +83,7 @@ npm test                                # SDK browser smoke test (mock wallet)
 npm run playthrough                     # guide → buy → expedition → chest → sell → outfitter → collection
 npm run mobile                          # phone sizes: start guide, camp and every panel; sideways, a run per place (chest, banner hides)
 npm run economy                         # exact odds over 10,000 rolls, EV, keepsakes, published tables
-npm run wardrobe                        # every clothing piece fitted on 10 body types, fit sheet PNG
+npm run wardrobe                        # every clothing piece fitted on 10 body types, keepsake glow check, sheet PNGs
 npm run sessions                        # exact session statistics behind the submission's table
 npm run model                           # daily RF flows for 1,000 players (three scenarios)
 npm run build                           # static build into docs/ (GitHub Pages); keeps .nojekyll and the demo video
@@ -96,14 +100,14 @@ npm run demo                            # records the 1-minute demo video into d
 | `games/expeditions/audio.ts` | Music, ambience and effects synthesized with Web Audio |
 | `games/expeditions/art.ts` | Pixel art drawn in code: Friend sprite, scenery, finds, trails |
 | `games/expeditions/game.json` | Economy: pass price, outcome weights, merchant prices |
-| `games/expeditions/keepsakes.ts` | Keepsake bonus for kept finds (hold or redeem) |
+| `games/expeditions/keepsakes.ts`, `glow.ts` | Keepsake bonus and glow for kept finds (hold or redeem) |
 | `games/expeditions/wardrobe.ts`, `fit.ts` | Clothes fitted to each Friend's own silhouette, frame by frame |
 | `scripts/sessions.mjs` | Exact distribution of pass sessions (no sampling) |
 | `scripts/economy-model.mjs` | Daily RF flows for 1,000 players: burn, backing, stake |
 | `games/expeditions/README.md` | Controls, exact rules and economy |
 | `docs/` | Static build served by GitHub Pages, plus the demo video (`demo.webm`) |
 | `tests/` | Economy, wardrobe fit, playthrough, container compliance, phone layout, README screenshot and demo video scripts |
-| `media/` | Screenshots used in the READMEs (`node tests/media.mjs media`) |
+| `media/` | Screenshots used in the READMEs (`node tests/media.mjs media`; `keepsake-glow.png` from `node tests/wardrobe.mjs`) |
 
 Game rules and the full economy table: [games/expeditions/README.md](games/expeditions/README.md).
 

@@ -18,3 +18,18 @@ export function keepsakeBps(inventory: readonly bigint[]): number {
 
 /** "+5%" style label for basis points. */
 export const keepText = (bps: number) => `+${Number((bps / 100).toFixed(1))}%`;
+
+/** Keepsake glow: the rarest kept find from Rare up (tier 3–6 in `game.json` order) shows as a glow under the
+ * Friend; 0 = no glow. Read from the same SDK inventory counts as the bonus, so selling the last find of a
+ * tier dims the glow to the next rarest one or puts it out. Cosmetic only. */
+export const GLOW_MIN_TIER = 3;
+export function glowTier(inventory: readonly bigint[]): number {
+  for (let i = inventory.length - 1; i >= GLOW_MIN_TIER; i--) if (inventory[i] > 0n) return i;
+  return 0;
+}
+/** The glow tier after selling `qty` finds of `tier`. */
+export function glowAfterSelling(inventory: readonly bigint[], tier: number, qty: bigint): number {
+  return glowTier(inventory.map((n, i) => (i === tier ? (n > qty ? n - qty : 0n) : n)));
+}
+/** Glow colour names by tier, for labels. */
+export const GLOW_NAME: Readonly<Record<number, string>> = { 3: "blue", 4: "purple", 5: "gold", 6: "rainbow" };

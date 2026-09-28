@@ -223,6 +223,16 @@ ERC-1155 reward balances) counts finds by rarity tier, so a Rare from the forest
 the same bonus. Harder places still pay more, because the bonus multiplies their larger XP. Keepsakes change XP only, never odds, prices or finds. The chest
 screen, the Merchant, the hero card and the Economy panel show the bonus.
 
+**Keepsake glow** (`glow.ts`): the rarest kept find, from Rare up, lights a ring of light under the Friend's
+feet and a few rising motes in its colour: Rare blue, Epic purple, Legendary gold (sparkles), Mythic rainbow.
+It shows in the camp and in all three places, on the hero card, and on the chest screen ("Keep it · gold glow").
+Selling the last find of that rarity dims it to the next rarest or puts it out; the Merchant and the chest screen
+say so before you sell. It is drawn under the Friend, right before the Friend is redrawn over weather and darkness,
+so it never covers or tints the Friend. `npm run wardrobe` checks that it appears only from Rare up, stays at the
+Friend's feet and never changes a Friend pixel.
+
+![Keepsake glow: none, Rare, Epic, Legendary, Mythic](../../media/keepsake-glow.png)
+
 ## Economy panel
 
 Tap the RF balance (or the **RF** button) to see where every RF goes: passes go to the game bank that

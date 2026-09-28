@@ -286,3 +286,4 @@ button.xp-loc:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   .xp-guide-nav{padding:3px 8px 4px;border-top-width:2px}
 }
 .xp-levelup{color:var(--gold)}
+.xp-glow-warn{color:var(--gold)}

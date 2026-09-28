@@ -6,6 +6,7 @@
 
 import { CAVE_CAM_MAX, CAVE_FLOOR, CAVE_HERO_Y, buildCave, zoneAt, createDarkness, drawCaveBack, drawCaveEntity, drawCaveEntrance, drawCaveFloor, drawCaveGlints, drawCaveWalls, wallL, wallR, type CaveEntity, type Light } from "./cave.js";
 import { HOURGLASS, RUINS_TIME, createRuins, type Dir } from "./ruins.js";
+import { drawKeepsakeGlow } from "./glow.js";
 import { CHEST, CHEST_OPEN, CRYSTAL, HEART, INK, SPARK, drawEmote, drawFriendPixels, drawHero, drawPixmap, spriteBounds, type Emote, type HeroLook, type Pixmap } from "./art.js";
 import { drawOutfit, hatHeight } from "./wardrobe.js";
 import type { PerkEffects } from "./perks.js";
@@ -149,7 +150,12 @@ export function createEngine(canvas: HTMLCanvasElement, onEvent: (event: RunEven
   // where the Friend was drawn this frame: redrawn after weather, darkness and light overlays so its original
   // artwork is never tinted (contest rule: preserve the Friend's original character artwork)
   let friendAt: { rows: readonly string[]; x: number; y: number; facing?: Facing; moving?: boolean } | null = null;
+  let glow = 0; // keepsake glow tier (glow.ts): drawn here, under the redrawn Friend, so nothing tints or covers it
   const restoreFriend = () => {
+    if (friendAt && glow) {
+      const b = spriteBounds(friendAt.rows);
+      drawKeepsakeGlow(ctx, glow, friendAt.x + (b.left + b.right + 1) / 2, friendAt.y + b.bottom + 1, (b.right - b.left + 1) / 2, clock, reducedMotion);
+    }
     if (friendAt) { drawFriendPixels(ctx, friendAt.rows, friendAt.x, friendAt.y); drawOutfit(ctx, friendAt.rows, friendAt.x, friendAt.y, look?.outfit, friendAt.facing ?? "down", clock, !!friendAt.moving); }
     friendAt = null;
   };
@@ -756,6 +762,8 @@ export function createEngine(canvas: HTMLCanvasElement, onEvent: (event: RunEven
     },
     /** Harvest Season decorations in the camp. */
     setSeason(on: boolean) { season = on; },
+    /** Keepsake glow tier from the SDK inventory (0 = none, 3–6 = Rare to Mythic). */
+    setGlow(tier: number) { glow = tier; },
     /** W A S D / arrows: dx, dy in -1..1. Walks in the camp; in the forest only dx is used. */
     setMove(dx: number, dy: number) { moveX = Math.sign(dx); moveY = Math.sign(dy); },
     /** Space / tap: jump, or double jump with Spring Boots. */

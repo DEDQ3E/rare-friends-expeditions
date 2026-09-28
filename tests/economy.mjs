@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { sessions } from "../scripts/sessions.mjs";
 import { PLAYERS, RATION_RF, SCENARIOS, loadDefinition, model, table } from "../scripts/economy-model.mjs";
-import { KEEP_CAP_BPS, KEEP_XP_BPS, keepsakeBps } from "../games/expeditions/keepsakes.ts";
+import { GLOW_MIN_TIER, KEEP_CAP_BPS, KEEP_XP_BPS, glowAfterSelling, glowTier, keepsakeBps } from "../games/expeditions/keepsakes.ts";
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const game = JSON.parse(read("games/expeditions/game.json"));
@@ -53,6 +53,17 @@ test("keepsake bonus: junk gives none, more bonus per RF for rarer finds, capped
   assert.ok(KEEP_XP_BPS.every(b => b <= KEEP_CAP_BPS), "no single find exceeds the cap");
   assert.equal(keepsakeBps([0n, 1n, 1n, 1n, 0n, 0n, 0n]), 750);
   assert.equal(keepsakeBps([5n, 0n, 0n, 0n, 0n, 0n, 2n]), 5000);
+});
+
+test("keepsake glow: the rarest kept find from Rare up; selling the last one dims or ends it", () => {
+  assert.equal(GLOW_MIN_TIER, 3);
+  assert.equal(glowTier([9n, 9n, 9n, 0n, 0n, 0n, 0n]), 0);
+  assert.equal(glowTier([0n, 0n, 0n, 1n, 0n, 0n, 0n]), 3);
+  assert.equal(glowTier([0n, 0n, 0n, 2n, 1n, 0n, 1n]), 6);
+  const inv = [0n, 0n, 0n, 1n, 0n, 2n, 0n];
+  assert.equal(glowAfterSelling(inv, 5, 1n), 5, "one Legendary left keeps the gold glow");
+  assert.equal(glowAfterSelling(inv, 5, 2n), 3, "selling both Legendaries dims it to blue");
+  assert.equal(glowAfterSelling([0n, 0n, 0n, 0n, 1n, 0n, 0n], 4, 1n), 0, "selling the only Epic puts it out");
 });
 
 // "| Acorn | Common | 35% | 0.4 RF |" rows in the published tables

@@ -11,7 +11,7 @@ import { createFriendPublicClient } from "@rarefriends/friendsdk/wallet";
 import { WEATHER_ICONS, FINDS, LOCATIONS, LOCATION_NAME, PASS, RARITIES, RARITY_COLOR, RARITY_LABEL, HEART, SPARK, CRYSTAL, drawHero, pixmapUrl, type HeroLook, type Location } from "./art.js";
 import { RAIN_LABEL, TIME_LABEL, XP_MULT, rollWeather, type Rain, type Weather } from "./weather.js";
 import { RANK_LABEL, perkFor } from "./perks.js";
-import { KEEP_CAP_BPS, KEEP_XP_BPS, keepText, keepsakeBps } from "./keepsakes.js";
+import { GLOW_NAME, KEEP_CAP_BPS, KEEP_XP_BPS, glowAfterSelling, glowTier, keepText, keepsakeBps } from "./keepsakes.js";
 import { SLOTS, SLOT_LABEL, WARDROBE, type Outfit, type Slot, type WearItem } from "./wardrobe.js";
 import { createSoundscape, type Soundscape } from "./audio.js";
 import { CAVE_ZONES } from "./cave.js";
@@ -248,6 +248,8 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
     scape.current?.setScene(phase === "camp" ? { mode: "camp", rain: campRain, time: "night" } : runLoc === "cave" ? { mode: "cave", rain: "none", time: "night" } : runLoc === "ruins" ? { mode: "ruins", rain: "none", time: "day" } : { mode: "run", rain: runWeather.rain, time: runWeather.time });
   }, [phase, campRain, runWeather, runLoc]);
   useEffect(() => { engine.current?.setSeason(seasonActive()); }, [sprites, snapshot === null]); // eslint-disable-line react-hooks/exhaustive-deps
+  // keepsake glow: the rarest kept find (Rare or better) lights a glow under the Friend; selling it dims or ends it
+  useEffect(() => { engine.current?.setGlow(snapshot ? glowTier(snapshot.inventory) : 0); }, [snapshot, sprites]);
   useEffect(() => { engine.current?.setReducedMotion(reducedMotion); }, [reducedMotion, sprites, snapshot === null]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---------- SDK actions ---------- */
@@ -462,6 +464,9 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const invCount = snapshot.inventory.reduce((a, n, i) => definition.outcomes[i].reward > 0n ? a + n : a, 0n);
   const invValue = snapshot.inventory.reduce((a, n, i) => a + n * definition.outcomes[i].reward, 0n);
   const heldBps = keepsakeBps(snapshot.inventory);
+  const glow = glowTier(snapshot.inventory);
+  /** "gold glow goes out" / "glow turns blue" when selling qty finds of tier i would change the glow, else "". */
+  const glowLoss = (i: number, qty: bigint) => { const after = glowAfterSelling(snapshot.inventory, i, qty); return glow && after < glow ? (after ? `glow turns ${GLOW_NAME[after]}` : `${GLOW_NAME[glow]} glow goes out`) : ""; };
   const nextLevel = LEVELS[Math.min(level + 1, LEVELS.length - 1)];
   const levelFloor = LEVELS[level];
   const xpPct = level === LEVELS.length - 1 ? 100 : Math.round(((xp - levelFloor) / (nextLevel - levelFloor)) * 100);
@@ -573,9 +578,9 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
         {(() => { const before = levelOf(xp - gainedXp); if (level <= before) return null; const unlocks = WARDROBE.filter(w => w.minLevel !== undefined && w.minLevel > before && w.minLevel <= level);
           return <p className="xp-small xp-levelup">Level up: <b>Lv {level + 1} · {TITLES[level]}</b>{unlocks.length ? <> · {unlocks.map(w => w.name).join(" and ")} unlocked at the Outfitter</> : null}</p>; })()}
         <div className="xp-row">
-          <button type="button" className="xp-btn" disabled={busy} onClick={backToCamp}>Keep it</button>
+          <button type="button" className="xp-btn" disabled={busy} onClick={backToCamp}>{revealIndex >= 3 && revealIndex === glow ? `Keep it · ${GLOW_NAME[glow]} glow` : "Keep it"}</button>
           {revealOutcome.reward > 0n && <button type="button" className="xp-btn xp-primary" disabled={busy || paused}
-            onClick={() => void sell(revealIndex + 1, 1n, runLoc).then(ok => { if (ok) backToCamp(); })}>Sell · {rfText(revealOutcome.reward)}</button>}
+            onClick={() => void sell(revealIndex + 1, 1n, runLoc).then(ok => { if (ok) backToCamp(); })}>Sell · {rfText(revealOutcome.reward)}{glowLoss(revealIndex, 1n) ? ` · ${glowLoss(revealIndex, 1n)}` : ""}</button>}
         </div>
         {error && <p role="alert" className="xp-error">{error}</p>}
       </div>
@@ -616,13 +621,13 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
 
           {panel === "merchant" && <>
             <p>“Fair prices, forever. I never change them.” · Your finds are worth <b>{rfText(invValue)}</b>.</p>
-            <p className="xp-small">Kept finds add <b>{keepText(heldBps)} XP</b> to every expedition (up to {keepText(KEEP_CAP_BPS)}). Selling a find pays its RF and gives its share of the bonus up. The bonus depends on rarity: a find of the same rarity from any place gives the same bonus.</p>
+            <p className="xp-small">Kept finds add <b>{keepText(heldBps)} XP</b> to every expedition (up to {keepText(KEEP_CAP_BPS)}). Selling a find pays its RF and gives its share of the bonus up. The bonus depends on rarity: a find of the same rarity from any place gives the same bonus. Your rarest kept find (Rare or better) also lights a glow under your Friend: blue, purple, gold or rainbow.</p>
             {LOCATIONS.flatMap(loc => definition.outcomes.map((o, i) => {
               const n = heldAt(loc, i);
               if (o.reward === 0n || (loc !== "forest" && n === 0n)) return null;
               return <div className="xp-item" key={`${loc}-${o.name}`}>
                 <img src={findIcon(loc, i)} alt="" width={30} height={30} />
-                <span><strong style={{ color: RARITY_COLOR[RARITIES[i]] }}>{FINDS[loc][i].name}</strong><small>{n.toString()} owned · {rfText(o.reward)} each · {keepText(KEEP_XP_BPS[i])} XP while kept</small></span>
+                <span><strong style={{ color: RARITY_COLOR[RARITIES[i]] }}>{FINDS[loc][i].name}</strong><small>{n.toString()} owned · {rfText(o.reward)} each · {keepText(KEEP_XP_BPS[i])} XP while kept</small>{glowLoss(i, n) && <small className="xp-glow-warn">Sell {n > 1n ? "them all" : "it"} and your {glowLoss(i, n)}</small>}</span>
                 <button type="button" className="xp-btn" disabled={busy || paused || n === 0n} onClick={() => void sell(i + 1, 1n, loc)}>Sell 1</button>
                 <button type="button" className="xp-btn" disabled={busy || paused || n < 2n} onClick={() => void sell(i + 1, n, loc)}>Sell all</button>
               </div>;
@@ -691,6 +696,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
                   <span>Level <b>{level + 1}</b> · {TITLES[level]}</span><span>XP <b>{xp}</b>{level < LEVELS.length - 1 ? ` / ${nextLevel}` : ""}</span>
                   <span>Expeditions <b>{expeditions}</b></span><span title="Sparks, crystals and relic shards picked up · each gives 1 XP">Collected <b>{totalSparks}</b></span>
                   <span className="xp-stat-wide" title="Kept finds add XP to every expedition; selling a find gives its share up">Keepsake bonus <b>{keepText(heldBps)} XP</b> per expedition</span>
+                  <span className="xp-stat-wide" title="The rarest kept find (Rare or better) lights a glow under your Friend; selling it dims or ends the glow">Keepsake glow {glow ? <b style={{ color: RARITY_COLOR[RARITIES[glow]] }}>{RARITY_LABEL[RARITIES[glow]]} · {FINDS[LOCATIONS.find(l => heldAt(l, glow) > 0n) ?? "forest"][glow].name}</b> : <b>none yet · keep a Rare or better find</b>}</span>
                   <span className="xp-stat-wide">Best find <b style={bestFind ? { color: RARITY_COLOR[RARITIES[bestFind.i]] } : undefined}>{bestFind ? FINDS[bestFind.loc][bestFind.i].name : "—"}</b></span>
                 </div>
               </div>
@@ -751,7 +757,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <li><b>A few passes first:</b> learn the forest and level up your Friend.</li>
               <li><b>Trail Backpack</b> (4 RF, +1 heart) and <b>Spring Boots</b> (3 RF, double jump) make runs easier; <b>Trail Rations</b> ({rfText(RATION_PRICE)}) add a heart for one expedition.</li>
               <li><b>Cave Lantern</b> (5 RF), then the <b>Ruins Map</b> (8 RF): new places and more XP per pass.</li>
-              <li><b>Keep your rare finds:</b> each one held adds XP to every expedition (rarer is better, up to {keepText(KEEP_CAP_BPS)}), and levels unlock prestige clothes: the Star Cloak at Lv 4, the Golden Crown at Lv 6. Sell the common ones when you need RF.</li>
+              <li><b>Keep your rare finds:</b> each one held adds XP to every expedition (rarer is better, up to {keepText(KEEP_CAP_BPS)}), and levels unlock prestige clothes: the Star Cloak at Lv 4, the Golden Crown at Lv 6. Your rarest kept find also lights a glow under your Friend. Sell the common ones when you need RF.</li>
               <li><b>Wardrobe and trails</b> are just for looks: try each piece on your own Friend before you buy.</li>
             </ol>
             <p className="xp-small">Nothing you buy changes the odds. A {rfText(definition.price)} pass returns {evText} on average, so play for the adventure, not for profit. Half of every Outfitter purchase is burned, half goes to Friend rewards. Open this guide again with the <b>?</b> button.</p>
