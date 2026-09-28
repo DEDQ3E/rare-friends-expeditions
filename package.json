@@ -13,7 +13,8 @@
     "mobile": "node tests/mobile.mjs",
     "economy": "node tests/economy.mjs",
     "wardrobe": "node tests/wardrobe.mjs",
-    "sessions": "node scripts/sessions.mjs"
+    "sessions": "node scripts/sessions.mjs",
+    "model": "node scripts/economy-model.mjs"
   },
   "author": "DEDQ3E",
   "license": "Apache-2.0",

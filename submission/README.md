@@ -22,7 +22,7 @@ A night camp from which your Rare Friend sets out on short expeditions, each pai
 
 ## How does it use Rare Friends?
 
-The selected, ownership-verified Friend is the hero of every expedition. Its canonical Generations frames are read through the SDK and drawn in the canonical look (black mask, white one-pixel halo), with its own shape and walk animation, and it is redrawn after rain, darkness and light overlays so nothing tints it. An 11-piece **wardrobe** (hats, a scarf, tops, a cape, boots) is fitted to each Friend's own silhouette, frame by frame: hats sit on its real head and ears, horns and antennae poke through them, tops follow its own torso pixels, the cape follows its back and flutters while it moves, boots cover its own feet. Its outline, halo and shape are never changed, and one tap takes everything off to show its original artwork (FriendSDK v0.1.2 allows costumes). Its **family** picks one of nine perks and its **generation** (one read-only `generation(tokenId)` call on the Generations contract) sets the strength, from rank V for Generation 1 to rank I for Generation 5, so different Friends play differently. The SDK runtime handles the wallet, Friend selection and the ownership gate; the game adds no wallet code.
+The selected, ownership-verified Friend is the hero of every expedition. Its canonical Generations frames are read through the SDK and drawn in the canonical look (black mask, white one-pixel halo), with its own shape and walk animation, and it is redrawn after rain, darkness and light overlays so nothing tints it. A 13-piece **wardrobe** (hats, a scarf, tops, capes, boots) is fitted to each Friend's own silhouette, frame by frame: hats sit on its real head and ears, horns and antennae poke through them, tops follow its own torso pixels, the cape follows its back and flutters while it moves, boots cover its own feet. Its outline, halo and shape are never changed, and one tap takes everything off to show its original artwork (FriendSDK v0.1.2 allows costumes). Its **family** picks one of nine perks and its **generation** (one read-only `generation(tokenId)` call on the Generations contract) sets the strength, from rank V for Generation 1 to rank I for Generation 5, so different Friends play differently. The SDK runtime handles the wallet, Friend selection and the ownership gate; the game adds no wallet code.
 
 ## How RF is spent, and the economy
 
@@ -31,9 +31,10 @@ The selected, ownership-verified Friend is the hero of every expedition. Its can
 | Loop | Player pays | Player gets back | Where the rest goes |
 |---|---|---|---|
 | Expedition Pass (SDK chance game, repeatable) | 1 RF per pass | one find, worth 0.90 RF on average at the Merchant | 10% edge stays in the game bank; every pass reserves the 10 RF top prize, so the bank can always pay |
-| Outfitter (pure sink) | 2–8 RF per item, 66 RF for the full catalog | nothing: never refunded, no effect on odds | 50% burned, 50% to Friend rewards (proposed protocol split) |
+| Outfitter (pure sink) | 2–8 RF per item, 80 RF for the full catalog | nothing: never refunded, no effect on odds | 50% burned, 50% to Friend rewards (proposed protocol split) |
+| Trail Rations (repeatable sink) | 0.2 RF per expedition, optional | +1 heart for one expedition, never better odds | 50% burned, 50% to Friend rewards (proposed) |
 
-**Hold or redeem.** A find is a *productive keepsake*: while the Friend keeps it, it adds XP to every expedition, and selling it at the Merchant pays its fixed RF and gives the bonus up. Common +1%, Uncommon +2%, Rare +4.5%, Epic +8%, Legendary +17%, Mythic +36%, up to +50% in total. Rarer finds give more bonus per RF they hold back (2.5% per RF for a Common, 3.6% per RF for a Mythic), so the biggest prizes are the ones most worth keeping and **their RF stays in the game as backing** instead of returning to circulation. The bonus depends on rarity only, because the SDK inventory (and, live, the ERC-1155 balances) counts finds by rarity tier: a Rare from the forest, the cave or the ruins gives the same bonus. It changes XP only, never odds, prices or finds.
+**Hold or redeem.** A find is a *productive keepsake*: while the Friend keeps it, it adds XP to every expedition, and selling it at the Merchant pays its fixed RF and gives the bonus up. Common +1%, Uncommon +2%, Rare +4.5%, Epic +8%, Legendary +17%, Mythic +36%, up to +50% in total. Rarer finds give more bonus per RF they hold back (2.5% per RF for a Common, 3.6% per RF for a Mythic), so the biggest prizes are the ones most worth keeping and **their RF stays in the game as backing** instead of returning to circulation. The bonus depends on rarity only, because the SDK inventory (and, live, the ERC-1155 balances) counts finds by rarity tier: a Rare from the forest, the cave or the ruins gives the same bonus. It changes XP only, never odds, prices or finds. **XP is what unlocks RF spending:** levels open prestige wardrobe pieces sold only from that level (Star Cloak, 6 RF, at Lv 4; Golden Crown, 8 RF, at Lv 6), so holding finds, and playing well, turn into demand for RF.
 
 **Per pass:** expected return 0.90 RF, standard deviation 1.34 RF, 23% chance of getting 1 RF or more back.
 
@@ -46,7 +47,25 @@ The selected, ownership-verified Friend is the hero of every expedition. Its can
 
 Most sessions lose a little, about three in ten end ahead, and big finds are rare but real. The edge is small enough to keep players coming back and large enough to fund the bank.
 
-**Why players keep spending RF:** harder places behind gear (Cave Lantern 5 RF, Ruins Map 8 RF, with ×1.5 and ×2 XP), gear, clothes and trails that change the run and the look but never the odds, a Harvest Season trail sold only until Nov 30, keepsakes worth holding, an 11-piece wardrobe fitted to your own Friend, and a Twig Torch crafted from 10 junk finds, so even a 0 RF chest moves progress.
+**1,000 players a day.** An expected-value model with the exact odds from `game.json` and no sampling, under three sets of stated assumptions: 5 / 10 / 20 passes per player, the share of each rarity kept (rarer finds kept more often), days held, Outfitter spending and how often a Trail Ration is packed (`scripts/economy-model.mjs`, reproduce with `npm run model`):
+
+| RF per day, 1,000 players | Conservative | Base | Optimistic |
+|---|---:|---:|---:|
+| Passes bought and played | 5,000 RF | 10,000 RF | 20,000 RF |
+| Finds paid out at the Merchant (steady state) | 4,500 RF | 9,000 RF | 18,000 RF |
+| New RF held in kept finds | 1,088 RF | 3,600 RF | 9,000 RF |
+| Game edge (10%) | 500 RF | 1,000 RF | 2,000 RF |
+| Outfitter and Trail Rations | 300 RF | 1,000 RF | 2,600 RF |
+| **Burned** (50% of the Outfitter + 50% of the edge) | **400 RF** | **1,000 RF** | **2,300 RF** |
+| Backing held for kept finds (steady state) | 7,613 RF | 50,400 RF | 270,000 RF |
+| Stake reserved (10 RF per unplayed pass + kept finds) | 17,613 RF | 60,400 RF | 280,000 RF |
+| Roadmap: trade-fee burn (5% of held finds traded a day, 2.5% fee burned) | 10 RF | 63 RF | 338 RF |
+
+The bank stays solvent by construction: the SDK contract refuses a pass unless the stake can reserve the 10 RF top prize, and kept finds stay backed until redeemed. On average the passes pay for that backing (0.90 RF of every 1 RF), so the builder's own capital mainly covers the reserve for unplayed passes (about 10,000 RF for 1,000 players). The 10% edge is the bank's surplus; we propose burning half of it, which with the Outfitter's 50% burn burns 7–10% of all RF spent in the game each day.
+
+**Trading finds (roadmap, not in this MVP).** Finds are ERC-1155 rewards in the Friend's wallet, so they can be listed against $RAREFRIENDS. The Merchant price is a hard floor: anyone can redeem a find for its fixed RF at any time, backed by the stake, so a find bought below the floor can be redeemed at a profit and the price cannot stay under it. Above the floor a find is worth its RF plus its keepsake bonus to an active player (a Mythic: 10 RF, +36% XP, the fastest way to the Lv 6 Golden Crown). Proposed trade fee 5%: 2.5% burned, 2.5% to the game bank and Friend rewards (last row of the table).
+
+**Why players keep spending RF:** harder places behind gear (Cave Lantern 5 RF, Ruins Map 8 RF, with ×1.5 and ×2 XP), gear, clothes and trails that change the run and the look but never the odds, prestige clothes unlocked by level, Trail Rations for any expedition, a Harvest Season trail sold only until Nov 30, keepsakes worth holding, a 13-piece wardrobe fitted to your own Friend, and a Twig Torch crafted from 10 junk finds, so even a 0 RF chest moves progress.
 
 ## What would be on-chain?
 
@@ -93,7 +112,7 @@ A three-page **start guide** opens when the game loads (how the camp and the pas
 4. **Sunken Ruins (Ruins Map, 8 RF):** top-down, tile by tile to the altar before the sand runs out: spike plates in waves, dart traps, rolling boulders, crumbling floor over pits and fire vents, in three ever harder halls. Relic shards give XP ×2.
 5. **Chest:** the find is revealed. **Keep it** for its keepsake bonus, or **sell** it.
 6. **Merchant:** buys finds at fixed prices with no expiry and shows each find's keepsake bonus.
-7. **Outfitter:** Spring Boots (double jump, 3 RF), Trail Backpack (+1 heart, 4 RF), Cave Lantern (5 RF), Ruins Map (8 RF), Spark Trail (4 RF), the Harvest Season Falling Leaves trail (5 RF, until Nov 30) and the wardrobe: Explorer Hat 3, Wizard Hat 5, Miner Helmet 4, Flower Crown 3, Bobble Beanie 3, Pumpkin Hat 5 (Harvest Season), Knit Scarf 2, Cozy Sweater 3, Ranger Vest 3, Red Cape 4, Rain Boots 2 RF, each previewed on your own Friend before you buy, one piece per slot. The workbench turns 10 junk finds into a Twig Torch that glows at night.
+7. **Outfitter:** Spring Boots (double jump, 3 RF), Trail Backpack (+1 heart, 4 RF), Cave Lantern (5 RF), Ruins Map (8 RF), Spark Trail (4 RF), the Harvest Season Falling Leaves trail (5 RF, until Nov 30), Trail Rations (0.2 RF: +1 heart for one expedition) and the wardrobe: Explorer Hat 3, Wizard Hat 5, Miner Helmet 4, Flower Crown 3, Bobble Beanie 3, Pumpkin Hat 5 (Harvest Season), Golden Crown 8 (from Lv 6), Knit Scarf 2, Cozy Sweater 3, Ranger Vest 3, Red Cape 4, Star Cloak 6 (from Lv 4), Rain Boots 2 RF, each previewed on your own Friend before you buy, one piece per slot. The workbench turns 10 junk finds into a Twig Torch that glows at night.
 8. **Collection:** a hero card (portrait, family, generation, perk, level, keepsake bonus, best find) and the finds of all three places. **Economy panel:** tap the RF balance to see where every RF goes.
 
 Pickups give 1 XP each plus a bonus for reaching the chest (doubled without a hit), multiplied by the place, the Friend's perk and its keepsakes. XP raises the level and title over ten levels up to 2,500 XP, from Novice to Legend. Settings: sound (on by default, starts with the first click or key), music, volume and reduce motion; the game honors the runtime's `paused` state. Keyboard and touch are both supported.
@@ -124,7 +143,7 @@ The public preview was played by hand with a real wallet on Robinhood mainnet ho
 
 The SDK sandbox has no storage, so XP, level and Outfitter items reset when the session ends. The Outfitter burn / rewards split needs a custom RF integration before live use. Which cave and ruins finds you hold is remembered per session, because the SDK inventory counts rarity tiers. Live mode has never run against a deployed contract. No funds are at risk in the preview: it never asks for a transaction, a signature or an RF approval; the wallet is only used to connect, switch to Robinhood mainnet and prove ownership. No live token spending, trading, wearable NFTs (the wardrobe is an off-chain cosmetic) or creator fees are included.
 
-**Roadmap (not in this MVP):** passes on the SDK's live `ChanceGame`; finds as tradable assets paired with $RAREFRIENDS, where the fixed Merchant price is a built-in price floor and a creator fee on trades flows to the game bank and Friend rewards; a new limited Outfitter item and themed finds every season; persistent XP, levels and gear once the SDK offers storage.
+**Roadmap (not in this MVP):** passes on the SDK's live `ChanceGame`; finds traded against $RAREFRIENDS above the Merchant floor with a 5% fee (see "Trading finds"); a new limited Outfitter item and themed finds every season; persistent XP, levels and gear once the SDK offers storage.
 
 ## Credits
 

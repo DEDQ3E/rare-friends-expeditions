@@ -3,7 +3,8 @@
 Send your Rare Friend from a cozy night camp on short expeditions: a forest runner, a dark cave descent and a trap-filled ruins maze.
 Every expedition costs one Expedition Pass (1 RF) and ends at a chest with a find that you keep
 or sell back for RF. Kept finds add XP to every expedition (hold or redeem), and an outfitter sells gear,
-trails and an 11-piece wardrobe fitted to your own Friend as a pure RF sink (50% burn / 50% rewards).
+trails, Trail Rations and a 13-piece wardrobe fitted to your own Friend (two pieces unlock with the Friend's level)
+as a pure RF sink (50% burn / 50% rewards).
 
 **Play the preview:** https://dedq3e.github.io/rare-friends-expeditions/
 (needs a browser wallet on Robinhood mainnet, chain 4663, holding a hardwired Rare Friends Generations NFT, generation ≥ 1)
@@ -20,7 +21,7 @@ On a phone held sideways the panels switch to a compact layout:
 
 ![Expedition board on a phone](media/phone-board.png)
 
-Economy design, session statistics and the roadmap: [submission/README.md](submission/README.md).
+Economy design, session statistics, a 1,000-player model and the roadmap: [submission/README.md](submission/README.md).
 
 Built with **FriendSDK v0.1.2** for the Rare Friends Vibeathon (September 2026).
 All balances, purchases, finds and sales are **simulated**.
@@ -80,6 +81,7 @@ npm run mobile                          # phone sizes: start guide, camp and eve
 npm run economy                         # exact odds over 10,000 rolls, EV, keepsakes, published tables
 npm run wardrobe                        # every clothing piece fitted on 10 body types, fit sheet PNG
 npm run sessions                        # exact session statistics behind the submission's table
+npm run model                           # daily RF flows for 1,000 players (three scenarios)
 npm run build                           # static build into docs/ (GitHub Pages)
 ```
 
@@ -96,6 +98,7 @@ npm run build                           # static build into docs/ (GitHub Pages)
 | `games/expeditions/keepsakes.ts` | Keepsake bonus for kept finds (hold or redeem) |
 | `games/expeditions/wardrobe.ts`, `fit.ts` | Clothes fitted to each Friend's own silhouette, frame by frame |
 | `scripts/sessions.mjs` | Exact distribution of pass sessions (no sampling) |
+| `scripts/economy-model.mjs` | Daily RF flows for 1,000 players: burn, backing, stake |
 | `games/expeditions/README.md` | Controls, exact rules and economy |
 | `docs/` | Static build served by GitHub Pages |
 | `tests/` | Economy, wardrobe fit, playthrough, container compliance, phone layout and README screenshot scripts |

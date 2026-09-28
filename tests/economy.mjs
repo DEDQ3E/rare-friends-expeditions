@@ -4,6 +4,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { sessions } from "../scripts/sessions.mjs";
+import { PLAYERS, RATION_RF, SCENARIOS, loadDefinition, model, table } from "../scripts/economy-model.mjs";
 import { KEEP_CAP_BPS, KEEP_XP_BPS, keepsakeBps } from "../games/expeditions/keepsakes.ts";
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
@@ -84,6 +85,36 @@ test("submission/README.md: session table matches scripts/sessions.mjs", () => {
     const row = `| ${r.passes} (${r.passes} RF) | ${r.mean} RF | ${r.p10} RF | ${r.median} RF | ${r.p90} RF | ${r.p99} RF | ${Math.round(r.aheadPct)}% |`;
     assert.ok(text.includes(row), `missing row: ${row}`);
   }
+});
+
+test("1,000-player model: flows add up, stake covers the reserve, burn is 7–10% of RF spent", () => {
+  const def = loadDefinition();
+  for (const [name, sc] of Object.entries(SCENARIOS)) {
+    const r = model(def, sc);
+    assert.ok(Math.abs(r.paidOut + r.edge - r.spentIn) < 1e-6, name);
+    assert.ok(Math.abs(r.edge - r.spentIn / 10) < 1e-6, `${name}: edge is 10%`);
+    assert.ok(Math.abs(r.stake - (PLAYERS * 10 + r.locked)) < 1e-6, `${name}: stake`);
+    const share = r.burned / (r.spentIn + r.sink);
+    assert.ok(share >= 0.07 && share < 0.105, `${name}: burn share ${share}`);
+  }
+});
+
+test("submission/README.md: 1,000-player table matches scripts/economy-model.mjs", () => {
+  assert.ok(read("submission/README.md").includes(table(loadDefinition())));
+});
+
+test("Trail Rations cost 0.2 RF in the game and in the model", () => {
+  assert.ok(read("games/expeditions/index.tsx").includes("const RATION_PRICE = RF_UNIT / 5n;"));
+  assert.equal(RATION_RF, 0.2);
+});
+
+test("Outfitter catalog: 80 RF in total, 2–8 RF per item, as published", () => {
+  const store = read("games/expeditions/index.tsx").match(/const STORE[\s\S]*?\n\];/)[0];
+  const wear = read("games/expeditions/wardrobe.ts").match(/export const WARDROBE[\s\S]*?\n\];/)[0];
+  const prices = [...(store + wear).matchAll(/price: (\d+)/g)].map(m => Number(m[1]));
+  assert.equal(prices.reduce((a, b) => a + b, 0), 80);
+  assert.equal(Math.min(...prices), 2); assert.equal(Math.max(...prices), 8);
+  assert.ok(read("submission/README.md").includes("2–8 RF per item, 80 RF for the full catalog"));
 });
 
 console.log(`economy: ${passed} tests passed`);

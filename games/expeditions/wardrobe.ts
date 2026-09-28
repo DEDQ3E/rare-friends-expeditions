@@ -10,7 +10,9 @@ import { fitFrame, type Fit } from "./fit.js";
 export type Facing = "right" | "left" | "down" | "up";
 export type Slot = "head" | "neck" | "body" | "back" | "feet";
 export type Outfit = Readonly<Partial<Record<Slot, string>>>;
-export type WearItem = Readonly<{ id: string; slot: Slot; name: string; price: number; blurb: string; season?: boolean }>;
+/** `minLevel` (0-based, as in LEVELS) gates prestige pieces behind the Friend's level: XP, including the keepsake bonus
+ * for held finds, unlocks the right to spend RF on them. */
+export type WearItem = Readonly<{ id: string; slot: Slot; name: string; price: number; blurb: string; season?: boolean; minLevel?: number }>;
 
 /** Outfitter catalog (RF prices; 50% burned, 50% to Friend rewards, simulated). */
 export const WARDROBE: readonly WearItem[] = [
@@ -20,10 +22,12 @@ export const WARDROBE: readonly WearItem[] = [
   { id: "flowers", slot: "head", name: "Flower Crown", price: 3, blurb: "Fresh from the meadow" },
   { id: "beanie", slot: "head", name: "Bobble Beanie", price: 3, blurb: "Ribbed, warm, with a bobble" },
   { id: "pumpkin", slot: "head", name: "Pumpkin Hat", price: 5, blurb: "Harvest Season only", season: true },
+  { id: "crown", slot: "head", name: "Golden Crown", price: 8, blurb: "For seasoned Rangers", minLevel: 5 },
   { id: "scarf", slot: "neck", name: "Knit Scarf", price: 2, blurb: "Striped, with a tail in the wind" },
   { id: "sweater", slot: "body", name: "Cozy Sweater", price: 3, blurb: "Knitted stripes, ribbed hem" },
   { id: "vest", slot: "body", name: "Ranger Vest", price: 3, blurb: "Pocket and a gold badge" },
   { id: "cape", slot: "back", name: "Red Cape", price: 4, blurb: "Follows your back and flutters" },
+  { id: "starcloak", slot: "back", name: "Star Cloak", price: 6, blurb: "Night blue, stitched with stars", minLevel: 3 },
   { id: "rainboots", slot: "feet", name: "Rain Boots", price: 2, blurb: "Bright boots for puddles" },
 ];
 export const SLOT_LABEL: Readonly<Record<Slot, string>> = { head: "Hats", neck: "Scarves", body: "Tops", back: "Capes", feet: "Boots" };
@@ -33,7 +37,7 @@ const INK = "#1c1c1c";
 
 /** How many pixels a hat rises above the head, so speech bubbles can sit above it. */
 export function hatHeight(outfit: Outfit | undefined): number {
-  switch (outfit?.head) { case "wizard": return 8; case "beanie": return 5; case "explorer": return 4; case "pumpkin": return 4; case "miner": return 3; case "flowers": return 2; default: return 0; }
+  switch (outfit?.head) { case "wizard": return 8; case "beanie": return 5; case "explorer": return 4; case "pumpkin": return 4; case "miner": return 3; case "crown": return 3; case "flowers": return 2; default: return 0; }
 }
 
 type Pixels = Map<string, string>;
@@ -104,6 +108,13 @@ function hat(id: string, f: Fit, facing: Facing, clock: number): Pixels {
       set(pix, mid, hy - 4 + bob, "#f1efe6"); set(pix, mid + 1, hy - 4 + bob, "#f1efe6"); set(pix, mid, hy - 5 + bob, "#ffffff");
       break;
     }
+    case "crown": {
+      row(pix, l - 1, r + 1, hy - 1, i => ((i - l) % 3 === 1 ? "#e04848" : (i - l) % 3 === 2 && w >= 5 ? "#4aa3ff" : "#e0a820"));
+      row(pix, l - 1, r + 1, hy - 2, i => ((i - l + 1) % 2 === 0 ? "#ffd23f" : "#e0a820"));
+      for (let i = l - 1; i <= r + 1; i += 2) set(pix, i, hy - 3, "#ffd23f");
+      set(pix, mid, hy - 3, "#fff3a8");
+      break;
+    }
     case "pumpkin": {
       row(pix, l - 1, r + 1, hy - 1, i => ((i - l) % 3 === 1 ? "#c85a10" : "#f07a1a"));
       row(pix, l - 1, r + 1, hy - 2, i => ((i - l) % 3 === 1 ? "#c85a10" : "#ff9a3c"));
@@ -147,19 +158,22 @@ function scarf(f: Fit, facing: Facing, clock: number, moving: boolean): Pixels {
   return pix;
 }
 
-function cape(f: Fit, facing: Facing, clock: number, moving: boolean): Pixels {
+const CAPES = { cape: { edge: "#8a1f2a", body: "#d83a3a", clasp: "#ffd23f", star: "" }, starcloak: { edge: "#1c2a6e", body: "#2f45a8", clasp: "#c8d8ff", star: "#ffd23f" } } as const;
+
+function cape(id: keyof typeof CAPES, f: Fit, facing: Facing, clock: number, moving: boolean): Pixels {
+  const { edge: EDGE, body: BODY, clasp: CLASP, star: STAR } = CAPES[id];
   const pix: Pixels = new Map(), [, b] = torso(f), from = f.neckRow, to = Math.min(f.bottom, b + 1);
   for (let j = from; j <= to; j++) {
     const s = f.spans[j]; if (!s) continue;
     const k = j - from, flutter = moving ? (Math.sin(clock * 12 - k) > 0 ? 1 : 0) : 0, reach = 1 + (k >= 2 ? 1 : 0) + flutter;
-    if (facing === "up") { for (let i = s.l; i <= s.r; i++) if (f.mask[j][i]) set(pix, i, j, k === 0 ? "#8a1f2a" : "#d83a3a"); continue; }
+    if (facing === "up") { for (let i = s.l; i <= s.r; i++) if (f.mask[j][i]) set(pix, i, j, k === 0 ? EDGE : STAR && (i + j) % 4 === 0 ? STAR : BODY); continue; }
     const sides = facing === "right" ? [-1] : facing === "left" ? [1] : [-1, 1];
     for (const d of sides) {
       const edge = d < 0 ? s.l : s.r;
-      for (let n = 1; n <= (facing === "down" ? 1 : reach); n++) set(pix, edge + d * n, j, n === reach || j === to ? "#8a1f2a" : "#d83a3a");
+      for (let n = 1; n <= (facing === "down" ? 1 : reach); n++) set(pix, edge + d * n, j, n === reach || j === to ? EDGE : STAR && n === 1 && (j - from) % 3 === 1 ? STAR : BODY);
     }
   }
-  if (facing === "down" || facing === "right" || facing === "left") { const s = f.spans[from]; if (s) set(pix, facing === "left" ? s.l : facing === "right" ? s.r : Math.round((s.l + s.r) / 2), from, "#ffd23f"); }
+  if (facing === "down" || facing === "right" || facing === "left") { const s = f.spans[from]; if (s) set(pix, facing === "left" ? s.l : facing === "right" ? s.r : Math.round((s.l + s.r) / 2), from, CLASP); }
   return pix;
 }
 
@@ -173,7 +187,7 @@ function boots(f: Fit): Pixels {
 export function drawOutfit(ctx: CanvasRenderingContext2D, rows: readonly string[], x: number, y: number, outfit: Outfit | undefined, facing: Facing, clock = 0, moving = false) {
   if (!outfit) return;
   const f = fitFrame(rows);
-  if (outfit.back === "cape") paint(ctx, x, y, f, cape(f, facing, clock, moving), facing !== "up");
+  if (outfit.back === "cape" || outfit.back === "starcloak") paint(ctx, x, y, f, cape(outfit.back, f, facing, clock, moving), facing !== "up");
   if (outfit.body) paint(ctx, x, y, f, top(outfit.body, f, facing), false);
   if (outfit.feet === "rainboots") paint(ctx, x, y, f, boots(f), false);
   if (outfit.neck === "scarf") paint(ctx, x, y, f, scarf(f, facing, clock, moving), false);

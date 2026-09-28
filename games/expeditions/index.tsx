@@ -21,6 +21,8 @@ import { CAMP_SPOTS, H, W, createEngine, type CampSpot, type Engine, type HeroSp
 import "./style.css";
 
 const RF_UNIT = 10n ** 18n;
+/** Trail Rations: a repeatable Outfitter supply, +1 heart on the next expedition, used up when the Friend sets out. */
+const RATION_PRICE = RF_UNIT / 5n;
 const rfText = (value: bigint) => `${formatGameAmount(value, 18)} RF`;
 /** Ten levels up to 2,500 XP, so XP (and the keepsake bonus) keeps mattering for a whole session. */
 const LEVELS = [0, 25, 75, 160, 300, 500, 800, 1200, 1800, 2500] as const;
@@ -96,6 +98,8 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const [owned, setOwned] = useState<ReadonlySet<string>>(() => new Set());
   const [equipped, setEquipped] = useState<ReadonlySet<string>>(() => new Set());
   const [wearing, setWearing] = useState<Outfit>({});
+  const [rations, setRations] = useState(0);
+  const [packRations, setPackRations] = useState(true);
   // current expedition
   const [playId, setPlayId] = useState<bigint | null>(null);
   const [runStats, setRunStats] = useState({ sparks: 0, hearts: 3 });
@@ -279,7 +283,9 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
     const loc: Location = unlocked(boardLoc) ? boardLoc : "forest";
     const committed = await act(async () => pending ?? (await client.play(1n))[0]);
     if (!committed) return;
-    const hearts = 3 + (owned.has("backpack") ? 1 : 0) + perk.effects.extraHearts;
+    const ration = packRations && rations > 0 ? 1 : 0;
+    if (ration) setRations(r => r - 1);
+    const hearts = 3 + (owned.has("backpack") ? 1 : 0) + perk.effects.extraHearts + ration;
     setPlayId(committed.id); setRunResult(null); setReveal(null); setRunStats({ sparks: 0, hearts }); setPanel(null); setShowHint(true);
     setRunLoc(loc);
     const seed = Math.floor(Math.random() * 1e9);
@@ -339,6 +345,13 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
     if (balance < cost) { setError("Not enough RF (simulated)."); return; }
     setStoreSpent(s => s + cost); setOwned(o => new Set([...o, key])); then(); play("purchase"); setError("");
     setNotice(`${formatGameAmount(cost / 2n, 18)} RF burned · ${formatGameAmount(cost / 2n, 18)} RF to Friend rewards (simulated).`);
+  }
+
+  function buyRations(qty: number) {
+    const cost = RATION_PRICE * BigInt(qty);
+    if (balance < cost) { setError("Not enough RF (simulated)."); return; }
+    setStoreSpent(s => s + cost); setRations(r => r + qty); play("purchase"); setError("");
+    setNotice(`${qty} Trail Ration${qty > 1 ? "s" : ""} packed · ${formatGameAmount(cost / 2n, 18)} RF burned · ${formatGameAmount(cost / 2n, 18)} RF to Friend rewards (simulated).`);
   }
 
   /** 10 junk finds of any place → Twig Torch. Forest twigs are used first, then pebbles, then pottery shards. */
@@ -557,6 +570,8 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
         <p className="xp-blurb">{FINDS[runLoc][revealIndex].blurb}</p>
         <p className="xp-small">{revealOutcome.reward > 0n ? `Merchant pays ${rfText(revealOutcome.reward)} · no expiry · or keep it: ${keepText(KEEP_XP_BPS[revealIndex])} XP on every expedition while held` : "No RF value · a keepsake for the collection"}</p>
         <p className="xp-small">{runWord}: <img src={inCave ? icons.crystal : icons.spark} alt="" width={15} height={15} /> {runResult?.sparks ?? 0} {pickWord} · +{gainedXp} XP{inCave ? ` (cave ×${CAVE_XP})` : inRuins ? ` (ruins ×${RUINS_XP})` : XP_MULT[runWeather.rain] > 1 ? ` (${RAIN_LABEL[runWeather.rain].toLowerCase()} ×${XP_MULT[runWeather.rain]})` : ""}{perk.effects.xpMult > 1 ? ` (${perkLabel} ×${perk.effects.xpMult.toFixed(2).replace(/0$/, "")})` : ""}{gainedKeep > 0 ? ` (keepsakes ${keepText(gainedKeep)})` : ""}{runResult?.completed && runResult.hits === 0 ? " · flawless!" : ""}</p>
+        {(() => { const before = levelOf(xp - gainedXp); if (level <= before) return null; const unlocks = WARDROBE.filter(w => w.minLevel !== undefined && w.minLevel > before && w.minLevel <= level);
+          return <p className="xp-small xp-levelup">Level up: <b>Lv {level + 1} · {TITLES[level]}</b>{unlocks.length ? <> · {unlocks.map(w => w.name).join(" and ")} unlocked at the Outfitter</> : null}</p>; })()}
         <div className="xp-row">
           <button type="button" className="xp-btn" disabled={busy} onClick={backToCamp}>Keep it</button>
           {revealOutcome.reward > 0n && <button type="button" className="xp-btn xp-primary" disabled={busy || paused}
@@ -584,6 +599,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
                 <small>{unlocked("ruins") ? `Trap gauntlet vs. the hourglass · XP ×${RUINS_XP}` : "Locked · Ruins Map, 8 RF"}</small></button>
             </div>
             <p>An <b>Expedition Pass</b> costs <b>{rfText(definition.price)}</b>. You have <b>{passes.toString()}</b>{pending ? " (and one expedition already paid for)" : ""}.</p>
+            {rations > 0 && <label className="xp-check"><input type="checkbox" checked={packRations} onChange={e => setPackRations(e.target.checked)} /> Pack a Trail Ration: +1 heart on this expedition ({rations} left)</label>}
             <div className="xp-row">
               <button type="button" className="xp-btn" disabled={busy || paused || !canAfford(1n)} onClick={() => void buyPasses(1n)}>Buy 1 pass · {rfText(definition.price)}</button>
               <button type="button" className="xp-btn" disabled={busy || paused || !canAfford(3n)} onClick={() => void buyPasses(3n)}>Buy 3 · {rfText(definition.price * 3n)}</button>
@@ -622,18 +638,24 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <span><strong>{s.name}</strong><small>{s.effect}</small></span>
               {owned.has(s.id) ? <span className="xp-owned">Owned</span> : <button type="button" className="xp-btn" disabled={busy} onClick={() => buyStore(s.id, s.price, () => {})}>Buy · {s.price} RF</button>}
             </div>)}
+            <h3>Supplies</h3>
+            <div className="xp-item">
+              <span><strong>Trail Rations</strong><small>+1 heart on your next expedition in any place · used up when your Friend sets out · you have {rations}</small></span>
+              <button type="button" className="xp-btn" disabled={busy} onClick={() => buyRations(1)}>Buy 1 · {rfText(RATION_PRICE)}</button>
+              <button type="button" className="xp-btn" disabled={busy} onClick={() => buyRations(5)}>Buy 5 · {rfText(RATION_PRICE * 5n)}</button>
+            </div>
             <h3>Wardrobe</h3>
-            <p className="xp-small">Clothes are fitted to your Friend's own shape, frame by frame, and never change its outline. Cosmetic only: they never change odds, prices, finds or XP. {wearingCount > 0 && <button type="button" className="xp-link" onClick={() => setWearing({})}>Take everything off</button>}</p>
+            <p className="xp-small">Clothes are fitted to your Friend's own shape, frame by frame, and never change its outline. Cosmetic only: they never change odds, prices, finds or XP. Prestige pieces unlock with your Friend's level, and kept finds speed that up. {wearingCount > 0 && <button type="button" className="xp-link" onClick={() => setWearing({})}>Take everything off</button>}</p>
             {SLOTS.map(slot => <div key={slot} className="xp-wear-group">
               <h4>{SLOT_LABEL[slot]}</h4>
               <div className="xp-wear-grid">{WARDROBE.filter(w => w.slot === slot).map(item => {
-                const has = owned.has(item.id), on = wearing[slot] === item.id, gone = !!item.season && !season;
+                const has = owned.has(item.id), on = wearing[slot] === item.id, gone = !!item.season && !season, lockedAt = item.minLevel !== undefined && level < item.minLevel ? item.minLevel : null;
                 return <div key={item.id} className={`xp-wear${on ? " xp-wear-on" : ""}${item.season ? " xp-season" : ""}`}>
                   {wearPreviews[item.id] && <img src={wearPreviews[item.id]} alt={`${item.name} on your Friend`} width={84} height={56} />}
-                  <strong>{item.name}</strong><small>{item.season ? `${SEASON.name} · until ${SEASON.endLabel}` : item.blurb}</small>
+                  <strong>{item.name}</strong><small>{item.season ? `${SEASON.name} · until ${SEASON.endLabel}` : item.minLevel !== undefined ? `Lv ${item.minLevel + 1} ${TITLES[item.minLevel]} · ${item.blurb}` : item.blurb}</small>
                   {has
                     ? <button type="button" className="xp-btn" aria-pressed={on} onClick={() => toggleOutfit(item)}>{on ? "Take off" : "Wear"}</button>
-                    : <button type="button" className="xp-btn" disabled={busy || gone} onClick={() => buyStore(item.id, item.price, () => toggleOutfit(item, true))}>{gone ? "Gone until next autumn" : `Buy · ${item.price} RF`}</button>}
+                    : <button type="button" className="xp-btn" disabled={busy || gone || lockedAt !== null} onClick={() => buyStore(item.id, item.price, () => toggleOutfit(item, true))}>{gone ? "Gone until next autumn" : lockedAt !== null ? `Unlocks at Lv ${lockedAt + 1}` : `Buy · ${item.price} RF`}</button>}
                 </div>;
               })}</div>
             </div>)}
@@ -727,9 +749,9 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
           {panel === "guide" && guidePage === 2 && <div className="xp-guide">
             <ol>
               <li><b>A few passes first:</b> learn the forest and level up your Friend.</li>
-              <li><b>Trail Backpack</b> (4 RF, +1 heart) and <b>Spring Boots</b> (3 RF, double jump) make runs easier.</li>
+              <li><b>Trail Backpack</b> (4 RF, +1 heart) and <b>Spring Boots</b> (3 RF, double jump) make runs easier; <b>Trail Rations</b> ({rfText(RATION_PRICE)}) add a heart for one expedition.</li>
               <li><b>Cave Lantern</b> (5 RF), then the <b>Ruins Map</b> (8 RF): new places and more XP per pass.</li>
-              <li><b>Keep your rare finds:</b> each one held adds XP to every expedition (rarer is better, up to {keepText(KEEP_CAP_BPS)}). Sell the common ones when you need RF.</li>
+              <li><b>Keep your rare finds:</b> each one held adds XP to every expedition (rarer is better, up to {keepText(KEEP_CAP_BPS)}), and levels unlock prestige clothes: the Star Cloak at Lv 4, the Golden Crown at Lv 6. Sell the common ones when you need RF.</li>
               <li><b>Wardrobe and trails</b> are just for looks: try each piece on your own Friend before you buy.</li>
             </ol>
             <p className="xp-small">Nothing you buy changes the odds. A {rfText(definition.price)} pass returns {evText} on average, so play for the adventure, not for profit. Half of every Outfitter purchase is burned, half goes to Friend rewards. Open this guide again with the <b>?</b> button.</p>

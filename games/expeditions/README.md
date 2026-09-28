@@ -132,12 +132,16 @@ back when it walks away; boots cover its own feet. The outline, halo and shape a
 worn per slot, and "Take everything off" shows the original artwork. Each piece is previewed on your own Friend
 before you buy it. Clothes are cosmetic only: they never change odds, prices, finds or XP.
 
+Two prestige pieces unlock with the Friend's level: the **Star Cloak** at Lv 4 (Scout) and the **Golden Crown** at
+Lv 6 (Ranger). XP, including the keepsake bonus for held finds, is what opens them, so playing well and holding
+finds turn into a reason to spend RF. The chest screen announces a level up and any piece it unlocks.
+
 | Slot | Pieces (RF) |
 | --- | --- |
-| Hats | Explorer Hat 3 · Wizard Hat 5 · Miner Helmet 4 · Flower Crown 3 · Bobble Beanie 3 · Pumpkin Hat 5 (Harvest Season) |
+| Hats | Explorer Hat 3 · Wizard Hat 5 · Miner Helmet 4 · Flower Crown 3 · Bobble Beanie 3 · Pumpkin Hat 5 (Harvest Season) · Golden Crown 8 (from Lv 6 Ranger) |
 | Scarves | Knit Scarf 2 |
 | Tops | Cozy Sweater 3 · Ranger Vest 3 |
-| Capes | Red Cape 4 |
+| Capes | Red Cape 4 · Star Cloak 6 (from Lv 4 Scout) |
 | Boots | Rain Boots 2 |
 
 `npm run wardrobe` renders every piece on eight body types (ears, side-on quadruped, humanoid, blob, wide,
@@ -264,7 +268,8 @@ chest bonus XP, but the find is still delivered. Skill pays in XP only.
 | Ruins Map | 8 RF | opens the Sunken Ruins |
 | Spark Trail | 4 RF | cosmetic trail behind the Friend |
 | Harvest Season: Falling Leaves | 5 RF | cosmetic trail, until Nov 30 |
-| Wardrobe (11 pieces) | 2–5 RF each | cosmetic clothes fitted to your Friend (see "Friend artwork and wardrobe") |
+| Wardrobe (13 pieces) | 2–8 RF each | cosmetic clothes fitted to your Friend; Star Cloak from Lv 4, Golden Crown from Lv 6 (see "Friend artwork and wardrobe") |
+| Trail Rations | 0.2 RF each | +1 heart on the next expedition in any place, used up when the Friend sets out (repeatable) |
 
 Outfitter purchases are never refunded. The proposed split mirrors the Rare Friends protocol rule:
 **50% burned, 50% to Friend rewards**. FriendSDK v0.1.2 has no upgrade/cosmetic API, so these

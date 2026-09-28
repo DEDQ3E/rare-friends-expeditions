@@ -58,10 +58,16 @@ await testGame("./games/expeditions", {
     await game.getByRole("button", { name: /^Outfitter/ }).click();
     await game.getByRole("button", { name: /Buy · 5 RF/ }).first().click();
     await game.getByText(/Harvest Season/).first().waitFor();
+    // prestige clothes stay locked below their level; Trail Rations are a repeatable supply
+    const crown = game.locator(".xp-wear", { hasText: "Golden Crown" }).getByRole("button");
+    if ((await crown.textContent()) !== "Unlocks at Lv 6" || !(await crown.isDisabled())) throw new Error("the Golden Crown should be locked until Lv 6");
+    await game.getByRole("button", { name: "Buy 1 · 0.2 RF" }).click();
+    await game.getByText(/used up when your Friend sets out · you have 1/).waitFor();
     await shot("08-outfitter-season");
     await game.getByRole("button", { name: "Close" }).click();
     await game.getByRole("button", { name: /Expeditions/ }).first().click();
     await game.getByRole("button", { name: /Crystal Cave/ }).click();
+    await game.getByText("Pack a Trail Ration: +1 heart on this expedition (1 left)").waitFor();
     await shot("09-board-cave");
     await game.getByRole("button", { name: "Into the cave!" }).click(); await confirm();
     await page.waitForTimeout(2500);
@@ -78,6 +84,7 @@ await testGame("./games/expeditions", {
     await game.getByRole("button", { name: "Close" }).click();
     // Sunken Ruins: buy the map, pick the ruins and cross the trap gauntlet
     await game.getByRole("button", { name: /^Outfitter/ }).click();
+    await game.getByText(/used up when your Friend sets out · you have 0/).waitFor(); // the ration went into the cave
     await game.getByRole("button", { name: /Buy · 8 RF/ }).first().click();
     await game.getByRole("button", { name: "Close" }).click();
     await game.getByRole("button", { name: /Expeditions/ }).first().click();
