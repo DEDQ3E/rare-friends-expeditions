@@ -84,7 +84,7 @@ Only the find is a paid random outcome. In the preview it comes from the SDK's s
 
 ## Source code
 
-[GitHub repository](https://github.com/DEDQ3E/rare-friends-expeditions) · reviewed build: commit [`1b536ae`](https://github.com/DEDQ3E/rare-friends-expeditions/tree/1b536aeb041ec0f3e250c02b2e4f1db54554ebfa) · FriendSDK v0.1.3 · React 19 · TypeScript · [Game rules](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/README.md) · [Economy (`game.json`)](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/game.json)
+[GitHub repository](https://github.com/DEDQ3E/rare-friends-expeditions) · reviewed build: commit [`ab6e469`](https://github.com/DEDQ3E/rare-friends-expeditions/tree/ab6e46972211b302c84e81cdbeada533c12aef5e) · FriendSDK v0.1.3 · React 19 · TypeScript · [Game rules](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/README.md) · [Economy (`game.json`)](https://github.com/DEDQ3E/rare-friends-expeditions/blob/main/games/expeditions/game.json)
 
 ## Playable demo / how to run
 
@@ -95,7 +95,7 @@ To run locally with Node.js 22+ on Linux, Windows with WSL2 (both supported by F
 ```sh
 git clone https://github.com/DEDQ3E/rare-friends-expeditions.git
 cd rare-friends-expeditions
-git checkout 1b536aeb041ec0f3e250c02b2e4f1db54554ebfa
+git checkout ab6e46972211b302c84e81cdbeada533c12aef5e
 npm ci
 npm run dev        # http://localhost:4173
 ```
