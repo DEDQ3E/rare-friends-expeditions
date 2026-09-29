@@ -2,11 +2,18 @@
 // - everything renders inside the SDK game container, which is at most 960 × 640 and keeps its 3:2 ratio;
 // - the game runs in the SDK's sandboxed iframe (allow-scripts only);
 // - the SDK toolbar (mode, Friend, wallet) stays inside the container and its labels are not cut off;
-// - the game's own UI fills the iframe and nothing of it is rendered outside.
+// - the game's own UI fills the iframe and nothing of it is rendered outside;
+// - the published preview (docs/) has no wallet transaction, signing, approval or contract-write calls
+//   (FriendSDK v0.1.4 leaves them out of preview builds).
 import { testGame } from "@rarefriends/friendsdk/testing";
+import { readFileSync } from "node:fs";
 
 const VIEWPORTS = [[1920, 1080], [1382, 800], [1024, 700], [390, 844], [844, 390]];
 const problems = [];
+
+const bundle = ["docs/runtime.js", "docs/game.js"].map(f => readFileSync(f, "utf8")).join("\n");
+for (const marker of ["eth_sendTransaction", "eth_signTypedData", "personal_sign", "writeContract", "signTypedData", "sendTransaction("])
+  if (bundle.includes(marker)) problems.push(`docs/: the preview bundle contains ${marker}`);
 
 await testGame("./games/expeditions", {
   timeout: 120000,

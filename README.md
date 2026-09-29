@@ -27,7 +27,7 @@ On a phone held sideways the panels switch to a compact layout:
 
 Economy design, session statistics, a 1,000-player model and the roadmap: [submission/README.md](submission/README.md).
 
-Built with **FriendSDK v0.1.3** for the Rare Friends Vibeathon (September 2026).
+Built with **FriendSDK v0.1.4** for the Rare Friends Vibeathon (September 2026).
 All balances, purchases, finds and sales are **simulated**, and the RF prices are placeholders that show the
 proportions: multiply every RF amount by the same factor to price the game higher, and the odds and percentages stay
 the same (details in [submission/README.md](submission/README.md#costs-and-rewards)).
@@ -83,6 +83,7 @@ npm run check                           # friendsdk game + economy validation
 npm install -D playwright && npx playwright install chromium
 npm test                                # SDK browser smoke test (mock wallet)
 npm run playthrough                     # guide → buy → expedition → chest → sell → outfitter → collection
+npm run compliance                      # SDK container size and sandbox; no transaction code in docs/
 npm run mobile                          # phone sizes: start guide, camp and every panel; sideways, a run per place (chest, banner hides)
 npm run economy                         # exact odds over 10,000 rolls, EV, keepsakes, published tables
 npm run wardrobe                        # every clothing piece fitted on 10 body types, keepsake glow check, sheet PNGs
@@ -93,7 +94,9 @@ npm run demo                            # records the 1-minute demo video into d
 ```
 
 The automated tests use the SDK's mock wallet. Every published build is also played by hand with a real wallet on
-Robinhood mainnet holding a Generations NFT, on a computer and on a phone in a wallet browser.
+Robinhood mainnet holding a Generations NFT, on a computer and on a phone in a wallet browser. The preview never
+asks for a transaction, a signature or an RF approval, and with FriendSDK v0.1.4 its bundle contains no wallet
+transaction, signing, approval or contract-write calls (`npm run compliance` checks `docs/`).
 
 ## Layout
 

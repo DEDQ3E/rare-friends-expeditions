@@ -727,7 +727,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <span>Outfitter <b>{rfText(storeSpent)}</b></span><span>Burned <b>{rfText(storeSpent / 2n)}</b></span>
               <span className="xp-stat-wide">Finds kept, worth <b>{rfText(invValue)}</b></span>
             </div>
-            <p className="xp-small">Pass purchases, finds and sales are {mode} through FriendSDK. The Outfitter split (50% burn / 50% Friend rewards) is a proposal simulated in this preview: FriendSDK v0.1.3 has no upgrade API. Perks, weather and keepsakes change XP and the run, never odds or prices. RF prices here are placeholders: scaled up together, every RF amount grows by the same factor and the odds and percentages stay the same.</p>
+            <p className="xp-small">Pass purchases, finds and sales are {mode} through FriendSDK. The Outfitter split (50% burn / 50% Friend rewards) is a proposal simulated in this preview: FriendSDK v0.1.4 has no upgrade API. Perks, weather and keepsakes change XP and the run, never odds or prices. RF prices here are placeholders: scaled up together, every RF amount grows by the same factor and the odds and percentages stay the same.</p>
           </>}
 
           {panel === "guide" && guidePage === 0 && <div className="xp-guide">
@@ -781,7 +781,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
             <h3>Friend perks</h3>
             <p>Your Friend's family picks its perk; its generation sets the strength: Generation 1 gets rank V, Generation 5 rank I, Generation 6 plays without a perk. Perks help on every expedition (forest, cave and ruins) and with XP; they never change odds, prices or finds. Every hardwired Friend plays the full game with the same odds.</p>
             <table className="xp-odds"><tbody>{["Skeleton", "Mask", "Family", "Cellular", "Asymmetry", "Hoverer", "Colossus", "Sparkling", "Hollow"].map(f => { const p = perkFor(f, 1); return <tr key={f}><td>{f}</td><td><b>{p.perk?.name}</b> <small>{p.text} (at V)</small></td></tr>; })}</tbody></table>
-            <p className="xp-small">Balances, purchases, finds and sales are {mode}. Outfitter purchases are simulated on top of the SDK (FriendSDK v0.1.3 has no upgrade API). Progress resets when the page reloads. Wallet connection and NFT ownership checks are provided by the Rare Friends runtime.</p>
+            <p className="xp-small">Balances, purchases, finds and sales are {mode}. Outfitter purchases are simulated on top of the SDK (FriendSDK v0.1.4 has no upgrade API). Progress resets when the page reloads. Wallet connection and NFT ownership checks are provided by the Rare Friends runtime.</p>
           </>}
         </div>
         {panel === "guide" && <div className="xp-guide-nav">

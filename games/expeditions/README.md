@@ -1,6 +1,6 @@
 # Rare Friends: Expeditions
 
-FriendSDK **v0.1.3** game. Your selected Rare Friend rests at a night camp and sets out on short
+FriendSDK **v0.1.4** game. Your selected Rare Friend rests at a night camp and sets out on short
 expeditions: a side-scrolling forest run, a rope descent into the Crystal Cave or a top-down crossing of the
 Sunken Ruins. Each expedition costs one **Expedition Pass** (1 RF) and always ends at a chest with one find,
 which can be kept in the collection or sold back to the merchant for RF.
@@ -287,7 +287,7 @@ chest bonus XP, but the find is still delivered. Skill pays in XP only.
 | Trail Rations | 0.2 RF each | +1 heart on the next expedition in any place, used up when the Friend sets out (repeatable) |
 
 Outfitter purchases are never refunded. The proposed split mirrors the Rare Friends protocol rule:
-**50% burned, 50% to Friend rewards**. FriendSDK v0.1.3 has no upgrade/cosmetic API, so these
+**50% burned, 50% to Friend rewards**. FriendSDK v0.1.4 has no upgrade/cosmetic API, so these
 purchases are simulated on top of the SDK ledger and last for the session. None of them change RF odds.
 
 ## Page layout (`host.css`)
