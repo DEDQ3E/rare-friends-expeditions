@@ -108,7 +108,7 @@ export function pixmapUrl(art: Pixmap, scale = 4, silhouette = false): string {
 /* ---------- Hero (the selected Rare Friend) ---------- */
 
 /** The Friend is always drawn from its canonical frames in the canonical look (black mask, white halo). Clothes
- * from the wardrobe are worn over it (FriendSDK allows costumes since v0.1.2), fitted to its own silhouette and never
+ * from the wardrobe are worn over it (FriendSDK v0.1.4 allows costumes), fitted to its own silhouette and never
  * changing its outline; a torch or lantern is held beside it. */
 export type HeroLook = Readonly<{ torch?: boolean; lantern?: boolean; moving?: boolean; clock?: number; outfit?: Outfit }>;
 /** Canonical Friend colors (the SDK reference look). */

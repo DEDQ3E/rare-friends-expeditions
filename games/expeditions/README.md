@@ -124,7 +124,7 @@ one-pixel halo), with its own shape and walk animation. The engine redraws the F
 rain, night, darkness and light overlays so nothing tints them. The torch and the cave lantern are held beside
 it and trails are particles behind it.
 
-The **wardrobe** (Outfitter, FriendSDK allows costumes since v0.1.2) is fitted to every Friend's own silhouette, frame
+The **wardrobe** (Outfitter, FriendSDK v0.1.4 allows costumes) is fitted to every Friend's own silhouette, frame
 by frame and in all four walking directions (`fit.ts`, `wardrobe.ts`): hats sit on the real head and match its
 width, and ears, horns and antennae poke through them; the scarf wraps the real neck with a tail that swings;
 tops follow the Friend's own torso pixels; the cape follows its back, flutters while it moves and covers the
