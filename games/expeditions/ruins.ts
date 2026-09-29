@@ -54,7 +54,7 @@ export type RuinsHooks = Readonly<{
 export function createRuins(hooks: RuinsHooks) {
   let lanes: Lane[] = [], shards: Shard[] = [];
   let perk: PerkEffects = { extraHearts: 0, shield: 0, magnet: 0, moveMult: 1, fallMult: 1, stomp: false, invulnBonus: 0, xpMult: 1 };
-  let col = 6, row = 0, fromCol = 6, fromRow = 0, tween = 1, facing: Dir = "up", cooldown = 0, lastDir = "";
+  let col = 6, row = 0, fromCol = 6, fromRow = 0, tween = 1, facing: Dir = "up", cooldown = 0;
   let safeCol = 6, safeRow = 0;
   let hearts = 3, maxHearts = 3, sparks = 0, hits = 0, invuln = 0, timeLeft = RUINS_TIME, finished = false, chestOpen = false, cam = 0, view = 0, time = 0, zone = 0, lastTick = 11;
 
@@ -167,10 +167,9 @@ export function createRuins(hooks: RuinsHooks) {
     // so the gauntlet is about reading the traps, not speed-running
     if (tween < 1) tween = Math.min(1, tween + dt / (0.16 / perk.moveMult));
     const want = moveY < 0 ? "up" : moveY > 0 ? "down" : moveX < 0 ? "left" : moveX > 0 ? "right" : "";
-    if (!want) lastDir = "";
     if (tween >= 1 && want && cooldown <= 0) {
       const ok = want === "up" ? tryStep(0, 1, "up") : want === "down" ? tryStep(0, -1, "down") : want === "left" ? tryStep(-1, 0, "left") : tryStep(1, 0, "right");
-      cooldown = ok ? 0.26 / perk.moveMult : 0.06; lastDir = want;
+      cooldown = ok ? 0.26 / perk.moveMult : 0.06;
     }
     // arriving on a tile
     const lane = lanes[row];
@@ -423,7 +422,7 @@ export function createRuins(hooks: RuinsHooks) {
   return {
     start(seed: () => number, nextPerk: PerkEffects, startHearts: number, startRow = 0) {
       perk = nextPerk; build(seed);
-      col = fromCol = safeCol = 6; row = fromRow = safeRow = Math.max(0, Math.min(ALTAR - 1, startRow)); tween = 1; facing = "up"; cooldown = 0; lastDir = "";
+      col = fromCol = safeCol = 6; row = fromRow = safeRow = Math.max(0, Math.min(ALTAR - 1, startRow)); tween = 1; facing = "up"; cooldown = 0;
       hearts = maxHearts = startHearts; sparks = 0; hits = 0; invuln = 0; timeLeft = RUINS_TIME; finished = false; chestOpen = false; time = 0; zone = 0; lastTick = 11;
       cam = Math.max(0, Math.min(WORLD_H - 160 + BELOW, rowY(row) + 8 - 100));
     },

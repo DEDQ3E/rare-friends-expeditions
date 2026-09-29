@@ -258,6 +258,10 @@ keepsake bonus and this session's totals.
 - The price curve follows the SDK fishing reference (0.75 / 1.5 / 2.5 / 5 / 10 RF): small finds return part of
   the pass, and the rare ones are worth chasing (Epic 2.5×, Legendary 5×, Mythic 10×).
 - Maximum prize 10 RF: every purchased pass reserves 10 RF of game backing (SDK chance-game rules).
+- **RF prices are placeholders** that show the proportions. To price the game higher, multiply every RF amount
+  (pass price and find rewards in `game.json`, Outfitter and Trail Ration prices, the 20 RF start) by the same
+  factor: odds, the 90% expected return, the 23% chance of getting the pass price back or more and the keepsake bonuses
+  stay the same; only the "bonus per RF held" column divides by the factor.
 - Outcome names in `game.json` are rarity tiers; each location only changes how a tier looks.
   The Crystal Cave and Sunken Ruins reuse the same table and contract; only the finds look different.
 

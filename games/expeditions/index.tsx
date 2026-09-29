@@ -102,7 +102,6 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const [packRations, setPackRations] = useState(true);
   // current expedition
   const [playId, setPlayId] = useState<bigint | null>(null);
-  const [runStats, setRunStats] = useState({ sparks: 0, hearts: 3 });
   const [runResult, setRunResult] = useState<RunResult | null>(null);
   const [reveal, setReveal] = useState<GamePlay | null>(null);
   const [gainedXp, setGainedXp] = useState(0);
@@ -211,9 +210,9 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   /* ---------- engine ---------- */
   const onEngineEvent = useCallback((event: RunEvent) => {
     const sfx = scape.current;
-    if (event.type === "spark") { setRunStats(s => ({ ...s, sparks: event.sparks })); sfx?.sfx("spark"); }
-    else if (event.type === "hit") { setRunStats(s => ({ ...s, hearts: event.hearts })); sfx?.sfx("hit"); }
-    else if (event.type === "heart") { setRunStats(s => ({ ...s, hearts: event.hearts })); sfx?.sfx("heart"); }
+    if (event.type === "spark") sfx?.sfx("spark");
+    else if (event.type === "hit") sfx?.sfx("hit");
+    else if (event.type === "heart") sfx?.sfx("heart");
     else if (event.type === "jump") sfx?.sfx(event.air ? "jump-air" : "jump");
     else if (event.type === "land") sfx?.sfx("land");
     else if (event.type === "step") sfx?.sfx(event.surface === "path" ? "step-path" : event.surface === "stone" ? "step-stone" : "step-grass");
@@ -288,7 +287,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
     const ration = packRations && rations > 0 ? 1 : 0;
     if (ration) setRations(r => r - 1);
     const hearts = 3 + (owned.has("backpack") ? 1 : 0) + perk.effects.extraHearts + ration;
-    setPlayId(committed.id); setRunResult(null); setReveal(null); setRunStats({ sparks: 0, hearts }); setPanel(null); setShowHint(true);
+    setPlayId(committed.id); setRunResult(null); setReveal(null); setPanel(null); setShowHint(true);
     setRunLoc(loc);
     const seed = Math.floor(Math.random() * 1e9);
     if (loc === "cave") engine.current.startCave({ hearts, seed, trail, perk: perk.effects });
@@ -728,7 +727,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <span>Outfitter <b>{rfText(storeSpent)}</b></span><span>Burned <b>{rfText(storeSpent / 2n)}</b></span>
               <span className="xp-stat-wide">Finds kept, worth <b>{rfText(invValue)}</b></span>
             </div>
-            <p className="xp-small">Pass purchases, finds and sales are {mode} through FriendSDK. The Outfitter split (50% burn / 50% Friend rewards) is a proposal simulated in this preview: FriendSDK v0.1.3 has no upgrade API. Perks, weather and keepsakes change XP and the run, never odds or prices.</p>
+            <p className="xp-small">Pass purchases, finds and sales are {mode} through FriendSDK. The Outfitter split (50% burn / 50% Friend rewards) is a proposal simulated in this preview: FriendSDK v0.1.3 has no upgrade API. Perks, weather and keepsakes change XP and the run, never odds or prices. RF prices here are placeholders: scaled up together, every RF amount grows by the same factor and the odds and percentages stay the same.</p>
           </>}
 
           {panel === "guide" && guidePage === 0 && <div className="xp-guide">

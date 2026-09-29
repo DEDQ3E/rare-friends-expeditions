@@ -28,7 +28,9 @@ On a phone held sideways the panels switch to a compact layout:
 Economy design, session statistics, a 1,000-player model and the roadmap: [submission/README.md](submission/README.md).
 
 Built with **FriendSDK v0.1.3** for the Rare Friends Vibeathon (September 2026).
-All balances, purchases, finds and sales are **simulated**.
+All balances, purchases, finds and sales are **simulated**, and the RF prices are placeholders that show the
+proportions: multiply every RF amount by the same factor to price the game higher, and the odds and percentages stay
+the same (details in [submission/README.md](submission/README.md#costs-and-rewards)).
 
 ## Run locally
 
@@ -89,6 +91,9 @@ npm run model                           # daily RF flows for 1,000 players (thre
 npm run build                           # static build into docs/ (GitHub Pages); keeps .nojekyll and the demo video
 npm run demo                            # records the 1-minute demo video into docs/demo.webm
 ```
+
+The automated tests use the SDK's mock wallet. Every published build is also played by hand with a real wallet on
+Robinhood mainnet holding a Generations NFT, on a computer and on a phone in a wallet browser.
 
 ## Layout
 

@@ -172,7 +172,6 @@ export function createEngine(canvas: HTMLCanvasElement, onEvent: (event: RunEven
   function frameOf(clip: Clip, fps: number) { return clip[reducedMotion ? 0 : Math.floor(clock * fps) % clip.length]; }
 
   /* ---------------- camp ---------------- */
-  const STARS = Array.from({ length: 34 }, (_, i) => ({ x: (i * 53 + 17) % W, y: (i * 29 + 7) % 64, p: i * 0.7 }));
   function drawCampBackground() {
     drawSky(ctx, CAMP_SKY, 106, true);
     drawStars(ctx, clock, 60, 72, reducedMotion);

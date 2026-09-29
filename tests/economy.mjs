@@ -1,5 +1,6 @@
-// Economy tests: exact odds over all 10,000 rolls, expected return, reserve, keepsake bonus curve,
-// exact session statistics, and that every published table (READMEs) matches game.json and scripts/sessions.mjs.
+// Economy tests: exact odds over all 10,000 rolls, expected return, reserve, keepsake bonus curve and glow,
+// exact session statistics, the 1,000-player model, the Outfitter catalog, placeholder prices that scale together,
+// and that every published table (READMEs) matches game.json, scripts/sessions.mjs and scripts/economy-model.mjs.
 // Needs Node.js 22.18+ (imports keepsakes.ts directly).
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -126,6 +127,18 @@ test("Outfitter catalog: 80 RF in total, 2–8 RF per item, as published", () =>
   assert.equal(prices.reduce((a, b) => a + b, 0), 80);
   assert.equal(Math.min(...prices), 2); assert.equal(Math.max(...prices), 8);
   assert.ok(read("submission/README.md").includes("2–8 RF per item, 80 RF for the full catalog"));
+});
+
+test("placeholder prices: scaling every RF amount by 5 keeps odds, the 90% return and sessions ahead", () => {
+  const k = 5n, scaled = { ...game, price: price * k, outcomes: game.outcomes.map(o => ({ ...o, reward: (BigInt(o.reward) * k).toString() })) };
+  const ev = scaled.outcomes.reduce((t, o) => t + BigInt(o.chanceBps) * BigInt(o.reward), 0n) / 10000n;
+  assert.equal(ev * 10n, scaled.price * 9n, "expected return stays 90% of the pass price");
+  assert.equal(scaled.outcomes.reduce((t, o) => t + (BigInt(o.reward) >= scaled.price ? o.chanceBps : 0), 0), 2300);
+  const base = sessions({ ...game, price }), big = sessions(scaled);
+  big.forEach((r, i) => {
+    assert.equal(r.aheadPct, base[i].aheadPct, "same share of sessions ahead");
+    for (const q of ["mean", "p10", "median", "p90", "p99"]) assert.equal(Number(r[q]).toFixed(2), (Number(base[i][q]) * 5).toFixed(2), q);
+  });
 });
 
 console.log(`economy: ${passed} tests passed`);
