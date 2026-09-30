@@ -33,3 +33,24 @@ export function glowAfterSelling(inventory: readonly bigint[], tier: number, qty
 }
 /** Glow colour names by tier, for labels. */
 export const GLOW_NAME: Readonly<Record<number, string>> = { 3: "blue", 4: "purple", 5: "gold", 6: "rainbow" };
+
+/** Trophies: a small piece worn on the Friend's chest for each rarity from Rare up (tier 3–6 in `game.json` order).
+ * A trophy cannot be bought or sold for RF: it is available, and worn, while the Friend keeps at least one find of
+ * its rarity, read from the same SDK inventory counts as the glow. Selling the last find of that rarity removes it.
+ * Cosmetic only: it never changes XP, the glow, odds, prices or finds. */
+export const TROPHY_NAME: Readonly<Record<number, string>> = { 3: "Feather Pin", 4: "Amber Amulet", 5: "Scarab Brooch", 6: "Heart Pendant" };
+/** Rarity tiers whose trophy the Friend holds right now (Rare to Mythic, at least one kept find of that rarity). */
+export function trophyTiers(inventory: readonly bigint[]): number[] {
+  const out: number[] = [];
+  for (let i = GLOW_MIN_TIER; i < inventory.length; i++) if (inventory[i] > 0n) out.push(i);
+  return out;
+}
+/** True when selling `qty` finds of `tier` removes that tier's trophy (it was held, and no find of the tier is left). */
+export function sellingRemovesTrophy(inventory: readonly bigint[], tier: number, qty: bigint): boolean {
+  return tier >= GLOW_MIN_TIER && tier < inventory.length && inventory[tier] > 0n && inventory[tier] <= qty;
+}
+/** The worn trophy tier: the player's pick while it is held, otherwise the rarest held one (the glow tier); 0 = none. */
+export function wornTrophy(inventory: readonly bigint[], pick: number | null, off: boolean): number {
+  if (off) return 0;
+  return pick !== null && trophyTiers(inventory).includes(pick) ? pick : glowTier(inventory);
+}

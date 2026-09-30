@@ -144,9 +144,13 @@ finds turn into a reason to spend RF. The chest screen announces a level up and 
 | Capes | Red Cape 4 · Star Cloak 6 (from Lv 4 Scout) |
 | Boots | Rain Boots 2 |
 
+Below the clothes, the wardrobe shows the four **trophies** (see "Trophies"): not for sale, worn while a find of their
+rarity is kept.
+
 `npm run wardrobe` renders every piece on eight body types (ears, side-on quadruped, humanoid, blob, wide,
 tiny, antennae, legless) and on the SDK's recorded Friends #7730 and #3412, and fails if a piece is invisible,
-drifts away from the Friend or covers it with a hat.
+drifts away from the Friend or covers it with a hat, or if a trophy is bigger than six pixels or touches the
+Friend's outline, its halo or anything around it (bare and over a sweater).
 
 ## Harvest Season (limited cosmetic)
 
@@ -233,6 +237,43 @@ Friend's feet and never changes a Friend pixel.
 
 ![Keepsake glow: none, Rare, Epic, Legendary, Mythic](../../media/keepsake-glow.png)
 
+### Trophies
+
+Every rarity from Rare up comes with a trophy the Friend wears on its chest (`wardrobe.ts`, `keepsakes.ts`):
+
+| Rarity | Trophy | Colour |
+| --- | --- | --- |
+| Rare | Feather Pin | blue |
+| Epic | Amber Amulet | purple |
+| Legendary | Scarab Brooch | gold |
+| Mythic | Heart Pendant | rainbow |
+
+- A trophy cannot be bought or sold for RF. It is available, and worn, while the Friend keeps at least one find of
+  its rarity (read from the SDK inventory, like the bonus and the glow); selling the last one takes it off.
+- With several held, the rarest is worn; any held trophy can be picked in the Outfitter's wardrobe, and "Take
+  everything off" also takes the trophy off to show the original artwork.
+- The chest says "Keep it to wear the Scarab Brooch" (or that the trophy joins the others when a rarer one is
+  worn), and warns when selling would take it away. The Merchant's sell button says "Selling removes your Scarab
+  Brooch" when it sells the last find of that rarity. The hero card shows the worn trophy.
+- It is at most six pixels on the chest, drawn only on the Friend's inner pixels (never its outline or halo), so
+  the Friend's artwork keeps its shape. Seen from behind it is hidden.
+- Cosmetic only: the XP bonus, the glow, odds, prices and finds stay exactly the same.
+
+### Built on the Ethergoo hold-or-redeem pattern — what Expeditions adds
+
+The pass loop follows the pattern of Ethergoo, the organizers' example submission ([spokesz/rarefriends-vibeathon#4](https://github.com/spokesz/rarefriends-vibeathon/pull/4)): a 1 RF chance item turns into a collectible with a fixed, fully backed RF redemption value, productive while held (there a goo production bonus, here an XP bonus), with more bonus per RF for rarer items. Expeditions builds on that base:
+
+| Added in Expeditions | What it does | Why it matters for RF |
+|---|---|---|
+| Skill runs | Every pass is a real run in one of three mini-games (forest runner, cave descent, ruins gauntlet); skill earns XP, never better odds | Play value in every pass, while the contract alone decides the find |
+| Trophies | Rare to Mythic finds are worn on the Friend's chest while kept; never sold | A visible reason to hold, and a reason to pay above the floor (see "Trading finds") |
+| XP → items from a level | Keepsakes speed up XP; the Star Cloak (6 RF) opens at Lv 4, the Golden Crown (8 RF) at Lv 6 | Holding and playing well turn into demand for RF |
+| Outfitter 50 / 50 | Gear, clothes, trails and Trail Rations; never refunded, never change odds; 50% burned, 50% to Friend rewards (proposal) | A pure sink: with half the edge, 7–10% of all RF spent in the game is burned |
+| Seasons | Harvest Season items sold only until Nov 30; a new limited item every season (roadmap) | Recurring, time-limited demand |
+| Floor price when trading | The Merchant's fixed price is a hard floor for traded finds; 5% fee, 2.5% burned (roadmap) | Finds cannot trade below their backing; trading burns RF too |
+
+**Trading finds (roadmap, not in this MVP).** Finds are ERC-1155 rewards in the Friend's wallet, so they can be listed against $RAREFRIENDS. The Merchant price is a hard floor: anyone can redeem a find for its fixed RF at any time, backed by the stake, so the price cannot stay under it. Above the floor a find is worth its RF plus its keepsake bonus and its trophy. The trophy is the part of that premium RF cannot buy anywhere else: a Legendary find is the only way to wear the Scarab Brooch, a Mythic the only way to wear the Heart Pendant, so a player who wants one pays above the floor, while the floor stays backed. Proposed trade fee 5%: 2.5% burned, 2.5% to the game bank and Friend rewards.
+
 ## Economy panel
 
 Tap the RF balance (or the **RF** button) to see where every RF goes: passes go to the game bank that
@@ -302,6 +343,7 @@ On phones and short screens the frame gets thinner.
 - The SDK sandbox has no storage: XP, level, owned gear and cosmetics reset on reload.
 - Outfitter purchases need a custom RF integration (burn + rewards split) before live use.
 - Which cave and ruins finds you hold is remembered for the session only; the SDK inventory counts finds by rarity tier.
+- Trophies are an off-chain cosmetic read from the SDK inventory, not NFTs.
 
 ## Sound
 

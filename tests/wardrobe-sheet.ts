@@ -1,7 +1,7 @@
 // Fit sheet: every wardrobe piece on silhouettes of every body type (ears, side-on quadruped, humanoid, blob, wide,
 // tiny, antennae, legless) plus the SDK's recorded Friend #7730. Bundled and rendered by tests/wardrobe.mjs.
 import { drawHero } from "../games/expeditions/art.js";
-import { WARDROBE, type Facing, type Outfit } from "../games/expeditions/wardrobe.js";
+import { TROPHIES, WARDROBE, type Facing, type Outfit } from "../games/expeditions/wardrobe.js";
 
 const S = (art: string[]) => art.map(r => r.padEnd(16, ".").replace(/[^#]/g, "."));
 export const BODIES: Record<string, readonly string[]> = {
@@ -44,9 +44,42 @@ export function checkFits(extra: Record<string, Body> = {}) {
   return problems;
 }
 
+/** Trophies on every body, front and side: visible, at most 6 pixels, and drawn only on the Friend's inner pixels, so
+ * they never cover it and never change its outline, its halo or anything around it. Also checked over a sweater. */
+export function checkTrophies(extra: Record<string, Body> = {}) {
+  const bodies: Record<string, Body> = { ...BODIES, ...extra }, problems: string[] = [];
+  const draw = (rows: readonly string[], outfit: Outfit, facing: Facing) => {
+    const c = document.createElement("canvas"); c.width = 40; c.height = 40; const g = c.getContext("2d")!;
+    drawHero(g, rows, 12, 16, { outfit, clock: 0.3, moving: facing === "right" }, facing); return g.getImageData(0, 0, 40, 40).data;
+  };
+  const on = (rows: readonly string[], i: number, j: number) => rows[j]?.[i] === "#";
+  for (const [name, body] of Object.entries(bodies)) for (const facing of ["down", "right"] as Facing[]) {
+    const rows = pose(body, facing);
+    for (const base of [{}, { body: "sweater" }] as Outfit[]) {
+      const bare = draw(rows, base, facing);
+      for (const t of TROPHIES) {
+        const worn = draw(rows, { ...base, trophy: t.id }, facing);
+        let changed = 0, outside = 0, edge = 0;
+        for (let p = 0; p < 1600; p++) {
+          if (bare[p * 4] === worn[p * 4] && bare[p * 4 + 1] === worn[p * 4 + 1] && bare[p * 4 + 2] === worn[p * 4 + 2] && bare[p * 4 + 3] === worn[p * 4 + 3]) continue;
+          const i = (p % 40) - 12, j = Math.floor(p / 40) - 16; changed++;
+          if (!on(rows, i, j)) outside++;
+          else if (!on(rows, i - 1, j) || !on(rows, i + 1, j) || !on(rows, i, j - 1) || !on(rows, i, j + 1)) edge++;
+        }
+        const at = `${name} / ${facing}${base.body ? " / sweater" : ""} / ${t.id}`;
+        if (changed < 2) problems.push(`${at}: trophy not visible (${changed} px)`);
+        if (changed > 6) problems.push(`${at}: trophy too big (${changed} px)`);
+        if (outside) problems.push(`${at}: trophy changed ${outside} pixels outside the Friend (halo or background)`);
+        if (edge) problems.push(`${at}: trophy covers ${edge} outline pixels of the Friend`);
+      }
+    }
+  }
+  return problems;
+}
+
 export function renderSheet(canvas: HTMLCanvasElement, extra: Record<string, Body> = {}) {
   const bodies: Record<string, Body> = { ...BODIES, ...extra }, names = Object.keys(bodies);
-  const cols = [null, ...WARDROBE], cellW = 26, cellH = 30, scale = 4;
+  const cols = [null, ...WARDROBE, ...TROPHIES], cellW = 26, cellH = 30, scale = 4;
   canvas.width = cols.length * cellW * scale; canvas.height = names.length * 2 * cellH * scale;
   const g = canvas.getContext("2d")!; g.imageSmoothingEnabled = false; g.scale(scale, scale);
   names.forEach((name, r) => (["down", "right"] as Facing[]).forEach((facing, k) => cols.forEach((item, c) => {

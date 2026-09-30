@@ -11,8 +11,8 @@ import { createFriendPublicClient } from "@rarefriends/friendsdk/wallet";
 import { WEATHER_ICONS, FINDS, LOCATIONS, LOCATION_NAME, PASS, RARITIES, RARITY_COLOR, RARITY_LABEL, HEART, SPARK, CRYSTAL, drawHero, pixmapUrl, type HeroLook, type Location } from "./art.js";
 import { RAIN_LABEL, TIME_LABEL, XP_MULT, rollWeather, type Rain, type Weather } from "./weather.js";
 import { RANK_LABEL, perkFor } from "./perks.js";
-import { GLOW_NAME, KEEP_CAP_BPS, KEEP_XP_BPS, glowAfterSelling, glowTier, keepText, keepsakeBps } from "./keepsakes.js";
-import { SLOTS, SLOT_LABEL, WARDROBE, type Outfit, type Slot, type WearItem } from "./wardrobe.js";
+import { GLOW_NAME, KEEP_CAP_BPS, KEEP_XP_BPS, TROPHY_NAME, glowAfterSelling, glowTier, keepText, keepsakeBps, sellingRemovesTrophy, trophyTiers, wornTrophy } from "./keepsakes.js";
+import { SLOTS, SLOT_LABEL, TROPHIES, WARDROBE, trophyByTier, type Outfit, type Slot, type WearItem } from "./wardrobe.js";
 import { createSoundscape, type Soundscape } from "./audio.js";
 import { CAVE_ZONES } from "./cave.js";
 import { RELIC, RUINS_ZONES } from "./ruins.js";
@@ -98,6 +98,9 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const [owned, setOwned] = useState<ReadonlySet<string>>(() => new Set());
   const [equipped, setEquipped] = useState<ReadonlySet<string>>(() => new Set());
   const [wearing, setWearing] = useState<Outfit>({});
+  // trophies (keepsakes.ts): worn while a find of their rarity is kept; the rarest one unless the player picks another
+  const [trophyPick, setTrophyPick] = useState<number | null>(null);
+  const [trophyOff, setTrophyOff] = useState(false);
   const [rations, setRations] = useState(0);
   const [packRations, setPackRations] = useState(true);
   // current expedition
@@ -136,14 +139,16 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const mutedRef = useRef(false);
 
   const torchOn = equipped.has("torch");
-  const look: HeroLook = useMemo(() => ({ torch: torchOn, outfit: wearing }), [torchOn, wearing]);
+  const trophyTier = snapshot ? wornTrophy(snapshot.inventory, trophyPick, trophyOff) : 0;
+  const trophyId = trophyByTier(trophyTier)?.id;
+  const look: HeroLook = useMemo(() => ({ torch: torchOn, outfit: trophyId ? { ...wearing, trophy: trophyId } : wearing }), [torchOn, wearing, trophyId]);
   /** Put a piece on (replacing whatever is in its slot) or take it off. */
   const toggleOutfit = (item: WearItem, force?: boolean) => setWearing(w => {
     const on = force ?? w[item.slot] !== item.id, next: Partial<Record<Slot, string>> = { ...w };
     if (on) next[item.slot] = item.id; else delete next[item.slot];
     return next;
   });
-  const wearingCount = Object.keys(wearing).length;
+  const wearingCount = Object.keys(wearing).length + (trophyId ? 1 : 0);
   const trail = equipped.has("leaves") ? "leaves" as const : equipped.has("trail") ? "spark" as const : null;
   /** Use an item (putting away whatever else shares its slot), or put it away. */
   const toggleWear = (id: string, force?: boolean) => setEquipped(e => {
@@ -435,7 +440,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
   const wearPreviews = useMemo(() => {
     const out: Record<string, string> = {};
     if (!sprites) return out;
-    for (const item of WARDROBE) {
+    for (const item of [...WARDROBE, ...TROPHIES]) {
       const c = document.createElement("canvas"); c.width = 42; c.height = 28; const g = c.getContext("2d"); if (!g) continue;
       const outfit: Outfit = { [item.slot]: item.id };
       drawHero(g, sprites.idle[0], 3, 10, { outfit }, "down");
@@ -460,12 +465,18 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
 
   const revealIndex = reveal?.outcomeId ? reveal.outcomeId - 1 : -1;
   const revealOutcome = revealIndex >= 0 ? definition.outcomes[revealIndex] : null;
+  // a Rare or better find brings its trophy; keeping it wears that trophy unless a rarer one is already worn
+  const revealTrophy = revealIndex >= 0 ? trophyByTier(revealIndex) : null;
+  const revealWears = !!revealTrophy && revealIndex >= glowAfterSelling(snapshot.inventory, revealIndex, 1n);
   const invCount = snapshot.inventory.reduce((a, n, i) => definition.outcomes[i].reward > 0n ? a + n : a, 0n);
   const invValue = snapshot.inventory.reduce((a, n, i) => a + n * definition.outcomes[i].reward, 0n);
   const heldBps = keepsakeBps(snapshot.inventory);
   const glow = glowTier(snapshot.inventory);
   /** "gold glow goes out" / "glow turns blue" when selling qty finds of tier i would change the glow, else "". */
   const glowLoss = (i: number, qty: bigint) => { const after = glowAfterSelling(snapshot.inventory, i, qty); return glow && after < glow ? (after ? `glow turns ${GLOW_NAME[after]}` : `${GLOW_NAME[glow]} glow goes out`) : ""; };
+  /** "Selling removes your Scarab Brooch" when selling qty finds of tier i takes that trophy away, else "". */
+  const trophyLoss = (i: number, qty: bigint) => (sellingRemovesTrophy(snapshot.inventory, i, qty) ? `Selling removes your ${TROPHY_NAME[i]}` : "");
+  const heldTrophies = trophyTiers(snapshot.inventory);
   const nextLevel = LEVELS[Math.min(level + 1, LEVELS.length - 1)];
   const levelFloor = LEVELS[level];
   const xpPct = level === LEVELS.length - 1 ? 100 : Math.round(((xp - levelFloor) / (nextLevel - levelFloor)) * 100);
@@ -577,10 +588,11 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
         {(() => { const before = levelOf(xp - gainedXp); if (level <= before) return null; const unlocks = WARDROBE.filter(w => w.minLevel !== undefined && w.minLevel > before && w.minLevel <= level);
           return <p className="xp-small xp-levelup">Level up: <b>Lv {level + 1} · {TITLES[level]}</b>{unlocks.length ? <> · {unlocks.map(w => w.name).join(" and ")} unlocked at the Outfitter</> : null}</p>; })()}
         <div className="xp-row">
-          <button type="button" className="xp-btn" disabled={busy} onClick={backToCamp}>{revealIndex >= 3 && revealIndex === glow ? `Keep it · ${GLOW_NAME[glow]} glow` : "Keep it"}</button>
+          <button type="button" className="xp-btn" disabled={busy} onClick={() => { if (revealWears) { setTrophyPick(null); setTrophyOff(false); } backToCamp(); }}>{revealTrophy ? (revealWears ? `Keep it to wear the ${revealTrophy.name}` : `Keep it · the ${revealTrophy.name} joins your trophies`) : "Keep it"}</button>
           {revealOutcome.reward > 0n && <button type="button" className="xp-btn xp-primary" disabled={busy || paused}
             onClick={() => void sell(revealIndex + 1, 1n, runLoc).then(ok => { if (ok) backToCamp(); })}>Sell · {rfText(revealOutcome.reward)}{glowLoss(revealIndex, 1n) ? ` · ${glowLoss(revealIndex, 1n)}` : ""}</button>}
         </div>
+        {revealTrophy && trophyLoss(revealIndex, 1n) && <p className="xp-small xp-glow-warn">{trophyLoss(revealIndex, 1n)}: it stays on your Friend only while you keep a {RARITY_LABEL[RARITIES[revealIndex]]} find.</p>}
         {error && <p role="alert" className="xp-error">{error}</p>}
       </div>
     </div>}
@@ -620,15 +632,15 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
 
           {panel === "merchant" && <>
             <p>“Fair prices, forever. I never change them.” · Your finds are worth <b>{rfText(invValue)}</b>.</p>
-            <p className="xp-small">Kept finds add <b>{keepText(heldBps)} XP</b> to every expedition (up to {keepText(KEEP_CAP_BPS)}). Selling a find pays its RF and gives its share of the bonus up. The bonus depends on rarity: a find of the same rarity from any place gives the same bonus. Your rarest kept find (Rare or better) also lights a glow under your Friend: blue, purple, gold or rainbow.</p>
+            <p className="xp-small">Kept finds add <b>{keepText(heldBps)} XP</b> to every expedition (up to {keepText(KEEP_CAP_BPS)}). Selling a find pays its RF and gives its share of the bonus up. The bonus depends on rarity: a find of the same rarity from any place gives the same bonus. Your rarest kept find (Rare or better) also lights a glow under your Friend: blue, purple, gold or rainbow. Every Rare or better rarity you keep gives your Friend a trophy to wear ({TROPHIES.map(t => t.name).join(", ")}); trophies are never sold, and selling the last find of a rarity takes its trophy away.</p>
             {LOCATIONS.flatMap(loc => definition.outcomes.map((o, i) => {
               const n = heldAt(loc, i);
               if (o.reward === 0n || (loc !== "forest" && n === 0n)) return null;
               return <div className="xp-item" key={`${loc}-${o.name}`}>
                 <img src={findIcon(loc, i)} alt="" width={30} height={30} />
                 <span><strong style={{ color: RARITY_COLOR[RARITIES[i]] }}>{FINDS[loc][i].name}</strong><small>{n.toString()} owned · {rfText(o.reward)} each · {keepText(KEEP_XP_BPS[i])} XP while kept</small>{glowLoss(i, n) && <small className="xp-glow-warn">Sell {n > 1n ? "them all" : "it"} and your {glowLoss(i, n)}</small>}</span>
-                <button type="button" className="xp-btn" disabled={busy || paused || n === 0n} onClick={() => void sell(i + 1, 1n, loc)}>Sell 1</button>
-                <button type="button" className="xp-btn" disabled={busy || paused || n < 2n} onClick={() => void sell(i + 1, n, loc)}>Sell all</button>
+                <button type="button" className="xp-btn" disabled={busy || paused || n === 0n} onClick={() => void sell(i + 1, 1n, loc)}>Sell 1{trophyLoss(i, 1n) && <small className="xp-btn-note">{trophyLoss(i, 1n)}</small>}</button>
+                <button type="button" className="xp-btn" disabled={busy || paused || n < 2n} onClick={() => void sell(i + 1, n, loc)}>Sell all{n >= 2n && trophyLoss(i, n) && <small className="xp-btn-note">{trophyLoss(i, n)}</small>}</button>
               </div>;
             }))}
             <p className="xp-small">Dry Twigs, Plain Pebbles and Pottery Shards have no RF value and stay in your collection. Cave finds pay the same as forest finds of the same rarity.</p>
@@ -649,7 +661,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <button type="button" className="xp-btn" disabled={busy} onClick={() => buyRations(5)}>Buy 5 · {rfText(RATION_PRICE * 5n)}</button>
             </div>
             <h3>Wardrobe</h3>
-            <p className="xp-small">Clothes are fitted to your Friend's own shape, frame by frame, and never change its outline. Cosmetic only: they never change odds, prices, finds or XP. Prestige pieces unlock with your Friend's level, and kept finds speed that up. {wearingCount > 0 && <button type="button" className="xp-link" onClick={() => setWearing({})}>Take everything off</button>}</p>
+            <p className="xp-small">Clothes are fitted to your Friend's own shape, frame by frame, and never change its outline. Cosmetic only: they never change odds, prices, finds or XP. Prestige pieces unlock with your Friend's level, and kept finds speed that up. {wearingCount > 0 && <button type="button" className="xp-link" onClick={() => { setWearing({}); setTrophyOff(true); }}>Take everything off</button>}</p>
             {SLOTS.map(slot => <div key={slot} className="xp-wear-group">
               <h4>{SLOT_LABEL[slot]}</h4>
               <div className="xp-wear-grid">{WARDROBE.filter(w => w.slot === slot).map(item => {
@@ -663,6 +675,20 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
                 </div>;
               })}</div>
             </div>)}
+            <div className="xp-wear-group">
+              <h4>{SLOT_LABEL.trophy} · not for sale</h4>
+              <p className="xp-small">Keep a Rare or better find and your Friend wears its trophy on the chest. It stays while you keep at least one find of that rarity; selling the last one takes it away. Cosmetic only: XP, odds and prices stay the same.</p>
+              <div className="xp-wear-grid">{TROPHIES.map(t => {
+                const has = heldTrophies.includes(t.tier), on = trophyTier === t.tier;
+                return <div key={t.id} className={`xp-wear${on ? " xp-wear-on" : ""}`}>
+                  {wearPreviews[t.id] && <img src={wearPreviews[t.id]} alt={`${t.name} on your Friend`} width={84} height={56} />}
+                  <strong style={{ color: RARITY_COLOR[RARITIES[t.tier]] }}>{t.name}</strong><small>{RARITY_LABEL[RARITIES[t.tier]]} · {has ? t.blurb : `keep a ${RARITY_LABEL[RARITIES[t.tier]]} find`}</small>
+                  {has
+                    ? <button type="button" className="xp-btn" aria-pressed={on} onClick={() => { if (on) setTrophyOff(true); else { setTrophyPick(t.tier); setTrophyOff(false); } }}>{on ? "Take off" : "Wear"}</button>
+                    : <button type="button" className="xp-btn" disabled>Not held</button>}
+                </div>;
+              })}</div>
+            </div>
             <h3>Trails</h3>
             <p className="xp-small">A trail follows your Friend on expeditions.</p>
             {STORE.filter(s => s.kind === "trail").map(s => <TrailItem key={s.id} item={s} />)}
@@ -696,6 +722,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
                   <span>Expeditions <b>{expeditions}</b></span><span title="Sparks, crystals and relic shards picked up · each gives 1 XP">Collected <b>{totalSparks}</b></span>
                   <span className="xp-stat-wide" title="Kept finds add XP to every expedition; selling a find gives its share up">Keepsake bonus <b>{keepText(heldBps)} XP</b> per expedition</span>
                   <span className="xp-stat-wide" title="The rarest kept find (Rare or better) lights a glow under your Friend; selling it dims or ends the glow">Keepsake glow {glow ? <b style={{ color: RARITY_COLOR[RARITIES[glow]] }}>{RARITY_LABEL[RARITIES[glow]]} · {FINDS[LOCATIONS.find(l => heldAt(l, glow) > 0n) ?? "forest"][glow].name}</b> : <b>none yet · keep a Rare or better find</b>}</span>
+                  <span className="xp-stat-wide" title="Kept Rare or better finds give your Friend a trophy to wear; selling the last find of that rarity takes it away">Trophy {trophyTier ? <b style={{ color: RARITY_COLOR[RARITIES[trophyTier]] }}>{TROPHY_NAME[trophyTier]} · worn</b> : <b>{heldTrophies.length ? "taken off · wear it in the Outfitter" : "none yet · keep a Rare or better find to wear its trophy"}</b>}{heldTrophies.length > 1 ? <small> · {heldTrophies.length} held</small> : null}</span>
                   <span className="xp-stat-wide">Best find <b style={bestFind ? { color: RARITY_COLOR[RARITIES[bestFind.i]] } : undefined}>{bestFind ? FINDS[bestFind.loc][bestFind.i].name : "—"}</b></span>
                 </div>
               </div>
@@ -756,7 +783,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <li><b>A few passes first:</b> learn the forest and level up your Friend.</li>
               <li><b>Trail Backpack</b> (4 RF, +1 heart) and <b>Spring Boots</b> (3 RF, double jump) make runs easier; <b>Trail Rations</b> ({rfText(RATION_PRICE)}) add a heart for one expedition.</li>
               <li><b>Cave Lantern</b> (5 RF), then the <b>Ruins Map</b> (8 RF): new places and more XP per pass.</li>
-              <li><b>Keep your rare finds:</b> each one held adds XP to every expedition (rarer is better, up to {keepText(KEEP_CAP_BPS)}), and levels unlock prestige clothes: the Star Cloak at Lv 4, the Golden Crown at Lv 6. Your rarest kept find also lights a glow under your Friend. Sell the common ones when you need RF.</li>
+              <li><b>Keep your rare finds:</b> each one held adds XP to every expedition (rarer is better, up to {keepText(KEEP_CAP_BPS)}), and levels unlock prestige clothes: the Star Cloak at Lv 4, the Golden Crown at Lv 6. Your rarest kept find also lights a glow under your Friend, and every Rare or better find you keep gives it a trophy to wear on its chest. Sell the common ones when you need RF.</li>
               <li><b>Wardrobe and trails</b> are just for looks: try each piece on your own Friend before you buy.</li>
             </ol>
             <p className="xp-small">Nothing you buy changes the odds. A {rfText(definition.price)} pass returns {evText} on average, so play for the adventure, not for profit. Half of every Outfitter purchase is burned, half goes to Friend rewards. Open this guide again with the <b>?</b> button.</p>
@@ -777,7 +804,7 @@ export default function Expeditions({ friendId, client, paused }: GameComponentP
               <span><img src={icons.relic} alt="" width={21} height={21} /> <b>Relic shards</b> in the Sunken Ruins</span>
             </div>
             <p>Everything you pick up on an expedition turns into <b>experience (XP)</b>: 1 XP each, plus a bonus for reaching the chest: forest +{FINISH_XP.forest}, cave +{FINISH_XP.cave}, ruins +{FINISH_XP.ruins} (doubled without a single hit). The total is multiplied by the place (forest ×1, up to ×1.3 in the rain; cave ×{CAVE_XP}; ruins ×{RUINS_XP}): the harder the place, the more XP and by your Friend's perk. XP raises your Friend's <b>level and title</b>: {TITLES.join(" → ")}. Levels 4 and 6 unlock the Star Cloak and the Golden Crown in the Outfitter. Your progress is shown on the hero card in the Collection. Sparks, crystals and shards are not RF and never change what you find.</p>
-            <p><b>Keepsakes:</b> every find you keep instead of selling adds XP to every expedition while you hold it: {RARITIES.slice(1).map((r, i) => `${RARITY_LABEL[r]} ${keepText(KEEP_XP_BPS[i + 1])}`).join(", ")}, up to {keepText(KEEP_CAP_BPS)} in total. Rarer finds give more bonus per RF, so the best ones are worth holding. Selling a find pays its fixed RF and gives its bonus up. The bonus depends on rarity only, so a Rare from the forest, the cave or the ruins gives the same bonus.</p>
+            <p><b>Keepsakes:</b> every find you keep instead of selling adds XP to every expedition while you hold it: {RARITIES.slice(1).map((r, i) => `${RARITY_LABEL[r]} ${keepText(KEEP_XP_BPS[i + 1])}`).join(", ")}, up to {keepText(KEEP_CAP_BPS)} in total. Rarer finds give more bonus per RF, so the best ones are worth holding. Selling a find pays its fixed RF and gives its bonus up. The bonus depends on rarity only, so a Rare from the forest, the cave or the ruins gives the same bonus. From Rare up, a kept find also gives your Friend a <b>trophy</b> to wear on its chest ({TROPHIES.map(t => `${RARITY_LABEL[RARITIES[t.tier]]} ${t.name}`).join(", ")}): never sold, it stays while you keep a find of its rarity.</p>
             <h3>Friend perks</h3>
             <p>Your Friend's family picks its perk; its generation sets the strength: Generation 1 gets rank V, Generation 5 rank I, Generation 6 plays without a perk. Perks help on every expedition (forest, cave and ruins) and with XP; they never change odds, prices or finds. Every hardwired Friend plays the full game with the same odds.</p>
             <table className="xp-odds"><tbody>{["Skeleton", "Mask", "Family", "Cellular", "Asymmetry", "Hoverer", "Colossus", "Sparkling", "Hollow"].map(f => { const p = perkFor(f, 1); return <tr key={f}><td>{f}</td><td><b>{p.perk?.name}</b> <small>{p.text} (at V)</small></td></tr>; })}</tbody></table>

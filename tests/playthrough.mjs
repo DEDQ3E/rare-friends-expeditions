@@ -1,4 +1,5 @@
-// Automated playthrough with the SDK's mock wallet: read the start guide, buy a pass, run the forest, open the chest, sell, shop.
+// Automated playthrough with the SDK's mock wallet: read the start guide, buy a pass, run the forest, open the chest,
+// wear its trophy, sell it (the trophy goes), shop, then the cave and the ruins.
 import { testGame } from "@rarefriends/friendsdk/testing";
 const out = process.argv[2] ?? "/tmp";
 await testGame("./games/expeditions", {
@@ -28,6 +29,13 @@ await testGame("./games/expeditions", {
     await shot("02-board");
     await game.getByRole("button", { name: /^Buy 3/ }).click(); await confirm();
     await game.getByText(/3 expedition passes added/).waitFor();
+    // the first chest is a Rare find: the SDK's preview ledger draws its roll in this (trusted, test) page with
+    // crypto.getRandomValues on one Uint32Array word, so the next such draw returns roll 8000 (Rare: rolls 7700-8999)
+    await page.evaluate(() => {
+      const real = crypto.getRandomValues.bind(crypto);
+      window.__rareOnce = true;
+      crypto.getRandomValues = a => { if (window.__rareOnce && a instanceof Uint32Array && a.length === 1) { window.__rareOnce = false; a[0] = 8000; return a; } return real(a); };
+    });
     await game.getByRole("button", { name: "Set out!" }).click(); await confirm();
     await page.waitForTimeout(1800);
     // jump rhythmically
@@ -36,8 +44,30 @@ await testGame("./games/expeditions", {
     await game.getByRole("dialog").waitFor({ timeout: 30000 });
     await page.waitForTimeout(700);
     await shot("04-reveal");
-    const sell = game.getByRole("button", { name: /^Sell ·/ });
-    if (await sell.count()) { await sell.click(); await confirm(); } else await game.getByRole("button", { name: "Keep it" }).click();
+    // Rare → the Feather Pin: keep it and the Friend wears it; selling the last Rare find takes it away
+    await game.getByText(/^Rare find · 13% chance/).waitFor();
+    await game.getByText("Selling removes your Feather Pin: it stays on your Friend only while you keep a Rare find.").waitFor();
+    await game.getByRole("button", { name: "Keep it to wear the Feather Pin" }).click();
+    await game.getByRole("button", { name: /^Collection/ }).click();
+    await game.getByText("Feather Pin · worn").waitFor();
+    await shot("04b-trophy-worn");
+    await game.getByRole("button", { name: "Close" }).click();
+    await game.getByRole("button", { name: /^Outfitter/ }).click();
+    const pin = game.locator(".xp-wear", { hasText: "Feather Pin" }).getByRole("button");
+    if ((await pin.textContent()) !== "Take off" || (await pin.getAttribute("aria-pressed")) !== "true") throw new Error("the Feather Pin should be worn");
+    if (!(await game.locator(".xp-wear", { hasText: "Scarab Brooch" }).getByRole("button").isDisabled())) throw new Error("the Scarab Brooch needs a Legendary find");
+    await game.getByRole("button", { name: "Close" }).click();
+    await game.getByRole("button", { name: /^Merchant/ }).click();
+    const sellPin = game.getByRole("button", { name: /^Sell 1\s*Selling removes your Feather Pin$/ });
+    await sellPin.waitFor();
+    await shot("04c-merchant-trophy");
+    await sellPin.click(); await confirm();
+    await game.getByText("Sold for 1.5 RF.").waitFor();
+    if (await game.getByText(/Selling removes your Feather Pin/).count()) throw new Error("the trophy warning should go with the last Rare find");
+    await game.getByRole("button", { name: "Close" }).click();
+    await game.getByRole("button", { name: /^Collection/ }).click();
+    await game.getByText("none yet · keep a Rare or better find to wear its trophy").waitFor();
+    await game.getByRole("button", { name: "Close" }).click();
     await game.getByRole("button", { name: /^Outfitter/ }).waitFor();
     await game.getByRole("button", { name: /^Outfitter/ }).click();
     await game.getByRole("button", { name: /Buy · 3 RF/ }).first().click();

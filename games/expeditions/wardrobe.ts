@@ -6,9 +6,10 @@
  * changed, and everything can be taken off to show its original artwork. Clothes are cosmetic only: they never change
  * odds, prices, finds or XP. */
 import { fitFrame, type Fit } from "./fit.js";
+import { TROPHY_NAME } from "./keepsakes.js";
 
 export type Facing = "right" | "left" | "down" | "up";
-export type Slot = "head" | "neck" | "body" | "back" | "feet";
+export type Slot = "head" | "neck" | "body" | "back" | "feet" | "trophy";
 export type Outfit = Readonly<Partial<Record<Slot, string>>>;
 /** `minLevel` (0-based, as in LEVELS) gates prestige pieces behind the Friend's level: XP, including the keepsake bonus
  * for held finds, unlocks the right to spend RF on them. */
@@ -30,8 +31,22 @@ export const WARDROBE: readonly WearItem[] = [
   { id: "starcloak", slot: "back", name: "Star Cloak", price: 6, blurb: "Night blue, stitched with stars", minLevel: 3 },
   { id: "rainboots", slot: "feet", name: "Rain Boots", price: 2, blurb: "Bright boots for puddles" },
 ];
-export const SLOT_LABEL: Readonly<Record<Slot, string>> = { head: "Hats", neck: "Scarves", body: "Tops", back: "Capes", feet: "Boots" };
+export const SLOT_LABEL: Readonly<Record<Slot, string>> = { head: "Hats", neck: "Scarves", body: "Tops", back: "Capes", feet: "Boots", trophy: "Trophies" };
+/** Slots sold at the Outfitter (trophies are not sold: see TROPHIES). */
 export const SLOTS: readonly Slot[] = ["head", "neck", "body", "back", "feet"];
+
+/** Trophies (keepsakes.ts): one per rarity from Rare up, worn on the chest while the Friend keeps a find of that
+ * rarity. Never sold for RF; the colours follow the keepsake glow (Rare blue, Epic purple, Legendary gold, Mythic
+ * rainbow). Each is a few pixels on the Friend's chest, drawn only on inner pixels of its own silhouette, so its
+ * outline and halo stay untouched. */
+export type Trophy = Readonly<{ id: string; slot: "trophy"; name: string; tier: number; blurb: string }>;
+export const TROPHIES: readonly Trophy[] = [
+  { id: "featherpin", slot: "trophy", name: TROPHY_NAME[3], tier: 3, blurb: "A blue feather on a pin" },
+  { id: "amberamulet", slot: "trophy", name: TROPHY_NAME[4], tier: 4, blurb: "Purple amber in a setting" },
+  { id: "scarabbrooch", slot: "trophy", name: TROPHY_NAME[5], tier: 5, blurb: "A golden scarab brooch" },
+  { id: "heartpendant", slot: "trophy", name: TROPHY_NAME[6], tier: 6, blurb: "A heart in every colour" },
+];
+export const trophyByTier = (tier: number) => TROPHIES.find(t => t.tier === tier) ?? null;
 
 const INK = "#1c1c1c";
 
@@ -183,6 +198,45 @@ function boots(f: Fit): Pixels {
   return pix;
 }
 
+/** Trophy patterns on a 3 × 3 grid (anchor = centre), drawn facing right; `.` is empty. The Heart Pendant cycles
+ * through the rainbow. */
+const RAINBOW = ["#ff4d6d", "#ffb52e", "#ffd23f", "#5ccb5f", "#4aa3ff", "#b86bff"];
+const TROPHY_ART: Readonly<Record<string, Readonly<{ rows: readonly string[]; pal: Readonly<Record<string, string>> }>>> = {
+  featherpin: { rows: ["..a", ".b.", "c.."], pal: { a: "#dff0ff", b: "#4aa3ff", c: "#9fd0ff" } },
+  amberamulet: { rows: [".a.", "aba", ".a."], pal: { a: "#b86bff", b: "#f0dcff" } },
+  scarabbrooch: { rows: ["a.a", "bcb", ".b."], pal: { a: "#e0a820", b: "#ffb52e", c: "#fff0a8" } },
+  heartpendant: { rows: ["a.b", "cde", ".f."], pal: {} },
+};
+
+/** Inner pixels of the Friend: its own pixel with all four neighbours also its own, so nothing on them can touch
+ * the outline or the white halo. */
+function inner(f: Fit, i: number, j: number) {
+  return !!(f.mask[j]?.[i] && f.mask[j]?.[i - 1] && f.mask[j]?.[i + 1] && f.mask[j - 1]?.[i] && f.mask[j + 1]?.[i]);
+}
+
+function trophy(id: string, f: Fit, facing: Facing, clock: number): Pixels {
+  const pix: Pixels = new Map(), art = TROPHY_ART[id];
+  if (!art || facing === "up") return pix; // worn on the chest: not seen from behind
+  const flip = facing === "left", [t, b] = torso(f);
+  const cells: [number, number, string][] = [];
+  art.rows.forEach((r, dj) => [...r].forEach((ch, di) => { if (ch !== ".") cells.push([(flip ? 2 - di : di) - 1, dj - 1, ch]); }));
+  // the chest: just below the neck, at the front of the body when side-on, in the middle when facing us
+  const want = (j: number) => { const s = f.spans[j]; return !s ? f.cx : facing === "right" ? s.r - 2 : facing === "left" ? s.l + 2 : Math.round((s.l + s.r) / 2); };
+  let best: { i: number; j: number; n: number; d: number } | null = null;
+  for (let j = Math.max(t, f.neckRow + 1); j <= Math.max(b, f.neckRow + 2); j++) for (let i = 0; i < 16; i++) {
+    const n = cells.filter(([di, dj]) => inner(f, i + di, j + dj)).length;
+    const d = Math.abs(i - want(j)) + 2 * (j - t);
+    if (n && (!best || n > best.n || (n === best.n && d < best.d))) best = { i, j, n, d };
+  }
+  if (!best) return pix;
+  const shift = Math.floor(clock * 4);
+  cells.forEach(([di, dj, ch], k) => {
+    const i = best!.i + di, j = best!.j + dj;
+    if (inner(f, i, j)) set(pix, i, j, id === "heartpendant" ? RAINBOW[(k + shift) % RAINBOW.length] : art.pal[ch]);
+  });
+  return pix;
+}
+
 /** Draw the outfit over a Friend frame drawn at (x, y). Call after the Friend itself. */
 export function drawOutfit(ctx: CanvasRenderingContext2D, rows: readonly string[], x: number, y: number, outfit: Outfit | undefined, facing: Facing, clock = 0, moving = false) {
   if (!outfit) return;
@@ -191,5 +245,6 @@ export function drawOutfit(ctx: CanvasRenderingContext2D, rows: readonly string[
   if (outfit.body) paint(ctx, x, y, f, top(outfit.body, f, facing), false);
   if (outfit.feet === "rainboots") paint(ctx, x, y, f, boots(f), false);
   if (outfit.neck === "scarf") paint(ctx, x, y, f, scarf(f, facing, clock, moving), false);
+  if (outfit.trophy) paint(ctx, x, y, f, trophy(outfit.trophy, f, facing, clock), false);
   if (outfit.head) paint(ctx, x, y, f, hat(outfit.head, f, facing, clock), true, rows);
 }

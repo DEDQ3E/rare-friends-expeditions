@@ -1,10 +1,11 @@
-// README screenshots with the SDK's mock wallet: camp, the expedition board, the three places, the economy panel, the wardrobe, a phone view.
+// README screenshots with the SDK's mock wallet: camp, the expedition board, the three places, the economy panel, the wardrobe,
+// a phone view and a Friend wearing a trophy. Usage: node tests/media.mjs [outDir] [trophy] (with "trophy": only that shot).
 import { testGame } from "@rarefriends/friendsdk/testing";
-const out = process.argv[2] ?? "./media";
+const out = process.argv[2] ?? "./media", only = process.argv[3];
 const skipGuide = async game => { await game.getByRole("heading", { name: /^Guide/ }).waitFor(); await game.getByRole("button", { name: "Close" }).click(); };
 const hideHint = async game => { const x = game.getByRole("button", { name: "Hide this hint" }); if (await x.count()) await x.first().click(); };
 
-await testGame("./games/expeditions", {
+if (!only) await testGame("./games/expeditions", {
   timeout: 240000,
   check: async ({ page, game }) => {
     const shot = async name => { await page.waitForTimeout(300); await page.locator("#root").screenshot({ path: `${out}/${name}.png` }); };
@@ -66,7 +67,7 @@ await testGame("./games/expeditions", {
 });
 
 // wardrobe: dress the Friend (wizard hat, scarf, cape), then the Outfitter wardrobe and the camp
-await testGame("./games/expeditions", {
+if (!only) await testGame("./games/expeditions", {
   timeout: 90000,
   check: async ({ page, game }) => {
     const shot = async name => { await page.waitForTimeout(300); await page.locator("#root").screenshot({ path: `${out}/${name}.png` }); };
@@ -85,7 +86,7 @@ await testGame("./games/expeditions", {
 });
 
 // phone held sideways: camp and the expedition board in the compact layout
-await testGame("./games/expeditions", {
+if (!only) await testGame("./games/expeditions", {
   width: 844, height: 390, timeout: 60000,
   check: async ({ page, game }) => {
     await game.getByRole("button", { name: "Turn sound off" }).waitFor();
@@ -93,6 +94,32 @@ await testGame("./games/expeditions", {
     await game.getByRole("button", { name: /^Expeditions/ }).first().click();
     await page.waitForTimeout(400);
     await page.locator("#root").screenshot({ path: `${out}/phone-board.png` });
+  },
+});
+// trophy: a Legendary find kept, so the Friend wears the Scarab Brooch (and the gold keepsake glow) in the camp. The SDK's
+// preview ledger draws its roll in this test page with crypto.getRandomValues on one Uint32Array word: the next such
+// draw returns roll 9700 (Legendary: rolls 9600-9899).
+if (!only || only === "trophy") await testGame("./games/expeditions", {
+  timeout: 120000,
+  check: async ({ page, game }) => {
+    const confirm = () => page.getByRole("button", { name: "Confirm preview" }).click();
+    await game.getByRole("button", { name: "Turn sound off" }).waitFor();
+    await skipGuide(game);
+    await game.getByRole("button", { name: "Turn sound off" }).click();
+    await hideHint(game);
+    await page.evaluate(() => {
+      const real = crypto.getRandomValues.bind(crypto);
+      window.__legendaryOnce = true;
+      crypto.getRandomValues = a => { if (window.__legendaryOnce && a instanceof Uint32Array && a.length === 1) { window.__legendaryOnce = false; a[0] = 9700; return a; } return real(a); };
+    });
+    await game.getByRole("button", { name: /^Expeditions/ }).first().click();
+    await game.getByRole("button", { name: /^Buy 1 pass/ }).click(); await confirm();
+    await game.getByRole("button", { name: "Set out!" }).click(); await confirm();
+    await game.getByRole("dialog").waitFor({ timeout: 90000 });
+    await game.getByRole("button", { name: "Keep it to wear the Scarab Brooch" }).click();
+    await hideHint(game);
+    await page.waitForTimeout(1500);
+    await page.locator("#root").screenshot({ path: `${out}/trophy.png` });
   },
 });
 console.log("media ok");

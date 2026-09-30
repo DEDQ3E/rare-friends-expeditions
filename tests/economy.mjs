@@ -1,12 +1,13 @@
 // Economy tests: exact odds over all 10,000 rolls, expected return, reserve, keepsake bonus curve and glow,
 // exact session statistics, the 1,000-player model, the Outfitter catalog, placeholder prices that scale together,
-// and that every published table (READMEs) matches game.json, scripts/sessions.mjs and scripts/economy-model.mjs.
+// trophies, the 30-day model with its stress tests, and that every published table (READMEs) matches game.json,
+// scripts/sessions.mjs and scripts/economy-model.mjs.
 // Needs Node.js 22.18+ (imports keepsakes.ts directly).
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { sessions } from "../scripts/sessions.mjs";
-import { PLAYERS, RATION_RF, SCENARIOS, loadDefinition, model, table } from "../scripts/economy-model.mjs";
-import { GLOW_MIN_TIER, KEEP_CAP_BPS, KEEP_XP_BPS, glowAfterSelling, glowTier, keepsakeBps } from "../games/expeditions/keepsakes.ts";
+import { DAYS, FUNDING, PLAYERS, RATION_RF, SCENARIOS, STRESS, loadDefinition, model, runs30, simulate, table, table30 } from "../scripts/economy-model.mjs";
+import { GLOW_MIN_TIER, KEEP_CAP_BPS, KEEP_XP_BPS, TROPHY_NAME, glowAfterSelling, glowTier, keepsakeBps, sellingRemovesTrophy, trophyTiers, wornTrophy } from "../games/expeditions/keepsakes.ts";
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const game = JSON.parse(read("games/expeditions/game.json"));
@@ -67,6 +68,24 @@ test("keepsake glow: the rarest kept find from Rare up; selling the last one dim
   assert.equal(glowAfterSelling([0n, 0n, 0n, 0n, 1n, 0n, 0n], 4, 1n), 0, "selling the only Epic puts it out");
 });
 
+test("trophies: one per rarity from Rare up, held while a find of that rarity is kept, never for sale", () => {
+  assert.deepEqual(Object.keys(TROPHY_NAME).map(Number), [3, 4, 5, 6]);
+  assert.deepEqual(Object.values(TROPHY_NAME), ["Feather Pin", "Amber Amulet", "Scarab Brooch", "Heart Pendant"]);
+  assert.deepEqual(trophyTiers([9n, 9n, 9n, 0n, 0n, 0n, 0n]), []);
+  assert.deepEqual(trophyTiers([0n, 0n, 0n, 1n, 0n, 2n, 0n]), [3, 5]);
+  const inv = [0n, 0n, 0n, 1n, 0n, 2n, 0n];
+  assert.equal(wornTrophy(inv, null, false), 5, "the rarest held trophy is worn by default");
+  assert.equal(wornTrophy(inv, 3, false), 3, "a held trophy can be picked");
+  assert.equal(wornTrophy(inv, 4, false), 5, "a trophy that is not held cannot be worn");
+  assert.equal(wornTrophy(inv, null, true), 0, "taken off");
+  assert.equal(sellingRemovesTrophy(inv, 3, 1n), true, "selling the only Rare removes the Feather Pin");
+  assert.equal(sellingRemovesTrophy(inv, 5, 1n), false, "one Legendary left keeps the Scarab Brooch");
+  assert.equal(sellingRemovesTrophy(inv, 5, 2n), true);
+  assert.equal(sellingRemovesTrophy([0n, 3n, 0n, 0n, 0n, 0n, 0n], 1, 3n), false, "Commons have no trophy");
+  const wardrobe = read("games/expeditions/wardrobe.ts").match(/export const WARDROBE[\s\S]*?\n\];/)[0];
+  assert.ok(!/trophy/.test(wardrobe), "trophies are not in the Outfitter catalog");
+});
+
 // "| Acorn | Common | 35% | 0.4 RF |" rows in the published tables
 const tableRows = text => [...text.matchAll(/^\| ([A-Z][\w ]+?) \| (Junk|Common|Uncommon|Rare|Epic|Legendary|Mythic) \| (\d+)%[^|]*\| (—|[\d.]+ RF) \|/gm)]
   .map(m => ({ rarity: m[2], chance: Number(m[3]), pays: m[4] === "—" || m[4] === "0 RF" ? 0 : Number(m[4].replace(" RF", "")) }));
@@ -113,6 +132,57 @@ test("1,000-player model: flows add up, stake covers the reserve, burn is 7–10
 
 test("submission/README.md: 1,000-player table matches scripts/economy-model.mjs", () => {
   assert.ok(read("submission/README.md").includes(table(loadDefinition())));
+});
+
+test("30 days: the bank never goes below zero, in every scenario and stress test", () => {
+  const runs = runs30(loadDefinition());
+  assert.equal(runs.length, 6);
+  for (const [name, r] of runs) {
+    assert.ok(r.solvent && r.minFree >= 0, `${name}: lowest free stake ${r.minFree}`);
+    assert.ok(r.log.every(d => d.free >= 0 && d.stake >= 0), `${name}: a day below zero`);
+    assert.equal(r.log.length, DAYS);
+  }
+});
+
+test("30 days: flows add up (stake = funding + passes − finds paid − edge burned) and match the daily model", () => {
+  const def = loadDefinition(), ev = 0.9;
+  for (const [name, r] of runs30(def)) {
+    const paid = r.played * ev - r.held;
+    assert.ok(Math.abs(r.stake - (FUNDING + r.played * def.price - paid - r.played * (def.price - ev) * 0.5)) < 1e-4, `${name}: stake`);
+  }
+  for (const [name, sc] of Object.entries(SCENARIOS)) {
+    const day = model(def, sc), r = simulate(def, sc);
+    assert.equal(r.refused, 0, `${name}: every player is served`);
+    assert.ok(Math.abs(r.burned - DAYS * day.burned) < 1e-4, `${name}: burned = 30 × the daily burn`);
+    assert.ok(Math.abs(r.held - day.locked) < 1e-4, `${name}: held finds on day 30 = the steady-state backing`);
+  }
+});
+
+test("30-day stress tests: a selling rush, nobody selling, and 10× the players", () => {
+  const def = loadDefinition(), runs = Object.fromEntries(runs30(def)), base = runs.Base;
+  const [rush, hodl, crowd] = Object.keys(STRESS).map(k => runs[k]);
+  assert.equal(rush.held, 0, "after the rush no find is left unpaid");
+  assert.ok(rush.redeemed > base.redeemed, "the rush pays out every kept find");
+  assert.ok(Math.abs(hodl.held - hodl.played * 0.9) < 1e-4, "nobody sells: every find stays backed");
+  assert.equal(hodl.redeemed, 0);
+  assert.ok(crowd.refused > 0 && crowd.played > base.played, "10× players: more passes, and the contract refuses what it cannot back");
+  assert.ok(crowd.log.every(d => d.served <= STRESS[Object.keys(STRESS)[2]].players));
+  assert.ok(crowd.log[DAYS - 1].served > crowd.log[0].served, "the edge grows the bank, so it serves more players over time");
+});
+
+test("submission/README.md: the headline numbers under the play link match game.json and the models", () => {
+  const def = loadDefinition(), day = model(def, SCENARIOS.Base), month = simulate(def, SCENARIOS.Base), runs = runs30(def);
+  const n = v => Math.round(v).toLocaleString("en-US");
+  const head = read("submission/README.md").split("\n").find(l => l.startsWith("**Economy in numbers:"));
+  assert.ok(head, "headline line");
+  for (const part of ["a 1 RF pass pays back 0.90 RF on average (10% edge, 10 RF top prize", "50% of every Outfitter RF is burned",
+    `${n(day.burned)} RF burned a day`, `${n(month.burned)} RF in 30 days`, `${n(month.held)} RF held in kept finds`, `any of the ${["", "", "", "", "", "", "six"][runs.length]} 30-day runs`])
+    assert.ok(head.includes(part), `headline: ${part}`);
+  assert.ok(runs.every(([, r]) => r.solvent));
+});
+
+test("README.md and submission/README.md: 30-day table matches scripts/economy-model.mjs", () => {
+  for (const file of ["README.md", "submission/README.md"]) assert.ok(read(file).includes(table30(loadDefinition())), file);
 });
 
 test("Trail Rations cost 0.2 RF in the game and in the model", () => {
