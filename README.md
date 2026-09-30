@@ -6,8 +6,13 @@ or sell back for RF. Kept finds add XP to every expedition (hold or redeem), and
 trails, Trail Rations and a 13-piece wardrobe fitted to your own Friend (two pieces unlock with the Friend's level)
 as a pure RF sink (50% burn / 50% rewards).
 
-**Play the preview:** https://dedq3e.github.io/rare-friends-expeditions/ · **Demo video (1 min):** https://dedq3e.github.io/rare-friends-expeditions/demo.mp4
+**Play the preview:** https://dedq3e.github.io/rare-friends-expeditions/
 (needs a browser wallet on Robinhood mainnet, chain 4663, holding a hardwired Rare Friends Generations NFT, generation ≥ 1)
+
+**Gameplay video (1 min):** the camp, the Whispering Forest, the Crystal Cave and the Sunken Ruins
+([MP4 file](https://dedq3e.github.io/rare-friends-expeditions/demo.mp4)):
+
+https://github.com/user-attachments/assets/80c94543-b745-46f0-9923-56c8511960c1
 
 On a phone, open the link in your wallet app's built-in browser (MetaMask → Browser, Trust Wallet → Browser) and hold the phone sideways.
 

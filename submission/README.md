@@ -1,8 +1,12 @@
 # Rare Friends: Expeditions
 
-![Night camp with a Friend in a wizard hat, scarf and cape](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/camp-dressed.png)
+🕹️ **Play: https://dedq3e.github.io/rare-friends-expeditions/**
 
-🕹️ **Play: https://dedq3e.github.io/rare-friends-expeditions/** · 🎬 **[Demo video, 1 min](https://dedq3e.github.io/rare-friends-expeditions/demo.mp4)**
+🎬 **Gameplay video, 1 min** (camp and Expedition board, Whispering Forest, Crystal Cave, Sunken Ruins, each run ending at its chest; recorded with the SDK's mock wallet · [MP4 file](https://dedq3e.github.io/rare-friends-expeditions/demo.mp4)):
+
+https://github.com/user-attachments/assets/80c94543-b745-46f0-9923-56c8511960c1
+
+![Night camp with a Friend in a wizard hat, scarf and cape](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/camp-dressed.png)
 
 **Project name**
 Rare Friends: Expeditions
