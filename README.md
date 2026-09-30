@@ -9,10 +9,10 @@ as a pure RF sink (50% burn / 50% rewards).
 **Play the preview:** https://dedq3e.github.io/rare-friends-expeditions/
 (needs a browser wallet on Robinhood mainnet, chain 4663, holding a hardwired Rare Friends Generations NFT, generation ≥ 1)
 
-**Gameplay video (1 min):** the camp, the Whispering Forest, the Crystal Cave and the Sunken Ruins
+**Gameplay video with sound (59 s):** the camp, the Whispering Forest, the Crystal Cave and the Sunken Ruins
 ([MP4 file](https://dedq3e.github.io/rare-friends-expeditions/demo.mp4)):
 
-https://github.com/user-attachments/assets/80c94543-b745-46f0-9923-56c8511960c1
+https://github.com/user-attachments/assets/95c689d1-fd6c-438c-8f66-f6f8ad552ca0
 
 On a phone, open the link in your wallet app's built-in browser (MetaMask → Browser, Trust Wallet → Browser) and hold the phone sideways.
 
@@ -95,7 +95,7 @@ npm run wardrobe                        # every clothing piece fitted on 10 body
 npm run sessions                        # exact session statistics behind the submission's table
 npm run model                           # daily RF flows for 1,000 players (three scenarios)
 npm run build                           # static build into docs/ (GitHub Pages); keeps .nojekyll and the demo video
-npm run demo                            # records the 1-minute gameplay video into docs/demo.mp4 (also needs npm install --no-save ffmpeg-static)
+npm run demo                            # records the 1-minute gameplay video with sound into docs/demo.mp4 (needs Microsoft Edge and npm install --no-save ffmpeg-static)
 ```
 
 The automated tests use the SDK's mock wallet. Every published build is also played by hand with a real wallet on
