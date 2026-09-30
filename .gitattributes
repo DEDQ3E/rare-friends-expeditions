@@ -1,5 +1,5 @@
 # Keep LF line endings on every platform, so checkouts match the repository byte for byte.
 * text=auto eol=lf
 *.png binary
-*.webm binary
+*.mp4 binary
 *.tgz binary

@@ -2,7 +2,7 @@
 
 ![Night camp with a Friend in a wizard hat, scarf and cape](https://raw.githubusercontent.com/DEDQ3E/rare-friends-expeditions/main/media/camp-dressed.png)
 
-🕹️ **Play: https://dedq3e.github.io/rare-friends-expeditions/** · 🎬 **[Demo video, 1 min](https://dedq3e.github.io/rare-friends-expeditions/demo.webm)**
+🕹️ **Play: https://dedq3e.github.io/rare-friends-expeditions/** · 🎬 **[Demo video, 1 min](https://dedq3e.github.io/rare-friends-expeditions/demo.mp4)**
 
 **Project name**
 Rare Friends: Expeditions
