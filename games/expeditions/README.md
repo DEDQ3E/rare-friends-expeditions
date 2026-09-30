@@ -286,7 +286,7 @@ chest bonus XP, but the find is still delivered. Skill pays in XP only.
 | Wardrobe (13 pieces) | 2–8 RF each | cosmetic clothes fitted to your Friend; Star Cloak from Lv 4, Golden Crown from Lv 6 (see "Friend artwork and wardrobe") |
 | Trail Rations | 0.2 RF each | +1 heart on the next expedition in any place, used up when the Friend sets out (repeatable) |
 
-Outfitter purchases are never refunded. The proposed split mirrors the Rare Friends protocol rule:
+Outfitter purchases are never refunded. Proposed split (our design, simulated):
 **50% burned, 50% to Friend rewards**. FriendSDK v0.1.4 has no upgrade/cosmetic API, so these
 purchases are simulated on top of the SDK ledger and last for the session. None of them change RF odds.
 

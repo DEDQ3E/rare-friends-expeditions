@@ -5,7 +5,7 @@
 // recordVideo and full motion instead. Usage: node tests/demo.mjs
 import { chromium } from "playwright";
 import { testGame } from "@rarefriends/friendsdk/testing";
-import { copyFileSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { copyFileSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const W = 1280, H = 800, dir = ".build-video";
@@ -14,8 +14,10 @@ mkdirSync(dir, { recursive: true });
 for (const f of readdirSync(dir)) try { rmSync(join(dir, f)); } catch { /* still locked */ }
 const launch = chromium.launch.bind(chromium);
 chromium.launch = async options => {
-  const browser = await launch(options), newContext = browser.newContext.bind(browser);
+  const browser = await launch(options), newContext = browser.newContext.bind(browser), close = browser.close.bind(browser);
   browser.newContext = o => newContext({ ...o, reducedMotion: "no-preference", recordVideo: { dir, size: { width: W, height: H } } });
+  // closing the contexts first makes Playwright finish writing the video before the browser goes away
+  browser.close = async () => { for (const c of browser.contexts()) await c.close(); return close(); };
   return browser;
 };
 
@@ -70,6 +72,10 @@ await testGame("./games/expeditions", {
 
 const video = readdirSync(dir).find(f => f.endsWith(".webm"));
 if (!video) throw new Error("no video was recorded");
+// copy only once the file has stopped growing, so the published video is never cut short
+for (let last = -1, size = statSync(join(dir, video)).size; size !== last; size = statSync(join(dir, video)).size) {
+  last = size; await new Promise(r => setTimeout(r, 2000));
+}
 copyFileSync(join(dir, video), "docs/demo.webm");
 try { rmSync(dir, { recursive: true, force: true }); } catch { /* the browser may still hold the file for a moment */ }
 console.log("demo video: docs/demo.webm");
