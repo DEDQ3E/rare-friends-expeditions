@@ -229,7 +229,7 @@ screen, the Merchant, the hero card and the Economy panel show the bonus.
 
 **Keepsake glow** (`glow.ts`): the rarest kept find, from Rare up, lights a ring of light under the Friend's
 feet and a few rising motes in its colour: Rare blue, Epic purple, Legendary gold (sparkles), Mythic rainbow.
-It shows in the camp and in all three places, on the hero card, and on the chest screen ("Keep it · gold glow").
+It shows in the camp and in all three places, on the hero card, and on the chest screen (its sell button says when selling would dim the glow or put it out).
 Selling the last find of that rarity dims it to the next rarest or puts it out; the Merchant and the chest screen
 say so before you sell. It is drawn under the Friend, right before the Friend is redrawn over weather and darkness,
 so it never covers or tints the Friend. `npm run wardrobe` checks that it appears only from Rare up, stays at the
